@@ -24,7 +24,8 @@ export function initBotanicalDepth(root=globalThis.document,env=globalThis){
  for(const element of root.querySelectorAll("[data-botanical-tilt]")){
    const kind=element.dataset.botanicalTilt;
    if(!Object.hasOwn(botanicalScenePreset,kind)||element.__marshAtropos)continue;
-   const instance=Atropos({el:element,...botanicalScenePreset[kind]});
+   const eventsEl=element.closest(".flora-stage,.flora-story-visual")??element;
+   const instance=Atropos({el:element,eventsEl,...botanicalScenePreset[kind]});
    element.__marshAtropos=instance;
    scenes.push(instance);
  }
