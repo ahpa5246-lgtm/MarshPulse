@@ -7,7 +7,7 @@ const errors=[];
 page.on("pageerror",err=>errors.push(String(err)));
 page.on("console",msg=>{if(msg.type()==="error")errors.push(msg.text());});
 try{
-  const res=await page.goto("http://127.0.0.1:8765",{waitUntil:"networkidle"});
+  const res=await page.goto("http://127.0.0.1:8765/lab.html",{waitUntil:"networkidle"});
   assert.equal(res.status(),200,"homepage HTTP status");
   await page.locator("#model-brier").waitFor({state:"visible"});
   await page.waitForFunction(()=>document.getElementById("model-brier").textContent.includes("."));
@@ -40,6 +40,24 @@ try{
   assert.ok(json.training.holdoutSamples>0);
   await page.setViewportSize({width:390,height:844});
   await page.screenshot({path:"artifacts/marshpulse-mobile.png",fullPage:true});
-  assert.equal(errors.length,0,"browser console errors: "+errors.join(" | "));
+  // Validate route boundaries and the actual custom-model journey.
+  await page.goto("http://127.0.0.1:8765/",{waitUntil:"networkidle"});
+  assert.match(await page.locator("h1").textContent(),/تتغيّر/);
+  assert.equal(await page.locator('.path-grid .path').count(),3);
+  await page.setViewportSize({width:1440,height:950});
+  await page.screenshot({path:"artifacts/marshpulse-home-desktop.png",fullPage:true});
+  await page.setViewportSize({width:390,height:844});
+  await page.screenshot({path:"artifacts/marshpulse-home-mobile.png",fullPage:true});
+  await page.goto("http://127.0.0.1:8765/model.html",{waitUntil:"networkidle"});
+  assert.match(await page.locator("h1").textContent(),/MarshNet/);
+  await page.locator("#epochs").selectOption("15");
+  await page.locator("#train-model").click();
+  await page.waitForFunction(()=>!document.getElementById("training-results").hidden,{timeout:60000});
+  assert.equal(await page.locator("#download-weights").isDisabled(),false);
+  assert.ok(Number(await page.locator("#net-brier").textContent())>=0);
+  await page.screenshot({path:"artifacts/marshpulse-model.png",fullPage:true});
+  await page.goto("http://127.0.0.1:8765/methods.html",{waitUntil:"networkidle"});
+  assert.equal(await page.locator(".timeline li").count(),5);
+    assert.equal(errors.length,0,"browser console errors: "+errors.join(" | "));
   console.log("BROWSER_SMOKE_SUCCESS: desktop/mobile maps, scenario controls, CSV import and JSON export verified");
 }finally{await browser.close();}
