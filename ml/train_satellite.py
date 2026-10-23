@@ -8,13 +8,13 @@ from torch import nn
 from torch.utils.data import Dataset,DataLoader
 from marshnet_v2 import MarshNetV2,wet_pseudolabel,masked_bce_dice,evaluate_binary,BANDS
 class Windows(Dataset):
-    def __init__(self,cube,targets,lookback,augment=False):
-        self.cube=cube;self.targets=targets;self.lookback=lookback;self.augment=augment
+    def __init__(self,cube,originals,targets,lookback,augment=False):
+        self.cube=cube;self.originals=originals;self.targets=targets;self.lookback=lookback;self.augment=augment
     def __len__(self):return len(self.targets)
     def __getitem__(self,index):
         t=self.targets[index]
         x=torch.from_numpy(self.cube[t-self.lookback:t].copy())
-        y,v=wet_pseudolabel(torch.from_numpy(self.cube[t]))
+        y,v=wet_pseudolabel(torch.from_numpy(self.originals[t]))
         if self.augment:
             if random.random()<.5:x=x.flip(-1);y=y.flip(-1);v=v.flip(-1)
             if random.random()<.5:x=x.flip(-2);y=y.flip(-2);v=v.flip(-2)
@@ -52,7 +52,7 @@ def train(args):
     normalized=cube.copy()
     for k in range(6):
         normalized[:,k]=np.where(cube[:,6]>.5,(cube[:,k]-mean[k])/std[k],0.)
-    sets=[Windows(normalized,inds,args.lookback,i==0) for i,inds in enumerate([tr,va,te])]
+    sets=[Windows(normalized,cube,inds,args.lookback,i==0) for i,inds in enumerate([tr,va,te])]
     loaders=[DataLoader(s,batch_size=args.batch,shuffle=i==0,num_workers=0) for i,s in enumerate(sets)]
     device=torch.device("cuda" if torch.cuda.is_available() and not args.cpu else "cpu")
     model=MarshNetV2(base=args.base).to(device)
