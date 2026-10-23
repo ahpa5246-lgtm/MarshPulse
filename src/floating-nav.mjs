@@ -36,6 +36,11 @@ export const FLOAT_CHAPTERS={
   {selector:".inner-intro",id:"methods-intro",label:"المقدمة"},
   {selector:".main-stack.two-col",id:"methods-process",label:"خطوات البحث"},
   {selector:".study-note",id:"methods-limitations",label:"حدود النتائج"}
+ ],
+ "monitor.html":[
+  {selector:".real-monitor-hero",id:"monitor-introduction",label:"الرصد الحقيقي"},
+  {selector:"#observed-record",id:"observed-record",label:"سجل المياه"},
+  {selector:"#science-check",id:"science-check",label:"موثوقية النموذج"}
  ]
 };
 const NS="http://www.w3.org/2000/svg";
@@ -99,7 +104,7 @@ function makeDock(doc,route,chapters){
   a.href="./"+page.path;a.setAttribute("aria-label",page.label);
   a.appendChild(createIcon(doc,page.icon));
   a.appendChild(node(doc,"span","floating-dock__page-text",page.short));
-  if(route===page.path){a.classList.add("is-current");a.setAttribute("aria-current","page");}
+  if(route===page.path||(route==="monitor.html"&&page.path==="lab.html")){a.classList.add("is-current");a.setAttribute("aria-current","page");}
   routeLinks.appendChild(a);
  }
  dock.appendChild(routeLinks);
