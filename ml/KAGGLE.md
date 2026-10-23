@@ -1,3 +1,9 @@
+# Important: new image-based V2 training
+
+For the new stronger spatial-temporal ConvGRU architecture and **real Sentinel-2 acquisition**, use the [MarshNet V2 Hawizeh Kaggle notebook](../kaggle/marshnet_v2_hawizeh.ipynb), [collector](collect_sentinel.py) and [trainer](train_satellite.py). V2 outputs a PyTorch `marshnet_v2.pt` checkpoint. The commands below are for the **older lightweight M1** CSV baseline and will not train V2. The first genuine V2 pilot run is [documented with a negative baseline result](../research/experiments/hawizeh-v2-real-s2-2024-2025.json).
+
+---
+
 # MarshNet — Kaggle reproducibility
 
 The trainable architecture lives in ml/train.py. It updates real PyTorch weights and exports best.pt, marshnet.json and metrics.json. The objective is next-month water-presence classification, **not** solar-filament segmentation.
