@@ -7,6 +7,7 @@ import torch
 from torch import nn
 from torch.utils.data import Dataset,DataLoader
 from marshnet_v2 import MarshNetV2,wet_pseudolabel,masked_bce_dice,evaluate_binary,BANDS
+from quality_gate import audit_cube,benchmark_temporal,readiness_verdict
 class Windows(Dataset):
     def __init__(self,cube,originals,targets,lookback,augment=False):
         self.cube=cube;self.originals=originals;self.targets=targets;self.lookback=lookback;self.augment=augment
@@ -42,6 +43,8 @@ def train(args):
     if list(bands)!=list(BANDS):raise ValueError("Wrong channel names/order")
     if cube.shape[-1]%4 or cube.shape[-2]%4:raise ValueError("Image dimensions must be multiple of 4")
     if not np.isfinite(cube).all() or not np.isin(cube[:,6],[0,1]).all():raise ValueError("Invalid image/quality flags")
+    audit=audit_cube(cube,dates,minimum_observed=args.min_valid)
+    print("WATER-PROXY QUALITY:",json.dumps({k:v for k,v in audit.items() if k!="months"}),flush=True)
     random.seed(args.seed);np.random.seed(args.seed);torch.manual_seed(args.seed)
     torch.set_num_threads(min(4,torch.get_num_threads()))
     tr,va,te=split_targets(len(cube),args.lookback)
@@ -49,6 +52,14 @@ def train(args):
     va=[t for t in va if cube[t,6].mean()>=args.min_valid]
     te=[t for t in te if cube[t,6].mean()>=args.min_valid]
     if min(map(len,(tr,va,te)))<2:raise ValueError("Insufficient *observed* months in one of the chronological splits")
+    # Estimate class imbalance strictly from TRAIN target images.
+    train_wet=np.logical_and.reduce((cube[tr,5]>.1,cube[tr,4]<.3,cube[tr,6]>.5))
+    train_valid=cube[tr,6]>.5
+    positive_count=int(train_wet.sum());negative_count=int(train_valid.sum())-positive_count
+    pos_weight=float(np.clip(negative_count/max(positive_count,1),1.,8.))
+    if positive_count==0:
+        print("WARNING: no wet examples in the training split; cannot learn wet classification",flush=True)
+    print(f"TRAIN WATER CLASS: wet={positive_count} dry={negative_count} weight={pos_weight:.2f}",flush=True)
     # No validation/test information used in normalization.
     observed=cube[:min(va),6]>.5;mean=[];std=[]
     for channel in range(6):
@@ -70,7 +81,7 @@ def train(args):
         for xb,yb,vb,_ in loaders[0]:
             xb,yb,vb=xb.to(device),yb.to(device),vb.to(device)
             optimizer.zero_grad(set_to_none=True)
-            loss=masked_bce_dice(model(xb),yb,vb);loss.backward()
+            loss=masked_bce_dice(model(xb),yb,vb,pos_weight=pos_weight);loss.backward()
             nn.utils.clip_grad_norm_(model.parameters(),1.0);optimizer.step();losses.append(loss.item())
         scheduler.step();model.eval();pp=[];yy=[];vv=[]
         with torch.no_grad():
@@ -93,6 +104,8 @@ def train(args):
                 prior,prior_valid=wet_pseudolabel(torch.from_numpy(cube[t-1]))
                 baselines.append(prior);fairm.append(prior_valid*vb[j]);periods.append(dates[t])
     p=torch.cat(probs);y=torch.cat(truth);v=torch.cat(valid);b=torch.stack(baselines);fair=torch.stack(fairm)
+    baseline_three_way=benchmark_temporal(cube,te,p.numpy())
+    verdict=readiness_verdict(baseline_three_way,audit)
     report={"status":"SYNTHETIC SMOKE ONLY" if args.synthetic_smoke else "SATELLITE PROXY / UNVERIFIED LABELS",
             "label_definition":"MNDWI>0.1 and NDVI<0.3 from *future observed satellite images*; not field ground truth",
             "dataset_sha256":digest,"dates":dates,"test_months":periods,
@@ -101,6 +114,10 @@ def train(args):
             "model_same_pixels_as_baseline":evaluate_binary(p,y,fair),
             "persistence_same_pixels_as_model":evaluate_binary(b,y,fair),
             "best_epoch":best_epoch,"history":history,"params":sum(x.numel() for x in model.parameters()),
+            "quality_audit":audit,"class_weight_from_train_only":pos_weight,
+            "train_proxy_wet_pixels":positive_count,"train_proxy_dry_pixels":negative_count,
+            "same_pixel_model_vs_both_baselines":baseline_three_way,
+            "scientific_readiness_gate":verdict,
             "model_config":model.config,
             "limitations":["No field survey labels","One pilot location; no held-out region",
                            "Cloud censoring could bias scores","No real hydraulic intervention modeled"]}
@@ -108,7 +125,9 @@ def train(args):
     torch.save({"state":best_state,"config":model.config,"mean":mean,"std":std,
                 "lookback":args.lookback,"source_sha256":digest,"epochs":best_epoch},args.out/"marshnet_v2.pt")
     (args.out/"evaluation.json").write_text(json.dumps(report,indent=2,ensure_ascii=False))
+    (args.out/"quality_audit.json").write_text(json.dumps(audit,indent=2,ensure_ascii=False))
     np.savez_compressed(args.out/"test_predictions.npz",probabilities=p.numpy(),targets=y.numpy(),observed=v.numpy(),dates=np.asarray(periods))
+    print("SCIENTIFIC VERDICT",verdict["status"],"; beats both baselines =",verdict["beats_both_reference_baselines"],flush=True)
     print("SAVED CHECKPOINT AND EVALUATION",args.out,flush=True)
     return report
 def synthetic_smoke(path):
