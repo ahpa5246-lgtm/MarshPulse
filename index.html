@@ -9,6 +9,8 @@
 <link rel="stylesheet" href="./site.css"/>
 <link rel="stylesheet" href="./botanical.css"/>
 <link rel="stylesheet" href="./visual-effects.css"/>
+<link rel="stylesheet" href="./living-grid.css"/>
+<script type="module" src="./src/living-grid.mjs"></script>
 <title>MarshPulse | حياة تتجدد بين الماء والقصب</title>
 </head>
 <body class="botanical-home">
@@ -19,7 +21,7 @@
   <a class="header-link" href="./lab.html">ابدئي الاستكشاف <span aria-hidden="true">↗</span></a>
 </header>
 <main id="content">
-  <section class="flora-hero" aria-labelledby="hero-title">
+  <section class="flora-hero" data-topo-zone="hero" aria-labelledby="hero-title">
     <div class="flora-orbit flora-orbit-one" aria-hidden="true"></div><div class="flora-orbit flora-orbit-two" aria-hidden="true"></div>
     <div class="flora-hero-inner wrap">
       <div class="flora-copy">
@@ -57,7 +59,7 @@
       <div><p>ليس الهدف رسم خريطة جميلة فحسب. نريد فهم كيف تتغير المياه بين المواسم، وأين تنقطع الروابط بين المسطحات، وكيف نقارن خيارات الحماية بصورة قابلة للتدقيق.</p><a href="./methods.html" class="flora-inline-link">اقرئي كيف نتحقق من النتائج <span aria-hidden="true">↗</span></a></div>
     </div>
   </section>
-  <section class="flora-experiences wrap" aria-labelledby="paths-title">
+  <section class="flora-experiences wrap" data-topo-zone="paths" aria-labelledby="paths-title">
     <div class="flora-section-heading"><div><span class="flora-overline">A JOURNEY THROUGH THE MARSHES</span><h2 id="paths-title">كل اكتشاف يبدأ <span>من هنا.</span></h2></div><p>اختاري مسارك، وتابعي العمل في مساحة مصممة له وحده.</p></div>
     <div class="path-grid flora-path-grid">
       <a class="path flora-path flora-path-photo" href="./lab.html">
