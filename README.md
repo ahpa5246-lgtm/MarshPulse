@@ -45,6 +45,12 @@ The light areas on all four pages now use **organic open-ended contour ribbons**
 
 See [implementation documentation](docs/organic-pattern-motion.md). **All lines are illustration only, not real Iraq height or water data.** Reduced motion, low-data modes and non-JavaScript readability are explicitly accounted for.
 
+## Floating glass navigation (MIT, no CDN)
+
+All four pages have a responsive supplementary **floating navigation dock**. It links Home, Water Lab, MarshNet and Methods, uses [Headroom.js](https://github.com/WickyNilliams/headroom.js) to respond to scroll direction and [Gumshoe](https://github.com/cferdinandi/gumshoe) to highlight the visible page chapter. A thin progress indicator and a back-to-top shortcut help navigate longer research pages. The primary header remains unchanged as a no-JavaScript fallback. Mobile layouts move the pill to the safe-area-aware bottom; focusing scientific input fields temporarily hides the dock.
+
+Both upstream libraries are included locally under `vendor/headroom` and `vendor/gumshoe`, along with their original MIT licenses. See [detailed engineering notes](docs/floating-navigation.md). The feature does not affect MarshNet weights, study data or scientific validation.
+
 ## Run
 
 No npm, paid API, GPU, database or build step required.
