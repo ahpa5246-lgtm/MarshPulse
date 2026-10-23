@@ -90,3 +90,15 @@ test("report distinguishes modeled evidence from real wetland interventions",()=
   assert.match(result.disclaimer,/not a physically calibrated/);
   assert.ok(result.scenario.assumptions.length>=2);
 });
+
+test("policy baselines are deterministic, equal-credit and included in export",()=>{
+  const model=train(ds,{epochs:30});
+  const one=scenario(ds,model,{stress:65,budget:7});
+  const two=scenario(ds,model,{stress:65,budget:7});
+  assert.deepEqual(one.policyComparison,two.policyComparison);
+  assert.equal(one.policyComparison.creditsSpent,one.selected.length);
+  assert.equal(one.policyComparison.optimizedLargest,one.after.largest);
+  assert.ok(Number.isFinite(one.policyComparison.randomMeanLargest));
+  const evidence=report(ds,model,one);
+  assert.deepEqual(evidence.scenario.policyComparison,one.policyComparison);
+});
