@@ -1,0 +1,82 @@
+/* Living Grid — quiet wetland-inspired isolines, computed once by ISC-licensed D3 Contour.
+ * Decorative scalar fields ONLY: not real DEM, satellite or hydrological geometry.
+ */
+[data-topo-zone]{position:relative;isolation:isolate}
+.living-grid-svg{
+  display:block;position:absolute;inset:0;width:100%;height:100%;
+  z-index:0;overflow:hidden;pointer-events:none;user-select:none;
+  opacity:.26;color:#468f7a;
+  --topo-ink:#448e79;
+  --topo-dot:#719e83;
+}
+.living-grid-contours{fill:none;stroke:var(--topo-ink);stroke-linejoin:round;
+  transform-origin:50% 50%;animation:wetland-current 84s ease-in-out infinite alternate;
+}
+.living-grid-isoline{fill:none;stroke:inherit;stroke-width:1.1;opacity:.45}
+.living-grid-isoline[data-level="0"],.living-grid-isoline[data-level="3"]{stroke-width:1.5;opacity:.60}
+.living-grid-isoline[data-level="1"],.living-grid-isoline[data-level="4"]{stroke-dasharray:5 8;opacity:.44}
+.living-grid-dot{fill:var(--topo-dot);opacity:.72}
+.living-grid-label{font:600 11px/1 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:2px;fill:var(--topo-ink);opacity:.5}
+.living-grid-dots{animation:wetland-glimmer 28s ease-in-out infinite alternate}
+@keyframes wetland-current{from{transform:translate3d(-9px,5px,0)}to{transform:translate3d(11px,-7px,0)}}
+@keyframes wetland-glimmer{from{opacity:.58}to{opacity:.92}}
+/* The strongest decorative contour presence belongs around the analytical map.
+ * Never put moving shapes over controls or confuse grid coordinates with geography. */
+.flora-hero[data-topo-zone="hero"]>.living-grid-svg{
+  opacity:.23;--topo-ink:#488c72;--topo-dot:#6b9d7d;
+  mask-image:radial-gradient(ellipse 70% 87% at 66% 49%,#000 0%,#0009 47%,transparent 89%);
+  -webkit-mask-image:radial-gradient(ellipse 70% 87% at 66% 49%,#000 0%,#0009 47%,transparent 89%);
+}
+.flora-hero[data-topo-zone="hero"]>.flora-hero-inner,
+.flora-hero[data-topo-zone="hero"]>.flora-hero-bottom,
+.flora-hero[data-topo-zone="hero"]>.flora-orbit{position:relative;z-index:1}
+.flora-hero[data-topo-zone="hero"]>.flora-orbit{position:absolute}
+.flora-experiences[data-topo-zone="paths"]>.living-grid-svg{
+  opacity:.21;--topo-ink:#5f9b8e;--topo-dot:#82a8a2;
+  mask-image:linear-gradient(to bottom,transparent 1%,#000c 20%,#000a 75%,transparent 99%);
+  -webkit-mask-image:linear-gradient(to bottom,transparent 1%,#000c 20%,#000a 75%,transparent 99%);
+}
+.flora-experiences[data-topo-zone="paths"]> :not(.living-grid-svg){position:relative;z-index:1}
+.inner-intro[data-topo-zone="intro"]{overflow:hidden}
+.inner-intro[data-topo-zone="intro"]>.living-grid-svg{
+  opacity:.18;--topo-ink:#678f85;--topo-dot:#8fa79c;
+  mask-image:linear-gradient(90deg,#000b,transparent 67%);
+  -webkit-mask-image:linear-gradient(90deg,#000b,transparent 67%);
+}
+.inner-intro[data-topo-zone="intro"]> :not(.living-grid-svg){position:relative;z-index:1}
+.map-area[data-topo-zone="map"]{isolation:isolate;overflow:hidden}
+.map-area[data-topo-zone="map"]>.living-grid-svg{
+  z-index:1;opacity:.33;--topo-ink:#70b1ad;--topo-dot:#b2d7b6;
+  mask-image:radial-gradient(ellipse at center,#000c 12%,#000 87%,transparent 99%);
+  -webkit-mask-image:radial-gradient(ellipse at center,#000c 12%,#000 87%,transparent 99%);
+}
+.map-area[data-topo-zone="map"]>.living-grid-svg .living-grid-isoline{stroke-width:1.2;opacity:.55}
+.map-area[data-topo-zone="map"]>#map{position:relative;z-index:2}
+.map-area[data-topo-zone="map"]>.map-grid-label,
+.map-area[data-topo-zone="map"]>.map-coordinate{z-index:3}
+.map-area[data-topo-zone="map"]>.living-grid-svg .living-grid-label{fill:#d8f4e7}
+.shell .hero[data-topo-zone="intro"]{overflow:hidden;isolation:isolate}
+.shell .hero[data-topo-zone="intro"]>.living-grid-svg{opacity:.16;--topo-ink:#67948b;
+  mask-image:linear-gradient(90deg,#000b,transparent 82%);
+  -webkit-mask-image:linear-gradient(90deg,#000b,transparent 82%)}
+.shell .hero[data-topo-zone="intro"]> :not(.living-grid-svg){position:relative;z-index:1}
+/* Suppress repeated Cartesian CSS grid exactly where organic topology takes over,
+ * retaining the still useful dark chart grid on the actual analytical plot. */
+.flora-hero.living-grid-ready:before,
+.flora-experiences.living-grid-ready:before,
+body:not(.botanical-home) .inner-intro.living-grid-ready:before,
+body:has(.topbar) .shell .hero.living-grid-ready:before{background-image:none}
+/* Mobile: less material, less GPU work, prioritizing language and buttons. */
+@media(max-width:760px){
+  .flora-hero[data-topo-zone="hero"]>.living-grid-svg{opacity:.14}
+  .flora-experiences[data-topo-zone="paths"]>.living-grid-svg{opacity:.13}
+  .inner-intro[data-topo-zone="intro"]>.living-grid-svg{opacity:.11}
+  .map-area[data-topo-zone="map"]>.living-grid-svg{opacity:.24}
+  .living-grid-dots{opacity:.5;animation:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .living-grid-contours,.living-grid-dots{animation:none!important;transform:none!important}
+}
+@media(prefers-reduced-data:reduce){
+  .living-grid-contours,.living-grid-dots{animation:none!important}
+}
