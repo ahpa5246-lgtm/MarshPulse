@@ -11,6 +11,9 @@
 <link rel="stylesheet" href="./visual-effects.css"/>
 <link rel="stylesheet" href="./living-grid.css"/>
 <link rel="stylesheet" href="./organic-pattern.css"/>
+<link rel="stylesheet" href="./vendor/atropos/atropos.css"/>
+<link rel="stylesheet" href="./botanical-depth.css"/>
+<script type="module" src="./src/botanical-depth.mjs"></script>
 <link rel="stylesheet" href="./vendor/motionflow/motionflow.min.css"/>
 <script src="./vendor/motionflow/motionflow.min.js" defer></script>
 <script type="module" src="./src/organic-pattern.mjs"></script>
@@ -39,23 +42,36 @@
         </div>
         <div class="flora-hero-proof"><span class="flora-proof-icon" aria-hidden="true">◎</span><p><strong>منصة بحثية تجريبية</strong><br/>بيانات العرض الاصطناعية مميّزة عن الرصد الحقيقي، والتوقعات تخضع للمقارنة والاختبار.</p></div>
       </div>
-      <div class="flora-stage">
+      <div class="flora-stage" aria-label="تكوين فوتوغرافي متعدد الطبقات للأهوار العراقية">
         <div class="flora-stage-glow" aria-hidden="true"></div>
-        <figure class="flora-main-photo">
-          <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Marshes_in_southern_Iraq.jpeg?width=1200" width="760" height="1020" decoding="async" fetchpriority="high" alt="مياه وقصب في الأهوار الواقعة جنوب العراق"/>
-          <figcaption>الأهوار العراقية <span>30.99°N · 47.03°E</span></figcaption>
-        </figure>
-        <figure class="flora-second-photo">
-          <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Marshes_-_South_iraq.jpg?width=680" width="340" height="405" loading="lazy" decoding="async" alt="مشهد آخر للقوارب والمياه في أهوار جنوب العراق"/>
-          <figcaption>الحياة على ضفاف الماء</figcaption>
-        </figure>
-        <div class="flora-photo-sticker" aria-label="المياه والحياة والترابط"><span class="flora-sticker-symbol" aria-hidden="true">✻</span><span>WATER<br/>IS LIFE</span></div>
+        <div class="marsh-hero-scene atropos" data-botanical-tilt="hero">
+          <div class="atropos-scale"><div class="atropos-rotate"><div class="atropos-inner">
+            <div class="marsh-scene-aura" data-atropos-offset="-8" aria-hidden="true"></div>
+            <div class="marsh-scene-ring marsh-scene-ring-a" data-atropos-offset="-5" aria-hidden="true"></div>
+            <div class="marsh-scene-ring marsh-scene-ring-b" data-atropos-offset="-4" aria-hidden="true"></div>
+            <figure class="flora-main-photo" data-atropos-offset="2">
+              <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Marshes_in_southern_Iraq.jpeg?width=1200" width="760" height="1020" decoding="async" fetchpriority="high" alt="مياه وقصب في الأهوار الواقعة جنوب العراق"/>
+              <figcaption>الأهوار العراقية <span>30.99°N · 47.03°E</span></figcaption>
+            </figure>
+            <figure class="flora-second-photo" data-atropos-offset="8">
+              <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Marshes_-_South_iraq.jpg?width=680" width="340" height="405" loading="lazy" decoding="async" alt="مشهد آخر للقوارب والمياه في أهوار جنوب العراق"/>
+              <figcaption>الحياة على ضفاف الماء</figcaption>
+            </figure>
+            <figure class="marsh-specimen-card" data-atropos-offset="11">
+              <img src="https://commons.wikimedia.org/wiki/Special:FilePath/494_Typha_angustifolia.jpg?width=400" width="230" height="340" loading="lazy" decoding="async" alt="رسم نباتي تاريخي لنبات البردي ضيق الأوراق، مخصص للتوضيح لا للتوثيق الميداني"/>
+              <figcaption><span>FIELD NOTES / 01</span><strong>نباتات المناطق الرطبة</strong><small>رسم نباتي أرشيفي · الملكية العامة</small></figcaption>
+            </figure>
+            <img class="marsh-foreground-reeds" data-atropos-offset="15" src="./assets/illustrated-reeds.svg" width="310" height="430" alt="" aria-hidden="true" decoding="async"/>
+            <div class="flora-photo-sticker" data-atropos-offset="18" aria-label="المياه والحياة والترابط"><span class="flora-sticker-symbol" aria-hidden="true">✻</span><span>WATER<br/>IS LIFE</span></div>
+            <span class="marsh-photo-id" data-atropos-offset="9" aria-hidden="true">AHWAR / 001 — 003</span>
+          </div></div></div>
+        </div>
         <div class="flora-stage-caption"><span class="flora-caption-line"></span> المساحات الرطبة تحفظ الذاكرة البيئية للعراق</div>
       </div>
     </div>
     <div class="flora-hero-bottom" aria-hidden="true"><span>الماء</span><span>•</span><span>الحياة</span><span>•</span><span>التنوع البيئي</span><span>•</span><span>المستقبل</span></div>
   </section>
-  <div class="flora-photo-credit wrap">الصور: <a href="https://commons.wikimedia.org/wiki/File:Marshes_in_southern_Iraq.jpeg" target="_blank" rel="noopener">Almendilawi</a> و<a href="https://commons.wikimedia.org/wiki/File:Marshes_-_South_iraq.jpg" target="_blank" rel="noopener">Wikimedia Commons</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · اقتطاع للعرض</div>
+  <div class="flora-photo-credit wrap">الصور: <a href="https://commons.wikimedia.org/wiki/File:Marshes_in_southern_Iraq.jpeg" target="_blank" rel="noopener">Almendilawi</a> و<a href="https://commons.wikimedia.org/wiki/File:Marshes_-_South_iraq.jpg" target="_blank" rel="noopener">Wikimedia Commons</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · اقتطاع للعرض · اللوحة النباتية: <a href="https://commons.wikimedia.org/wiki/File:494_Typha_angustifolia.jpg" target="_blank" rel="noopener">C. A. M. Lindman (ملكية عامة)</a></div>
 
   <section data-organic-pattern="light" class="flora-intro wrap" aria-labelledby="intro-title">
     <div class="flora-section-marker"><span class="flora-dot"></span> WHAT WE DO <span class="flora-index">01 / 04</span></div>
@@ -92,7 +108,20 @@
     <div class="wrap flora-story-inner">
       <div class="flora-story-visual">
         <div class="flora-story-halo" aria-hidden="true"></div>
-        <figure><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Marshes_in_southern_Iraq.jpeg?width=1200" loading="lazy" width="600" height="800" decoding="async" alt="صورة للمياه في أهوار العراق، عنصر مصوّر لقصة المشروع"/><figcaption>MESOPOTAMIA · THE LIVING MARSHES</figcaption></figure>
+        <div class="marsh-story-scene atropos" data-botanical-tilt="story">
+          <div class="atropos-scale"><div class="atropos-rotate"><div class="atropos-inner">
+            <div class="marsh-story-backlight" data-atropos-offset="-8" aria-hidden="true"></div>
+            <figure class="marsh-story-photo" data-atropos-offset="3">
+              <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Marshes_in_southern_Iraq.jpeg?width=1200" loading="lazy" width="600" height="800" decoding="async" alt="مياه وغطاء نباتي في أهوار العراق"/>
+              <figcaption>MESOPOTAMIA · THE LIVING MARSHES</figcaption>
+            </figure>
+            <figure class="marsh-story-detail" data-atropos-offset="10">
+              <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Marshes_-_South_iraq.jpg?width=680" loading="lazy" width="310" height="210" decoding="async" alt="تفصيل فوتوغرافي ثانٍ من أهوار جنوب العراق"/>
+              <figcaption>WETLAND ARCHIVE / IRAQ</figcaption>
+            </figure>
+            <img class="marsh-story-reeds" data-atropos-offset="16" src="./assets/illustrated-reeds.svg" width="320" height="440" decoding="async" alt="" aria-hidden="true"/>
+          </div></div></div>
+        </div>
         <span class="flora-story-sun" aria-hidden="true">✳</span>
       </div>
       <div class="flora-story-copy"><span class="flora-overline">WHY MARSH PULSE? — 03 / 04</span><h2 id="story-title">ليست مجرد<br/><span>مساحات مائية.</span></h2><p>الأهوار موطن للنباتات والطيور وتاريخ من التعايش بين الإنسان والماء. لذلك نتعامل مع تغيّرها على أنه مسألة بيئية متصلة، لا مجرد لون على صورة قمر صناعي.</p><div class="flora-story-list"><div><span>01</span><strong>نرصد</strong><small>تاريخ المياه وتغيّر المساحات</small></div><div><span>02</span><strong>نفهم</strong><small>الترابط ونقاط الانقطاع</small></div><div><span>03</span><strong>نختبر</strong><small>التوقعات قبل تقديم أي اقتراح</small></div></div><a href="./lab.html" class="flora-button flora-button-light">ادخلي إلى المختبر <span aria-hidden="true">↗</span></a></div>
