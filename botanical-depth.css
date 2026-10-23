@@ -90,6 +90,11 @@
  background:conic-gradient(from 30deg,#d8f3b0,#d1f5e6,#c3e6f9,#f0d8b9,#d8f3b0);
  filter:blur(12px);opacity:.73;
 }
+.marsh-story-orbit{
+ position:absolute;inset:0 7% 4% 4%;pointer-events:none;
+ border:1px solid rgba(230,255,192,.50);border-radius:50%;
+ rotate:-19deg;box-shadow:0 0 0 18px rgba(181,238,158,.075),0 0 0 49px rgba(198,229,242,.06);
+}
 .flora-story-visual .marsh-story-photo{
  position:absolute;top:4%;left:14%;width:71%;height:88%;
  margin:0;border:9px solid #f8fae0;border-radius:48% 48% 7% 7%;
