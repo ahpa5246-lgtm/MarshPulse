@@ -56,8 +56,22 @@ try{
   assert.equal(await page.locator("#download-weights").isDisabled(),false);
   assert.ok(Number(await page.locator("#net-brier").textContent())>=0);
   await page.screenshot({path:"artifacts/marshpulse-model.png",fullPage:true});
+  const [trainedFile]=await Promise.all([page.waitForEvent("download"),page.locator("#download-weights").click()]);
+  const trainedPath="artifacts/trained-marshnet-synthetic.json";
+  await trainedFile.saveAs(trainedPath);
+  const trainedJSON=JSON.parse(await readFile(trainedPath,"utf8"));
+  assert.equal(trainedJSON.format,"marshnet-v1");
+  assert.equal(trainedJSON.provenance.origin,"synthetic");
+  await page.goto("http://127.0.0.1:8765/lab.html",{waitUntil:"networkidle"});
+  await page.locator("#marshnet-upload").setInputFiles(trainedPath);
+  await page.waitForFunction(()=>document.getElementById("active-model").textContent.includes("MarshNet"));
+  assert.match(await page.locator("#active-model").textContent(),/MarshNet/);
+  const [modelEvidence]=await Promise.all([page.waitForEvent("download"),page.locator("#export-report").click()]);
+  await modelEvidence.saveAs("artifacts/marshnet-in-lab-evidence.json");
+  const loadedReport=JSON.parse(await readFile("artifacts/marshnet-in-lab-evidence.json","utf8"));
+  assert.match(loadedReport.predictor,/MarshNet/);
   await page.goto("http://127.0.0.1:8765/methods.html",{waitUntil:"networkidle"});
   assert.equal(await page.locator(".timeline li").count(),5);
-    assert.equal(errors.length,0,"browser console errors: "+errors.join(" | "));
-  console.log("BROWSER_SMOKE_SUCCESS: desktop/mobile maps, scenario controls, CSV import and JSON export verified");
+  assert.equal(errors.length,0,"browser console errors: "+errors.join(" | "));
+  console.log("BROWSER_SMOKE_SUCCESS: 4 routes, desktop/mobile, CSV, MarshNet train/export/reimport, model-driven scenario and evidence verified");
 }finally{await browser.close();}
