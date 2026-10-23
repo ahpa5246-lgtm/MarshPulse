@@ -1,0 +1,41 @@
+{
+  "experiment_id": "hawizeh-36m-validation-only-calibration-abstained-20261024",
+  "source_workflow": "https://github.com/ahpa5246-lgtm/MarshPulse/actions/runs/40036014591",
+  "source_artifact": "https://github.com/ahpa5246-lgtm/MarshPulse/actions/runs/40036014591/artifacts/12536464850",
+  "source_type": "REAL ESA Sentinel-2 L2A, surface-water satellite proxy only",
+  "model": "MarshNet V2 Residual ConvGRU U-Net",
+  "period": [
+    "2023-10",
+    "2026-09"
+  ],
+  "months": 36,
+  "data_sha256": "cb3d208c9209e5cd8a074570ebf4bee64774ff161fea43c7ab9ebe0ecd13d0c0",
+  "validation": {
+    "pixels": 20466,
+    "wet_proxy_pixels": 0,
+    "dry_proxy_pixels": 20466,
+    "calibration": "ABSTAINED: insufficient wet and dry validation examples",
+    "temperature": 1,
+    "offset": 0
+  },
+  "test": {
+    "months": [
+      "2026-03",
+      "2026-04",
+      "2026-05",
+      "2026-06",
+      "2026-07",
+      "2026-08",
+      "2026-09"
+    ],
+    "wet_proxy_pixels": 856,
+    "common_valid_pixels": 22109,
+    "marshnet_brier": 0.12706451587003104,
+    "marshnet_f1": 0.2851305334846765,
+    "persistence_brier": 0.036139128861549595,
+    "persistence_f1": 0.49780012570710247
+  },
+  "scientific_verdict": "NOT_VALIDATED; no independent field truth or geographical holdout",
+  "reason_for_60_months": "A longer chronologically split record may place observed wet examples in validation without touching the test labels; this is a research hypothesis, not a demonstrated gain",
+  "risk": "Class-weighted model has high recall but low precision; calibrating against dry-only validation would produce misleading confidence estimates"
+}
