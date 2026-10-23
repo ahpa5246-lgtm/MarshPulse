@@ -68,6 +68,7 @@ jobs:
           name: hawizeh-monthly-research-unverified
           path: |
             /tmp/marshpulse-sentinel/satellite_manifest.json
+            /tmp/marshpulse-sentinel/hawizeh_s2_monthly.npz
             /tmp/marshpulse-training/quality_audit.json
             /tmp/marshpulse-monitor/water_monitor.csv
             /tmp/marshpulse-monitor/water_monitor.json
