@@ -19,6 +19,8 @@ jobs:
           node --check src/app.mjs
           node --check earth-engine/export_monthly_grid.js
           python3 -m py_compile ml/train.py
+          python3 -m py_compile ml/collect_sentinel.py ml/train_satellite.py ml/marshnet_v2.py
+          python3 -c "import json; n=json.load(open('kaggle/marshnet_v2_hawizeh.ipynb')); assert n['nbformat']==4 and len(n['cells'])>=10"
       - name: Reproducible unit tests
         run: node --test tests/*.test.mjs
   browser-smoke:
