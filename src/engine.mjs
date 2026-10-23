@@ -16,7 +16,7 @@ export function demoData() {
   for(let t=0;t<n;t++){
     const date=t===0?start:nextMonth(dates[t-1]);dates.push(date);
     const month=t%12, seasonal=Math.sin(2*Math.PI*(month+1)/12);
-    const scarcity=0.0029*t + (t>=38?0.035:0);
+    const scarcity=0.0016*t + (t>=38?0.022:0);
     const frame=[];
     for(let y=0;y<height;y++)for(let x=0;x<width;x++){
       const channel=0.61*Math.exp(-Math.pow((y-(9.5+3*Math.sin(x/5)))/1.7,2));
@@ -25,7 +25,7 @@ export function demoData() {
       const season=0.085*seasonal+0.04*Math.sin(t/8);
       const terrain=0.048*Math.sin(x*1.8+y*0.7)+0.03*Math.cos(y*1.23-x*0.71);
       const noise=(r()-0.5)*0.035;
-      frame.push(clamp((Math.max(channel,north,south)+season+terrain+noise-scarcity-0.26)*2.4));
+      frame.push(clamp((Math.max(channel,north,south)+season+terrain+noise-scarcity-0.19)*2.4));
     }
     frames.push(frame);
   }
