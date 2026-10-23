@@ -93,3 +93,21 @@
 @media(prefers-reduced-data:reduce){
  .organic-pattern-ribbons,.organic-pattern-dots{animation:none!important;will-change:auto}
 }
+
+/* Legacy living-grid selectors have high specificity and would otherwise turn
+ * the new SVG into a positioned content child. Keep both background layers
+ * absolutely positioned and noninteractive, especially at the home pathways. */
+[data-organic-pattern] > .organic-pattern-svg,
+[data-topo-zone][data-organic-pattern] > .organic-pattern-svg{
+ position:absolute!important;inset:0!important;z-index:0!important;
+ width:100%;height:100%;pointer-events:none!important;
+}
+[data-organic-pattern] > .living-grid-svg{
+ position:absolute!important;inset:0!important;z-index:0!important;
+ pointer-events:none!important;
+}
+[data-organic-pattern] > :not(.organic-pattern-svg):not(.living-grid-svg){
+ position:relative;z-index:1;
+}
+.flora-hero[data-organic-pattern]>.flora-hero-bottom,
+.flora-hero[data-organic-pattern]>.flora-orbit{position:absolute}
