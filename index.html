@@ -1,108 +1,68 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <meta name="description" content="MarshPulse: an evidence-first wetland connectivity and restoration scenario laboratory."/>
-  <meta name="theme-color" content="#071820"/>
-  <link rel="icon" href="./favicon.svg" type="image/svg+xml"/>
-  <title>MarshPulse — مختبر إنقاذ الأهوار</title>
-  <link rel="stylesheet" href="./styles.css"/>
-  <script type="module" src="./src/app.mjs"></script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="MarshPulse: مختبر بحثي مفتوح لدراسة ترابط المياه وتغيرها في أهوار العراق.">
+<meta name="theme-color" content="#f3f0e9">
+<link rel="icon" href="./favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="./site.css">
+<title>MarshPulse — أطلس المستقبل المائي</title>
 </head>
-<body>
-  <div class="ambient ambient-a" aria-hidden="true"></div><div class="ambient ambient-b" aria-hidden="true"></div>
-  <header class="topbar">
-    <a class="brand" href="#top" aria-label="MarshPulse home">
-      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 42 42"><path d="M4 28Q13 8 21 23T38 12" stroke="#7CE7D0" fill="none" stroke-width="4" stroke-linecap="round"/><path d="M5 34Q16 20 26 32T38 25" stroke="#37A0AC" fill="none" stroke-width="3" stroke-linecap="round"/></svg></span>
-      <span class="brand-name">MARSH<span>PULSE</span><small>WETLAND RESILIENCE LAB</small></span>
-    </a>
-    <nav class="topnav" aria-label="أقسام الصفحة"><a href="#lab">المختبر</a><a href="#evidence">الدليل العلمي</a><a href="#about">المنهجية</a></nav>
-    <a class="header-action" href="https://github.com/ahpa5246-lgtm/MarshPulse" target="_blank" rel="noopener">GitHub <span aria-hidden="true">↗</span></a>
-  </header>
-  <main id="top" class="shell">
-    <section class="hero">
-      <div class="hero-copy">
-        <div class="eyebrow"><span class="pulse-dot"></span> IRAQ · WETLAND INTELLIGENCE <span class="eyebrow-line"></span> تجربة مفتوحة المصدر</div>
-        <h1>من مراقبة الجفاف<br/>إلى <em>اختبار قرارات الإنقاذ.</em></h1>
-        <p class="lede">مختبر تفاعلي يقيس الاتصال المائي، يتنبأ بتغيّره، ويقارن تدخلات افتراضية لحماية الممرات البيئية. النتائج قابلة لإعادة الاختبار، مع توضيح حدودها العلمية.</p>
-        <div class="hero-actions"><a href="#lab" class="btn btn-main">ادخل المختبر <span>←</span></a><a href="#about" class="btn btn-outline">كيف يعمل النظام؟</a></div>
-      </div>
-      <div class="hero-art" aria-hidden="true">
-        <div class="orbital orb-a"></div><div class="orbital orb-b"></div><div class="orbital orb-c"></div>
-        <svg viewBox="0 0 300 295" class="hero-lines"><defs><linearGradient id="river" x1="0" x2="1"><stop stop-color="#24748F"/><stop offset="1" stop-color="#7CF3D0"/></linearGradient></defs><path d="M20 180C70 70 100 225 156 125S245 103 290 24" stroke="url(#river)" stroke-width="24" fill="none" stroke-linecap="round" opacity=".28"/><path d="M20 180C70 70 100 225 156 125S245 103 290 24" stroke="url(#river)" stroke-width="2" fill="none" stroke-dasharray="6 8"/><circle cx="155" cy="126" r="8" fill="#92F4D4"/><circle cx="240" cy="100" r="5" fill="#92F4D4"/></svg>
-        <div class="art-caption">MAP THE RISK <span>•</span> TEST THE RESPONSE</div>
-      </div>
-    </section>
-    <div class="notice" role="note"><span class="notice-indicator">!</span><div><strong id="provenance-title">وضع تجريبي: بيانات اصطناعية</strong><span id="provenance-desc">الخريطة الحالية مولّدة رياضيًا لشرح الأدوات. ليست قياسات فعلية للأهوار العراقية. استوردي CSV مبنيًا على بيانات رصد لاختبار مجموعة حقيقية.</span></div></div>
-    <section id="lab" class="section lab-section" aria-labelledby="lab-title">
-      <div class="section-heading"><div><div class="section-kicker">01 / ANALYSIS WORKSPACE</div><h2 id="lab-title">مختبر الاتصال المائي</h2></div><span id="data-pill" class="pill">SIMULATED DATA</span></div>
-      <div class="metrics" aria-live="polite">
-        <article class="metric"><span class="metric-label">مساحة المياه المرصودة <span class="info-mark" title="نسبة الخلايا المائية من كامل الشبكة">ⓘ</span></span><strong id="stat-water">—</strong><small>من كامل شبكة الدراسة</small><div class="metric-line teal"></div></article>
-        <article class="metric"><span class="metric-label">أكبر كتلة مائية مترابطة</span><strong id="stat-connectivity">—</strong><small>نسبة من الخلايا المائية</small><div class="metric-line blue"></div></article>
-        <article class="metric"><span class="metric-label">نقاط اختناق الاتصال</span><strong id="stat-corridors">—</strong><small>نقاط حرجة ضمن الشبكة</small><div class="metric-line orange"></div></article>
-        <article class="metric"><span class="metric-label">أشهر رصد متاحة</span><strong id="stat-months">—</strong><small>تقسيم زمني للتدريب والتحقق</small><div class="metric-line purple"></div></article>
-      </div>
-      <div class="workspace">
-        <aside class="panel controls" aria-label="إعدادات التجربة">
-          <div class="panel-head"><span class="small-index">A / INPUTS</span><h3>إعدادات الدراسة</h3></div>
-          <label class="field-label" for="data-upload">مصدر البيانات</label>
-          <label class="upload-zone" for="data-upload"><span class="upload-icon">⇧</span><strong>استيراد سلسلة زمنية CSV</strong><small>date,row,col,water · شهريًا · 12–72 شهرًا</small><input id="data-upload" type="file" accept=".csv,text/csv"/></label>
-          <div class="tiny-actions"><button id="reset-demo" type="button" class="text-button">↺ استعادة التجربة</button><button id="csv-example" type="button" class="text-button">↓ نموذج CSV</button></div>
-          <div class="rule"></div>
-          <div class="control-group"><div class="control-caption"><label for="stress">ضغط الجفاف الافتراضي</label><output id="stress-value" for="stress">25%</output></div><input id="stress" type="range" min="0" max="70" value="25" step="5"/><div class="range-label"><span>أقل</span><span>أعلى</span></div></div>
-          <div class="control-group"><div class="control-caption"><label for="budget">ميزانية حماية خلايا الشبكة</label><output id="budget-value" for="budget">6 نقاط</output></div><input id="budget" type="range" min="0" max="12" value="6" step="1"/><div class="range-label"><span>0</span><span>12</span></div></div>
-          <div class="subnote"><strong>وحدات افتراضية فقط.</strong> كل نقطة تعني الاحتفاظ بخليّة مائية متوقّع جفافها في محاكاة شبكة، وليست كمية مياه أو تكلفة ترميم حقيقية.</div>
-          <button id="export-report" class="btn btn-main full" type="button">تصدير تقرير الأدلة <span>↓</span></button>
-        </aside>
-        <div class="map-stack">
-          <div class="panel map-panel">
-            <div class="map-header"><div><span class="small-index">B / SPATIAL MODEL</span><h3>خريطة الترابط البيئي</h3></div><div class="time-stamp"><span class="timestamp-bullet"></span><span id="map-date">—</span></div></div>
-            <div class="map-tabs" role="group" aria-label="طبقة الخريطة"><button type="button" data-layer="observed" class="active" aria-pressed="true">آخر رصد</button><button type="button" data-layer="forecast" aria-pressed="false">التوقع تحت الضغط</button><button type="button" data-layer="protected" aria-pressed="false">بعد التدخل النظري</button></div>
-            <div class="map-area"><div class="map-grid-label">MODEL GRID <span id="grid-shape">—</span></div><svg id="map" role="img" aria-label="خريطة مربعات الشبكة، انقر على خلية لعرض تفاصيلها" viewBox="0 0 640 400"></svg><div class="map-coordinate">REFERENCE GRID · NOT GEOGRAPHIC COORDINATES</div></div>
-            <div class="map-legend"><span><i class="swatch water"></i> مياه</span><span><i class="swatch dry"></i> يابسة</span><span><i class="swatch critical"></i> نقطة حرجة</span><span><i class="swatch intervention"></i> تدخل افتراضي</span></div>
-          </div>
-          <div class="panel cell-panel"><span class="small-index">CELL INSPECTOR</span><div id="cell-details" aria-live="polite">اختاري خلية من الخريطة لمعرفة حالتها واحتمال بقائها مائية في الشهر التالي.</div></div>
-        </div>
-        <aside class="panel outcomes" aria-label="مخرجات المحاكاة">
-          <div class="panel-head"><span class="small-index">C / DECISION SUPPORT</span><h3>نتائج السيناريو</h3></div>
-          <div class="comparison"><div><span>أكبر منطقة متصلة · قبل</span><strong id="before-largest">—</strong></div><span class="compare-arrow">←</span><div><span>بعد التدخل النظري</span><strong class="accent-text" id="after-largest">—</strong></div></div>
-          <div class="gain-box"><span>التغير في حجم أكبر منطقة متصلة</span><strong id="improvement">—</strong><small>خلية شبكية · ليس استعادة ميدانية مثبتة</small></div>
-          <div class="policy-panel"><h4>مقارنة عادلة لنفس عدد التدخلات</h4><div><span>تحسين الاتصال</span><b id="policy-opt">—</b></div><div><span>اختيار الأعلى تعرضًا للجفاف</span><b id="policy-risk">—</b></div><div><span>المتوسط العشوائي (20 تجربة)</span><b id="policy-random">—</b></div><small>قياسات شبكية افتراضية وليست فائدة بيئية ميدانية</small></div>
-          <div class="rule"></div><div class="section-inline"><h4>الخلايا ذات الأولوية</h4><span id="selection-count" class="count-badge">0</span></div>
-          <ol id="priority-list" class="priority-list"><li>احسبي سيناريو لاستخراج القائمة.</li></ol>
-          <div class="research-footnote">الأولوية ناتجة عن تحسين ترابط الرسم البياني، وليست توصية هندسية بتحويل المياه.</div>
-        </aside>
-      </div>
-    </section>
-    <section id="evidence" class="section evidence-section">
-      <div class="section-heading"><div><div class="section-kicker">02 / EVIDENCE FIRST</div><h2>المقارنة العلمية</h2></div><span class="subtle-tag">CHRONOLOGICAL HOLDOUT</span></div>
-      <div class="evidence-grid">
-        <div class="panel chart-panel">
-          <div class="panel-head"><span class="small-index">OBSERVED WATER COVERAGE</span><h3>تاريخ الغطاء المائي</h3></div>
-          <svg id="history-chart" role="img" aria-label="مخطط نسب مساحة المياه عبر الزمن" viewBox="0 0 700 230"></svg>
-          <div id="date-range" class="chart-footer">—</div>
-        </div>
-        <div class="panel benchmark-panel">
-          <div class="panel-head"><span class="small-index">MODEL VS PERSISTENCE</span><h3>اختبار أشهر لم تُستخدم بالتدريب</h3></div>
-          <p class="support-text">نختبر التنبؤ بالشهر التالي مقارنةً بفرضية أن المياه تبقى كما كانت في الشهر السابق.</p>
-          <div class="benchmark-grid"><div><span>Brier error · النموذج</span><strong id="model-brier">—</strong></div><div><span>Brier error · المرجع</span><strong id="baseline-brier">—</strong></div><div><span>F1 · النموذج</span><strong id="model-f1">—</strong></div><div><span>عينات الاختبار</span><strong id="holdout-samples">—</strong></div></div>
-          <div class="model-verdict" id="model-verdict">لم يكتمل تقييم النموذج بعد.</div>
-          <small id="holdout-dates" class="muted">—</small>
-        </div>
-      </div>
-    </section>
-    <section id="about" class="section methodology">
-      <div class="section-heading"><div><div class="section-kicker">03 / SCIENTIFIC BOUNDARIES</div><h2>ما الذي يثبته المشروع؟</h2></div></div>
-      <div class="method-grid">
-        <article class="method-card"><span class="method-number">01</span><h3>رصد قابل للاستيراد</h3><p>نستقبل شبكة قياسات شهرية، نتحقق من اكتمالها وترتيبها وقيمها، ونحوّل نسبة المياه إلى حالات مائية عند عتبة موثقة.</p></article>
-        <article class="method-card"><span class="method-number">02</span><h3>فصل الماضي عن الاختبار</h3><p>يُدرَّب نموذج احتمالي بسيط على الأشهر الأولى ويُختبر على الفترة اللاحقة دون خلط عشوائي للأزمنة. وتظهر مقارنة مرجعية صريحة.</p></article>
-        <article class="method-card"><span class="method-number">03</span><h3>محاكاة لا وعود</h3><p>تستخدم خوارزمية نقاط القطع والرسم البياني لاختيار خلايا افتراضية تحفظ الاتصال. لا يحاكي النظام التدفق أو الملوحة أو الاستجابة الأحيائية.</p></article>
-      </div>
-      <div class="method-warning"><strong>الحد العلمي:</strong> نتائج البيانات الاصطناعية مجرد اختبار هندسي. وحتى مع CSV واقعي، تظل دقة التصنيف، والمعايرة الهيدرولوجية، وصحة التدخلات ميدانيًا بحاجة إلى تحقق مستقل قبل استعمال النتائج في قرار إدارة المياه.</div>
-    </section>
-    <footer class="footer"><div class="footer-brand">MARSH<span>PULSE</span></div><p>Open science for Mesopotamian wetland resilience · Built for reproducible experiments.</p><span>© 2026 · v0.2</span></footer>
-  </main>
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
-</body>
-</html>
+<body class="site-home">
+<a class="skip" href="#content">انتقل إلى المحتوى</a>
+<header class="site-header">
+  <a class="identity" href="./index.html" aria-label="MarshPulse الرئيسية"><span class="identity-glyph" aria-hidden="true">≋</span><span><b>MarshPulse</b><small>أطلس الأهوار / IRAQ WETLAND LAB</small></span></a>
+  <nav aria-label="التنقل الرئيسي"><a href="./index.html" aria-current="page">نظرة عامة</a><a href="./lab.html">مختبر المياه</a><a href="./model.html">نموذج MarshNet</a><a href="./methods.html">البحث والمصادر</a></nav>
+  <a class="header-link" href="https://github.com/ahpa5246-lgtm/MarshPulse" target="_blank" rel="noopener">المصدر البرمجي ↗</a>
+</header>
+<main id="content">
+<section class="editorial-hero wrap">
+<div class="issue-line"><span>FIELD NOTES / 001</span><span>MESOPOTAMIAN MARSHES — IRAQ</span><span>2026 / RESEARCH EDITION</span></div>
+<div class="hero-layout">
+ <div class="hero-narrative">
+   <p class="overline">مرصد علمي مفتوح</p>
+   <h1>حين تتغيّر المياه،<br><span class="serif">تتغيّر الحياة.</span></h1>
+   <p class="hero-description">نرصد تغيّر المساحات المائية، نفحص ما يبقى متصلًا منها، ونختبر فرضيات الحماية قبل تحويلها إلى قرارات. منصة بحثية للأهوار العراقية، لا خريطة تدّعي معرفة المستقبل.</p>
+   <div class="hero-links"><a class="action action-dark" href="./lab.html">استكشف مختبر المياه <span>←</span></a><a class="action action-text" href="./model.html">تعرّف على نموذجنا الخاص ↗</a></div>
+   <p class="hero-caveat"><span class="caveat-mark"></span>المثال التفاعلي يبدأ ببيانات اصطناعية موضّحة المصدر. النتائج الواقعية تتطلب استيراد بيانات مرصودة والتحقق منها.</p>
+ </div>
+ <div class="plate">
+   <div class="plate-header"><span>FIGURE 01 — CONNECTIVITY STUDY</span><span>ILLUSTRATIVE / NOT TO SCALE</span></div>
+   <svg class="plate-art" viewBox="0 0 680 580" role="img" aria-label="رسم توضيحي فني لمساحات مائية وممرات اتصال، وليس خريطة جغرافية فعلية">
+   <defs><pattern id="grain" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="2" cy="3" r=".65" fill="#8c9ba0" opacity=".28"/></pattern><pattern id="grid" width="42" height="42" patternUnits="userSpaceOnUse"><path d="M42 0H0V42" fill="none" stroke="#cad0ca" stroke-width=".7"/></pattern><linearGradient id="ink" x1="0" x2="1"><stop stop-color="#203a59"/><stop offset="1" stop-color="#4c82a0"/></linearGradient></defs>
+   <rect width="680" height="580" fill="#e8e9df"/><rect width="680" height="580" fill="url(#grain)"/><rect width="680" height="580" fill="url(#grid)" opacity=".7"/>
+   <g fill="none" stroke="#9faea2" stroke-width="1.8" opacity=".76">
+   <path d="M-40 103C80 3 150 37 219 87S381 166 490 67 650 51 730-40"/>
+   <path d="M-38 130C87 37 152 64 215 120S373 195 502 104 652 76 720-10"/>
+   <path d="M-40 160C85 64 145 98 208 150S382 222 510 135 656 115 725 20"/>
+   <path d="M-50 187C86 90 149 126 209 184S382 250 513 165 650 150 731 55"/>
+   <path d="M-35 420C57 365 143 391 232 465S426 498 532 434 678 378 730 415"/>
+   <path d="M-43 449C62 393 158 419 230 495S420 527 538 466 685 404 727 447"/>
+   <path d="M-39 476C60 423 164 454 230 525S420 552 541 496 683 442 725 478"/>
+   </g>
+   <path d="M83 202C107 164 161 147 188 177 216 210 248 219 277 198 304 177 341 189 342 214 347 248 297 271 310 313 323 344 366 334 396 317 453 282 512 317 530 358 557 420 492 457 426 444 372 429 356 386 318 380 270 375 250 426 211 425 165 424 142 391 159 358 175 325 155 305 122 296 81 285 59 244 83 202Z" fill="url(#ink)" opacity=".94"/>
+   <path d="M78 198C101 166 157 142 185 173 216 206 251 216 276 194 314 165 350 192 346 218" stroke="#fff" stroke-width="3" opacity=".8" fill="none"/>
+   <path d="M312 309C352 343 367 302 407 315" fill="none" stroke="#d7a069" stroke-width="7" stroke-linecap="round" stroke-dasharray="3 14"/>
+   <g stroke="#d8e6e7" fill="none" stroke-width="1.2" opacity=".72"><path d="M108 233C156 204 208 275 250 257S307 246 324 219"/><path d="M160 350C205 315 250 345 294 364S399 355 440 339"/><path d="M207 399C238 365 280 352 322 364S417 424 478 400"/></g>
+   <circle cx="314" cy="310" r="11" fill="#f4dbb5" stroke="#c78b54" stroke-width="3"/><circle cx="314" cy="310" r="24" fill="none" stroke="#c78b54" stroke-width="1.5" stroke-dasharray="4 6"/>
+   <g stroke="#263e55" fill="none" stroke-width="1"><path d="M314 310L410 250h75"/><path d="M205 238L143 112h-75"/></g>
+   <g fill="#263e55" font-size="13" font-family="sans-serif" letter-spacing="1"><text x="489" y="246">BOTTLENECK</text><text x="66" y="100">WATER BODY</text></g>
+   <g stroke="#385166" opacity=".7"><path d="M590 480v-58M583 430l7-8 7 8" fill="none"/><path d="M45 540h80M45 536v8M125 536v8"/></g>
+   <g fill="#385166" font-size="12" font-family="sans-serif"><text x="583" y="495">N</text><text x="45" y="557">STUDY GRID</text></g>
+   </svg>
+   <div class="plate-footer"><span>01 / التحليل الشبكي للاتصال المائي</span><span>قراءة تجريدية للنظام البيئي</span></div>
+ </div>
+</div>
+</section>
+<section class="chapter-strip"><div class="wrap"><span class="chapter-no">01 / لماذا ندرس الاتصال؟</span><p>ليست كل مساحة مائية متساوية في أهميتها؛ أحيانًا تحدد مساحة صغيرة مصير الترابط بين مساحات أكبر. نحاول قياس هذا التأثير رياضيًا قبل اقتراح أي تدخل.</p></div></section>
+<section class="wrap pathways" aria-labelledby="path-title"><div class="section-intro"><div><p class="overline">THE WORK</p><h2 id="path-title">ثلاث مسارات. <i>لكل سؤال مكانه.</i></h2></div><p>أبعدنا ضوضاء الأدوات عن الفكرة الأساسية. انتقل مباشرة إلى العمل الذي تريد إنجازه.</p></div>
+<div class="path-grid">
+<a class="path" href="./lab.html"><span class="path-index">01 / EXPLORE</span><svg class="path-icon" viewBox="0 0 130 115" aria-hidden="true"><path d="M14 75C33 30 56 88 71 56S100 24 119 45" fill="none" stroke="#284d6d" stroke-width="13" stroke-linecap="round"/><path d="M12 96C35 49 54 105 79 79S111 70 124 79" fill="none" stroke="#bf915d" stroke-width="2"/></svg><h3>مختبر المياه</h3><p>افتح الخريطة، غيّر سيناريو الجفاف، وافحص نقاط الاختناق وتكاليف الاختيار الافتراضية.</p><span class="path-link">فتح المختبر ←</span></a>
+<a class="path" href="./model.html"><span class="path-index">02 / LEARN</span><svg class="path-icon" viewBox="0 0 130 115" aria-hidden="true"><g fill="#284d6d"><circle cx="22" cy="26" r="8"/><circle cx="22" cy="83" r="8"/><circle cx="65" cy="18" r="8"/><circle cx="65" cy="55" r="8"/><circle cx="65" cy="96" r="8"/><circle cx="109" cy="45" r="9"/></g><g stroke="#bc936a" stroke-width="2" fill="none"><path d="M30 26 57 18M30 26 57 55M30 83 57 55M30 83 57 96M73 18 100 45M73 55 100 45M73 96 100 45"/></g></svg><h3>نموذج MarshNet</h3><p>درّب نموذجًا عصبيًا خاصًا، قارن نتائجه بخط الأساس، وصدّر وزناته القابلة لإعادة الاستخدام.</p><span class="path-link">افتح استوديو النموذج ←</span></a>
+<a class="path" href="./methods.html"><span class="path-index">03 / VERIFY</span><svg class="path-icon" viewBox="0 0 130 115" aria-hidden="true"><g stroke="#284d6d" fill="none" stroke-width="2"><rect x="25" y="14" width="81" height="93" rx="2"/><path d="M38 35h52M38 48h52M38 61h29M38 76h44"/></g><circle cx="96" cy="81" r="19" fill="#e8e7df" stroke="#c58e5b" stroke-width="3"/><path d="m87 81 7 7 15-17" fill="none" stroke="#284d6d" stroke-width="3"/></svg><h3>المنهجية والأدلة</h3><p>تعرّف على مصادر البيانات، حدود المحاكاة، والخطوات اللازمة لتصبح النتائج صالحة للمراجعة العلمية.</p><span class="path-link">اقرأ بروتوكول البحث ←</span></a>
+</div>
+</section>
+<section class="wrap study-note"><div><span class="overline">RESEARCH PRINCIPLE</span><h2>نفضّل نتيجة صادقة<br>على توقّع مبهر.</h2></div><div><p>لا يصنّف المشروع البيانات الاصطناعية على أنها رصد فعلي للعراق، ولا يحوّل وحدات المحاكاة إلى كميات مياه حقيقية. كل نموذج يحتاج مقارنة مرجعية واختبارًا خارج بيانات التدريب.</p><a class="text-arrow" href="./methods.html">ماذا يجب أن نثبت قبل المشاركة في مسابقة؟ ←</a></div></section>
+</main>
+<footer class="site-footer"><div class="wrap foot-grid"><a class="foot-logo" href="./index.html">MarshPulse <span>↗</span></a><p>أداة بحثية مستقلة لدراسة الأهوار العراقية، مفتوحة المصدر وقابلة لإعادة الاختبار.</p><span>RESEARCH PROTOTYPE · 2026</span></div></footer>
+</body></html>
