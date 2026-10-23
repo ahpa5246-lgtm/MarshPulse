@@ -31,7 +31,7 @@ test("CSV handles quoted cells and BOM header",()=>{
 test("CSV rejects missing months, incomplete data and duplicate cells",()=>{
   const valid=csv(ds,14);
   assert.throws(()=>parseCSV(valid.replace(/^2020-02.*\n/gm,"")),/Missing month/);
-  assert.throws(()=>parseCSV(valid.split("\n").slice(0,-1).join("\n")),/Missing cells/);
+  assert.throws(()=>parseCSV(valid.split("\n").filter(line=>!line.startsWith("2020-03,1,1,")).join("\n")),/Missing cells/);
   assert.throws(()=>parseCSV(valid+"\n"+valid.split("\n")[1]),/Duplicate/);
 });
 test("CSV rejects malicious / malformed grid cells",()=>{
