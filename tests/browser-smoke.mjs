@@ -215,7 +215,11 @@ try{
   await modelEvidence.saveAs("artifacts/marshnet-in-lab-evidence.json");
   const loadedReport=JSON.parse(await readFile("artifacts/marshnet-in-lab-evidence.json","utf8"));
   assert.match(loadedReport.predictor,/MarshNet/);
+    await page.setViewportSize({width:1440,height:950});
     await page.goto("http://127.0.0.1:8765/methods.html",{waitUntil:"networkidle"});
+    await exposeAllSections(page);
+    await page.screenshot({path:"artifacts/marshpulse-methods-desktop.png",fullPage:true});
+    await page.setViewportSize({width:390,height:844});
   assert.equal(await page.locator(".timeline li").count(),5);
   assert.equal(await page.locator('[data-organic-pattern] > .organic-pattern-svg').count(),3,"methods has three background panels");
   await exposeAllSections(page);
