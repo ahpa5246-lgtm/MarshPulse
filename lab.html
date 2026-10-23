@@ -51,6 +51,11 @@
           <label class="upload-zone" for="data-upload"><span class="upload-icon">⇧</span><strong>استيراد سلسلة زمنية CSV</strong><small>date,row,col,water · شهريًا · 12–72 شهرًا</small><input id="data-upload" type="file" accept=".csv,text/csv"/></label>
           <div class="tiny-actions"><button id="reset-demo" type="button" class="text-button">↺ استعادة التجربة</button><button id="csv-example" type="button" class="text-button">↓ نموذج CSV</button></div>
           <div class="rule"></div>
+          <label class="field-label" for="marshnet-upload">نموذج التنبؤ</label>
+          <p id="active-model" class="model-active" role="status">النموذج المرجعي: Logistic</p>
+          <label class="model-upload" for="marshnet-upload">استيراد أوزان MarshNet JSON ↥<input id="marshnet-upload" type="file" accept=".json,application/json"/></label>
+          <a class="model-learn-link" href="./model.html">تدريب نموذجنا الخاص ↗</a>
+          <div class="rule"></div>
           <div class="control-group"><div class="control-caption"><label for="stress">ضغط الجفاف الافتراضي</label><output id="stress-value" for="stress">25%</output></div><input id="stress" type="range" min="0" max="70" value="25" step="5"/><div class="range-label"><span>أقل</span><span>أعلى</span></div></div>
           <div class="control-group"><div class="control-caption"><label for="budget">ميزانية حماية خلايا الشبكة</label><output id="budget-value" for="budget">6 نقاط</output></div><input id="budget" type="range" min="0" max="12" value="6" step="1"/><div class="range-label"><span>0</span><span>12</span></div></div>
           <div class="subnote"><strong>وحدات افتراضية فقط.</strong> كل نقطة تعني الاحتفاظ بخليّة مائية متوقّع جفافها في محاكاة شبكة، وليست كمية مياه أو تكلفة ترميم حقيقية.</div>
