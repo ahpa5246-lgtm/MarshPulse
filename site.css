@@ -66,3 +66,19 @@
 .site-home .chapter-strip{margin-top:80px}
 @media(max-width:760px){.site-home .hero-layout{padding-top:28px;gap:30px}.site-home .hero-narrative h1{font-size:clamp(35px,9vw,54px);margin-top:24px}.site-home .editorial-hero{padding-bottom:64px}.wetland-lens-media{width:min(330px,calc(100vw - 44px));height:190px}.wetland-lens-media img{clip-path:ellipse(48% 46% at 50% 50%);border-radius:48%}.wetland-lens figcaption{max-width:300px;line-height:1.9}.site-home .plate{margin-top:8px;box-shadow:6px 7px 0 #e4dfdc}.site-home .chapter-strip{margin-top:56px}}
 @media(prefers-reduced-motion:reduce){.wetland-lens-media img{transition:none!important}}
+
+
+.model-v2-feature{margin:68px 0 0;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(280px,.8fr);gap:65px;align-items:center;background:#e8e6e4;border-top:1px solid #c5c4c2;border-bottom:1px solid #c5c4c2;padding:48px clamp(22px,4vw,60px);position:relative}
+.model-v2-feature:before{content:"";position:absolute;inset-inline-end:0;top:0;width:5px;height:100%;background:linear-gradient(#cbc8e3,#ad83af,#e6d9dd)}
+.model-v2-feature h2{font-size:clamp(40px,5vw,65px);line-height:1.05;margin:0 0 22px;font-family:system-ui,sans-serif;letter-spacing:-2px;direction:ltr;text-align:right}
+.model-v2-feature h2 span{color:#846386}
+.model-v2-feature h2 small{display:block;font-size:13px;color:#7c8189;margin-top:14px;letter-spacing:1.5px;font-weight:500}
+.v2-copy>p:not(.overline){font-size:14px;line-height:2.2;color:#5b6771}
+.v2-copy .v2-disclaimer{font-size:11px!important;border-right:3px solid #ad8499;padding-right:14px;color:#776b73!important;margin:28px 0 0}
+.v2-links{display:flex;flex-wrap:wrap;align-items:center;gap:18px;margin-top:27px}
+.v2-diagram{padding:30px 24px;background:#233746;color:#fff;border-radius:2px;box-shadow:14px 14px 0 #d9d5dd;text-align:center;display:grid;justify-items:stretch;gap:4px}
+.v2-layer{padding:12px;background:#3b5161;border:1px solid #71808a;font-size:13px;font-weight:800;letter-spacing:1px;direction:ltr}
+.v2-layer span{font-size:10px;font-weight:400;display:block;direction:rtl;margin-top:3px;color:#e0e9ed;letter-spacing:0}
+.v2-layer.emphasis{background:#72617a;border-color:#c8a5cd}
+.v2-connector{color:#cbb1cb;line-height:1.2;font-size:16px}
+@media(max-width:800px){.model-v2-feature{grid-template-columns:1fr;gap:32px;padding:30px 22px}.model-v2-feature h2{font-size:44px}.v2-diagram{box-shadow:7px 7px 0 #d9d5dd}}
