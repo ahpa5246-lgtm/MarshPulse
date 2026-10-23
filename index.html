@@ -1,74 +1,96 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="MarshPulse: مختبر بحثي مفتوح لدراسة ترابط المياه وتغيرها في أهوار العراق.">
-<meta name="theme-color" content="#f3f0e9">
-<link rel="icon" href="./favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="./site.css">
-<title>MarshPulse — أطلس المستقبل المائي</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="theme-color" content="#f5fbeb"/>
+<meta name="description" content="MarshPulse — منصة بحثية مضيئة لحماية الأهوار العراقية، تحليل المياه بالصور الفضائية، وذكاء اصطناعي قابل للاختبار."/>
+<link rel="icon" href="./favicon.svg" type="image/svg+xml"/>
+<link rel="stylesheet" href="./site.css"/>
+<link rel="stylesheet" href="./botanical.css"/>
+<title>MarshPulse | حياة تتجدد بين الماء والقصب</title>
 </head>
-<body class="site-home">
+<body class="botanical-home">
 <a class="skip" href="#content">انتقل إلى المحتوى</a>
-<header class="site-header">
-  <a class="identity" href="./index.html" aria-label="MarshPulse الرئيسية"><span class="identity-glyph" aria-hidden="true">≋</span><span><b>MarshPulse</b><small>أطلس الأهوار / IRAQ WETLAND LAB</small></span></a>
-  <nav aria-label="التنقل الرئيسي"><a href="./index.html" aria-current="page">نظرة عامة</a><a href="./lab.html">مختبر المياه</a><a href="./model.html">نموذج MarshNet</a><a href="./methods.html">البحث والمصادر</a></nav>
-  <a class="header-link" href="https://github.com/ahpa5246-lgtm/MarshPulse" target="_blank" rel="noopener">المصدر البرمجي ↗</a>
+<header class="site-header botanical-nav">
+  <a class="identity" href="./index.html" aria-label="MarshPulse الرئيسية"><span class="identity-glyph" aria-hidden="true">≋</span><span><b>MarshPulse<span class="identity-accent">.</span></b><small>أطلس الأهوار العراقية · RESEARCH LAB</small></span></a>
+  <nav aria-label="التنقل الرئيسي"><a href="./index.html" aria-current="page">الرئيسية</a><a href="./lab.html">مختبر المياه</a><a href="./model.html">MarshNet AI</a><a href="./methods.html">المنهجية</a></nav>
+  <a class="header-link" href="./lab.html">ابدئي الاستكشاف <span aria-hidden="true">↗</span></a>
 </header>
 <main id="content">
-<section class="editorial-hero wrap">
-<div class="issue-line"><span>FIELD NOTES / 001</span><span>MESOPOTAMIAN MARSHES — IRAQ</span><span>2026 / RESEARCH EDITION</span></div>
-<div class="hero-layout">
- <div class="hero-narrative">
-   <p class="overline">مرصد علمي مفتوح · نسخة البحث 2026</p>
-   <figure class="wetland-lens">
-     <div class="wetland-lens-media">
-       <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Marshes_in_southern_Iraq.jpeg?width=960" alt="منظر فوتوغرافي حقيقي لأهوار جنوب العراق، مياه وقصب تحت ضوء النهار" loading="eager" fetchpriority="high" decoding="async" width="640" height="480"/>
-     </div>
-     <figcaption>أهوار جنوب العراق · صورة Almendilawi / <a href="https://commons.wikimedia.org/wiki/File:Marshes_in_southern_Iraq.jpeg" rel="noopener" target="_blank">Wikimedia Commons</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="noopener" target="_blank">CC BY-SA 4.0</a> · اقتصاص بصري</figcaption>
-   </figure>
-   <h1>حين تتغيّر المياه،<br><span class="serif">تتغيّر الحياة.</span></h1>
-   <p class="hero-description">نرصد تغيّر المساحات المائية، نفحص ما يبقى متصلًا منها، ونختبر فرضيات الحماية قبل تحويلها إلى قرارات. منصة بحثية للأهوار العراقية، لا خريطة تدّعي معرفة المستقبل.</p>
-   <div class="hero-links"><a class="action action-dark" href="./lab.html">استكشف مختبر المياه <span>←</span></a><a class="action action-text" href="./model.html">تعرّف على نموذجنا الخاص ↗</a></div>
-   <p class="hero-caveat"><span class="caveat-mark"></span>المثال التفاعلي يبدأ ببيانات اصطناعية موضّحة المصدر. النتائج الواقعية تتطلب استيراد بيانات مرصودة والتحقق منها.</p>
- </div>
- <div class="plate">
-   <div class="plate-header"><span>FIGURE 01 — CONNECTIVITY STUDY</span><span>ILLUSTRATIVE / NOT TO SCALE</span></div>
-   <svg class="plate-art" viewBox="0 0 680 580" role="img" aria-label="رسم توضيحي فني لمساحات مائية وممرات اتصال، وليس خريطة جغرافية فعلية">
-   <defs><pattern id="grain" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="2" cy="3" r=".65" fill="#8c9ba0" opacity=".28"/></pattern><pattern id="grid" width="42" height="42" patternUnits="userSpaceOnUse"><path d="M42 0H0V42" fill="none" stroke="#cad0ca" stroke-width=".7"/></pattern><linearGradient id="ink" x1="0" x2="1"><stop stop-color="#203a59"/><stop offset="1" stop-color="#4c82a0"/></linearGradient></defs>
-   <rect width="680" height="580" fill="#e8e9df"/><rect width="680" height="580" fill="url(#grain)"/><rect width="680" height="580" fill="url(#grid)" opacity=".7"/>
-   <g fill="none" stroke="#9faea2" stroke-width="1.8" opacity=".76">
-   <path d="M-40 103C80 3 150 37 219 87S381 166 490 67 650 51 730-40"/>
-   <path d="M-38 130C87 37 152 64 215 120S373 195 502 104 652 76 720-10"/>
-   <path d="M-40 160C85 64 145 98 208 150S382 222 510 135 656 115 725 20"/>
-   <path d="M-50 187C86 90 149 126 209 184S382 250 513 165 650 150 731 55"/>
-   <path d="M-35 420C57 365 143 391 232 465S426 498 532 434 678 378 730 415"/>
-   <path d="M-43 449C62 393 158 419 230 495S420 527 538 466 685 404 727 447"/>
-   <path d="M-39 476C60 423 164 454 230 525S420 552 541 496 683 442 725 478"/>
-   </g>
-   <path d="M83 202C107 164 161 147 188 177 216 210 248 219 277 198 304 177 341 189 342 214 347 248 297 271 310 313 323 344 366 334 396 317 453 282 512 317 530 358 557 420 492 457 426 444 372 429 356 386 318 380 270 375 250 426 211 425 165 424 142 391 159 358 175 325 155 305 122 296 81 285 59 244 83 202Z" fill="url(#ink)" opacity=".94"/>
-   <path d="M78 198C101 166 157 142 185 173 216 206 251 216 276 194 314 165 350 192 346 218" stroke="#fff" stroke-width="3" opacity=".8" fill="none"/>
-   <path d="M312 309C352 343 367 302 407 315" fill="none" stroke="#d7a069" stroke-width="7" stroke-linecap="round" stroke-dasharray="3 14"/>
-   <g stroke="#d8e6e7" fill="none" stroke-width="1.2" opacity=".72"><path d="M108 233C156 204 208 275 250 257S307 246 324 219"/><path d="M160 350C205 315 250 345 294 364S399 355 440 339"/><path d="M207 399C238 365 280 352 322 364S417 424 478 400"/></g>
-   <circle cx="314" cy="310" r="11" fill="#f4dbb5" stroke="#c78b54" stroke-width="3"/><circle cx="314" cy="310" r="24" fill="none" stroke="#c78b54" stroke-width="1.5" stroke-dasharray="4 6"/>
-   <g stroke="#263e55" fill="none" stroke-width="1"><path d="M314 310L410 250h75"/><path d="M205 238L143 112h-75"/></g>
-   <g fill="#263e55" font-size="13" font-family="sans-serif" letter-spacing="1"><text x="489" y="246">BOTTLENECK</text><text x="66" y="100">WATER BODY</text></g>
-   <g stroke="#385166" opacity=".7"><path d="M590 480v-58M583 430l7-8 7 8" fill="none"/><path d="M45 540h80M45 536v8M125 536v8"/></g>
-   <g fill="#385166" font-size="12" font-family="sans-serif"><text x="583" y="495">N</text><text x="45" y="557">STUDY GRID</text></g>
-   </svg>
-   <div class="plate-footer"><span>01 / التحليل الشبكي للاتصال المائي</span><span>قراءة تجريدية للنظام البيئي</span></div>
- </div>
-</div>
-</section>
-<section class="chapter-strip"><div class="wrap"><span class="chapter-no">01 / لماذا ندرس الاتصال؟</span><p>ليست كل مساحة مائية متساوية في أهميتها؛ أحيانًا تحدد مساحة صغيرة مصير الترابط بين مساحات أكبر. نحاول قياس هذا التأثير رياضيًا قبل اقتراح أي تدخل.</p></div></section>
-<section class="wrap pathways" aria-labelledby="path-title"><div class="section-intro"><div><p class="overline">THE WORK</p><h2 id="path-title">ثلاث مسارات. <i>لكل سؤال مكانه.</i></h2></div><p>أبعدنا ضوضاء الأدوات عن الفكرة الأساسية. انتقل مباشرة إلى العمل الذي تريد إنجازه.</p></div>
-<div class="path-grid">
-<a class="path" href="./lab.html"><span class="path-index">01 / EXPLORE</span><svg class="path-icon" viewBox="0 0 130 115" aria-hidden="true"><path d="M14 75C33 30 56 88 71 56S100 24 119 45" fill="none" stroke="#284d6d" stroke-width="13" stroke-linecap="round"/><path d="M12 96C35 49 54 105 79 79S111 70 124 79" fill="none" stroke="#bf915d" stroke-width="2"/></svg><h3>مختبر المياه</h3><p>افتح الخريطة، غيّر سيناريو الجفاف، وافحص نقاط الاختناق وتكاليف الاختيار الافتراضية.</p><span class="path-link">فتح المختبر ←</span></a>
-<a class="path" href="./model.html"><span class="path-index">02 / LEARN</span><svg class="path-icon" viewBox="0 0 130 115" aria-hidden="true"><g fill="#284d6d"><circle cx="22" cy="26" r="8"/><circle cx="22" cy="83" r="8"/><circle cx="65" cy="18" r="8"/><circle cx="65" cy="55" r="8"/><circle cx="65" cy="96" r="8"/><circle cx="109" cy="45" r="9"/></g><g stroke="#bc936a" stroke-width="2" fill="none"><path d="M30 26 57 18M30 26 57 55M30 83 57 55M30 83 57 96M73 18 100 45M73 55 100 45M73 96 100 45"/></g></svg><h3>نموذج MarshNet</h3><p>درّب نموذجًا عصبيًا خاصًا، قارن نتائجه بخط الأساس، وصدّر وزناته القابلة لإعادة الاستخدام.</p><span class="path-link">افتح استوديو النموذج ←</span></a>
-<a class="path" href="./methods.html"><span class="path-index">03 / VERIFY</span><svg class="path-icon" viewBox="0 0 130 115" aria-hidden="true"><g stroke="#284d6d" fill="none" stroke-width="2"><rect x="25" y="14" width="81" height="93" rx="2"/><path d="M38 35h52M38 48h52M38 61h29M38 76h44"/></g><circle cx="96" cy="81" r="19" fill="#e8e7df" stroke="#c58e5b" stroke-width="3"/><path d="m87 81 7 7 15-17" fill="none" stroke="#284d6d" stroke-width="3"/></svg><h3>المنهجية والأدلة</h3><p>تعرّف على مصادر البيانات، حدود المحاكاة، والخطوات اللازمة لتصبح النتائج صالحة للمراجعة العلمية.</p><span class="path-link">اقرأ بروتوكول البحث ←</span></a>
-</div>
-</section>
-<section class="wrap study-note"><div><span class="overline">RESEARCH PRINCIPLE</span><h2>نفضّل نتيجة صادقة<br>على توقّع مبهر.</h2></div><div><p>لا يصنّف المشروع البيانات الاصطناعية على أنها رصد فعلي للعراق، ولا يحوّل وحدات المحاكاة إلى كميات مياه حقيقية. كل نموذج يحتاج مقارنة مرجعية واختبارًا خارج بيانات التدريب.</p><a class="text-arrow" href="./methods.html">ماذا يجب أن نثبت قبل المشاركة في مسابقة؟ ←</a></div></section>
+  <section class="flora-hero" aria-labelledby="hero-title">
+    <div class="flora-orbit flora-orbit-one" aria-hidden="true"></div><div class="flora-orbit flora-orbit-two" aria-hidden="true"></div>
+    <div class="flora-hero-inner wrap">
+      <div class="flora-copy">
+        <div class="flora-eyebrow"><span class="flora-sun" aria-hidden="true">✳</span> IRAQ'S LIVING WETLANDS <span class="flora-eyebrow-rule"></span> مرصد بيئي مفتوح</div>
+        <h1 id="hero-title">حين تتغيّر المياه،<br/><span class="flora-headline-light">تتغيّر</span> <span class="flora-green">الحياة.</span></h1>
+        <p class="flora-description">من قلب الأهوار العراقية، نربط صور الأقمار الصناعية بالذكاء الاصطناعي لنفهم أين تتراجع المياه، وما الذي يحتاج حمايةً أولًا.</p>
+        <div class="flora-hero-actions">
+          <a class="flora-button flora-button-primary" href="./lab.html">استكشفي الأهوار <span aria-hidden="true">↗</span></a>
+          <a class="flora-button flora-button-ghost" href="./model.html">تعرّفي على MarshNet <span aria-hidden="true">←</span></a>
+        </div>
+        <div class="flora-hero-proof"><span class="flora-proof-icon" aria-hidden="true">◎</span><p><strong>منصة بحثية تجريبية</strong><br/>بيانات العرض الاصطناعية مميّزة عن الرصد الحقيقي، والتوقعات تخضع للمقارنة والاختبار.</p></div>
+      </div>
+      <div class="flora-stage">
+        <div class="flora-stage-glow" aria-hidden="true"></div>
+        <figure class="flora-main-photo">
+          <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Marshes_in_southern_Iraq.jpeg?width=1200" width="760" height="1020" decoding="async" fetchpriority="high" alt="مياه وقصب في الأهوار الواقعة جنوب العراق"/>
+          <figcaption>الأهوار العراقية <span>30.99°N · 47.03°E</span></figcaption>
+        </figure>
+        <figure class="flora-second-photo">
+          <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Marshes_-_South_iraq.jpg?width=680" width="340" height="405" loading="lazy" decoding="async" alt="مشهد آخر للقوارب والمياه في أهوار جنوب العراق"/>
+          <figcaption>الحياة على ضفاف الماء</figcaption>
+        </figure>
+        <div class="flora-photo-sticker" aria-label="المياه والحياة والترابط"><span class="flora-sticker-symbol" aria-hidden="true">✻</span><span>WATER<br/>IS LIFE</span></div>
+        <div class="flora-stage-caption"><span class="flora-caption-line"></span> المساحات الرطبة تحفظ الذاكرة البيئية للعراق</div>
+      </div>
+    </div>
+    <div class="flora-hero-bottom" aria-hidden="true"><span>الماء</span><span>•</span><span>الحياة</span><span>•</span><span>التنوع البيئي</span><span>•</span><span>المستقبل</span></div>
+  </section>
+  <div class="flora-photo-credit wrap">الصور: <a href="https://commons.wikimedia.org/wiki/File:Marshes_in_southern_Iraq.jpeg" target="_blank" rel="noopener">Almendilawi</a> و<a href="https://commons.wikimedia.org/wiki/File:Marshes_-_South_iraq.jpg" target="_blank" rel="noopener">Wikimedia Commons</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · اقتطاع للعرض</div>
+
+  <section class="flora-intro wrap" aria-labelledby="intro-title">
+    <div class="flora-section-marker"><span class="flora-dot"></span> WHAT WE DO <span class="flora-index">01 / 04</span></div>
+    <div class="flora-intro-grid">
+      <h2 id="intro-title">الطبيعة تتحدث.<br/><em>نحن نحوّل إشاراتها<br/>إلى معرفة.</em></h2>
+      <div><p>ليس الهدف رسم خريطة جميلة فحسب. نريد فهم كيف تتغير المياه بين المواسم، وأين تنقطع الروابط بين المسطحات، وكيف نقارن خيارات الحماية بصورة قابلة للتدقيق.</p><a href="./methods.html" class="flora-inline-link">اقرئي كيف نتحقق من النتائج <span aria-hidden="true">↗</span></a></div>
+    </div>
+  </section>
+  <section class="flora-experiences wrap" aria-labelledby="paths-title">
+    <div class="flora-section-heading"><div><span class="flora-overline">A JOURNEY THROUGH THE MARSHES</span><h2 id="paths-title">كل اكتشاف يبدأ <span>من هنا.</span></h2></div><p>اختاري مسارك، وتابعي العمل في مساحة مصممة له وحده.</p></div>
+    <div class="path-grid flora-path-grid">
+      <a class="path flora-path flora-path-photo" href="./lab.html">
+        <span class="flora-path-id">01 / EXPLORE <span aria-hidden="true">↗</span></span>
+        <div class="flora-path-art"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Chibayish_Marshes_in_Iraq_30.jpg?width=760" loading="lazy" width="540" height="410" decoding="async" alt="مياه وقصب في أهوار الجبايش العراقية"/></div>
+        <h3>مختبر المياه</h3><p>شاهدي اتصال المسطحات المائية، جرّبي سيناريوهات الجفاف، وافحصي مناطق الاختناق.</p><span class="flora-card-link">اكتشفي المختبر <span aria-hidden="true">↗</span></span>
+      </a>
+      <a class="path flora-path flora-path-model" href="./model.html">
+        <span class="flora-path-id">02 / INTELLIGENCE <span aria-hidden="true">↗</span></span>
+        <div class="flora-path-art flora-model-graphic" aria-hidden="true">
+          <span class="flora-model-graphic-label">MarshNet <small>V2</small></span>
+          <svg viewBox="0 0 300 210"><defs><linearGradient id="neural" x1="0" x2="1"><stop stop-color="#54b97b"/><stop offset="1" stop-color="#dffb79"/></linearGradient></defs><g fill="none" stroke="url(#neural)" stroke-width="2.5" opacity=".82"><path d="M12 140 Q 80 10 157 105 T294 62"/><path d="M5 180Q90 30 149 129T286 107"/><path d="M15 119Q82 70 146 80T292 159"/><path d="M34 192Q84 92 159 147T295 147"/></g><g fill="#e6ff9b"><circle cx="65" cy="106" r="8"/><circle cx="130" cy="112" r="7"/><circle cx="181" cy="92" r="11"/><circle cx="245" cy="126" r="7"/></g></svg>
+        </div>
+        <h3>MarshNet AI</h3><p>كيف تتعلم الشبكة العصبية من الصور؟ اكتشفي التدريب والنتائج والقيود البحثية.</p><span class="flora-card-link">شاهدي النموذج <span aria-hidden="true">↗</span></span>
+      </a>
+      <a class="path flora-path flora-path-research" href="./methods.html">
+        <span class="flora-path-id">03 / DISCOVER <span aria-hidden="true">↗</span></span>
+        <div class="flora-path-art flora-research-graphic" aria-hidden="true"><span class="flora-bloom">✳</span><span class="flora-bloom-mini">✳</span><span class="flora-rings flora-rings-a"></span><span class="flora-rings flora-rings-b"></span><span class="flora-research-caption">EVERY RESULT<br/>NEEDS EVIDENCE</span></div>
+        <h3>قصّة البحث</h3><p>من أين تأتي البيانات؟ ما الذي تعنيه الثقة العلمية؟ وما الذي لا نعرفه بعد؟</p><span class="flora-card-link">اقرئي المنهجية <span aria-hidden="true">↗</span></span>
+      </a>
+    </div>
+    <p class="flora-image-caption">صورة الجبايش: Alli Khalil / <a href="https://commons.wikimedia.org/wiki/File:Chibayish_Marshes_in_Iraq_30.jpg" rel="noopener" target="_blank">Wikimedia Commons</a> · CC BY-SA 4.0 · اقتطاع للعرض</p>
+  </section>
+  <section class="flora-story" aria-labelledby="story-title">
+    <div class="wrap flora-story-inner">
+      <div class="flora-story-visual">
+        <div class="flora-story-halo" aria-hidden="true"></div>
+        <figure><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Marshes_in_southern_Iraq.jpeg?width=960" loading="lazy" width="600" height="800" decoding="async" alt="صورة للمياه في أهوار العراق، عنصر مصوّر لقصة المشروع"/><figcaption>MESOPOTAMIA · THE LIVING MARSHES</figcaption></figure>
+        <span class="flora-story-sun" aria-hidden="true">✳</span>
+      </div>
+      <div class="flora-story-copy"><span class="flora-overline">WHY MARSH PULSE? — 03 / 04</span><h2 id="story-title">ليست مجرد<br/><span>مساحات مائية.</span></h2><p>الأهوار موطن للنباتات والطيور وتاريخ من التعايش بين الإنسان والماء. لذلك نتعامل مع تغيّرها على أنه مسألة بيئية متصلة، لا مجرد لون على صورة قمر صناعي.</p><div class="flora-story-list"><div><span>01</span><strong>نرصد</strong><small>تاريخ المياه وتغيّر المساحات</small></div><div><span>02</span><strong>نفهم</strong><small>الترابط ونقاط الانقطاع</small></div><div><span>03</span><strong>نختبر</strong><small>التوقعات قبل تقديم أي اقتراح</small></div></div><a href="./lab.html" class="flora-button flora-button-light">ادخلي إلى المختبر <span aria-hidden="true">↗</span></a></div>
+    </div>
+  </section>
+  <section class="flora-bottom-cta wrap"><div class="flora-section-marker"><span class="flora-dot"></span> THE NEXT STEP <span class="flora-index">04 / 04</span></div><div class="flora-bottom-grid"><h2>لنمنح الماء<br/><em>فرصةً أخرى.</em></h2><div><p>مشروع مفتوح المصدر يطمح إلى جعل مراقبة الأهوار أكثر وضوحًا، والتنبؤات أكثر قابلية للمراجعة. كل تجربة تبدأ بسؤال وتُقاس بالدليل.</p><a href="./model.html" class="flora-button flora-button-primary">تعرّفي على نموذج الذكاء الاصطناعي <span aria-hidden="true">↗</span></a></div></div><div class="flora-science-note"><span>✳</span><p>مهم: MarshNet V2 نموذج بحثي لم يتفوق بعد على خط الأساس في أول تجربة بالصور الحقيقية. لا تُستخدم سيناريوهاته كتوصيات هندسية فعلية لإدارة المياه.</p><a href="./methods.html">التفاصيل العلمية ↗</a></div></section>
 </main>
-<footer class="site-footer"><div class="wrap foot-grid"><a class="foot-logo" href="./index.html">MarshPulse <span>↗</span></a><p>أداة بحثية مستقلة لدراسة الأهوار العراقية، مفتوحة المصدر وقابلة لإعادة الاختبار.</p><span>RESEARCH PROTOTYPE · 2026</span></div></footer>
+<footer class="site-footer flora-footer"><div class="wrap foot-grid"><a class="foot-logo" href="./index.html">MarshPulse <span>✳</span></a><p>Water, nature & responsible AI — Iraq</p><a href="https://github.com/ahpa5246-lgtm/MarshPulse" target="_blank" rel="noopener">المستودع المفتوح ↗</a></div></footer>
 </body></html>
