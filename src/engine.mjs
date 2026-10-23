@@ -159,8 +159,8 @@ export function forecast(ds,model){
   const t=ds.frames.length-1,probabilities=ds.frames[t].map((_,i)=>predict(model.weights,extractFeatures(ds,t,i)));
   return {date:nextMonth(ds.dates[t]),probabilities};
 }
-export function scenario(ds,model,{stress=25,budget=6}={}){
-  const recent=ds.frames.at(-1),current=recent.map(water),raw=forecast(ds,model);
+export function scenario(ds,model,{stress=25,budget=6,predictor=null}={}){
+  const recent=ds.frames.at(-1),current=recent.map(water),raw=typeof predictor==="function"?{date:nextMonth(ds.dates.at(-1)),probabilities:recent.map((_,i)=>predictor(ds,ds.frames.length-1,i))}:forecast(ds,model);
   const probabilities=raw.probabilities.map(p=>clamp(p-stress*0.005));
   const baseMask=probabilities.map(water);
   const base=connectivity(baseMask,ds.width,ds.height);
