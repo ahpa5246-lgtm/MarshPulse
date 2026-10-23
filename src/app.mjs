@@ -163,6 +163,16 @@ $("csv-example").addEventListener("click",()=>{
 });
 $("export-report").addEventListener("click",()=>{
   const data=report(state.data,state.model,state.result);
+  if(state.custom){
+    data.predictor="MarshNet · imported MLP";
+    data.training=state.custom.training;
+    data.modelEvaluation=state.custom.evaluation;
+    data.modelProvenance=state.custom.provenance;
+    data.modelArchitecture=state.custom.architecture;
+    data.disclaimer+=" Imported custom model measurements are reported from the supplied artifact and are not independently recomputed or certified.";
+  }else{
+    data.predictor="Logistic · built-in baseline";
+  }
   download("marshpulse-evidence-"+state.data.dates.at(-1)+".json",JSON.stringify(data,null,2),"application/json");
   toast("تم تصدير التقرير بما فيه الافتراضات ونتائج الاختبار.");
 });
