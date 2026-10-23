@@ -61,4 +61,4 @@ def evaluate_binary(probs,ys,valid):
     if not len(probs):raise ValueError("No valid observed targets to evaluate")
     pred=probs>=.5;truth=ys>=.5
     tp=(pred&truth).sum().item();fp=(pred&~truth).sum().item();fn=(~pred&truth).sum().item()
-    return {"brier":((probs-ys)**2).mean().item(),"f1":2*tp/(2*tp+fp+fn) if 2*tp+fp+fn else 1.,"iou":tp/(tp+fp+fn) if tp+fp+fn else 1.,"accuracy":(pred==truth).float().mean().item(),"n_valid_pixels":int(len(probs))}
+    return {"brier":((probs-ys)**2).mean().item(),"f1":2*tp/(2*tp+fp+fn) if 2*tp+fp+fn else 1.,"iou":tp/(tp+fp+fn) if tp+fp+fn else 1.,"accuracy":(pred==truth).float().mean().item(),"n_valid_pixels":int(len(probs)),"wet_truth_fraction":truth.float().mean().item(),"wet_prediction_fraction":pred.float().mean().item(),"true_positive_pixels":int(truth.sum().item())}
