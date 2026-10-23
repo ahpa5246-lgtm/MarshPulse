@@ -27,6 +27,36 @@ jobs:
         run: |
           python3 -m pip install --quiet "numpy>=1.26,<3"
           python3 -m unittest discover -s tests -p 'test_*.py' -v
+  model-training-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU training runtime
+        run: |
+          python -m pip install -q "numpy>=1.26,<3"
+          python -m pip install -q torch --index-url https://download.pytorch.org/whl/cpu
+      - name: End-to-end synthetic fixture (NEVER real scientific evidence)
+        run: |
+          python ml/train_satellite.py --synthetic-smoke \
+            --input /tmp/marshpulse-synthetic/fixture.npz \
+            --out /tmp/marshpulse-synthetic/out \
+            --base 8 --epochs 2 --batch 2 --lookback 4 --cpu
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          a=Path("/tmp/marshpulse-synthetic/out")
+          report=json.loads((a/"evaluation.json").read_text())
+          assert report["status"]=="SYNTHETIC SMOKE ONLY"
+          assert report["scientific_readiness_gate"]["ready_for_operational_or_ecological_decisions"] is False
+          assert "seasonal_12m" in report["same_pixel_model_vs_both_baselines"]["metrics"]
+          assert "persistence" in report["same_pixel_model_vs_both_baselines"]["metrics"]
+          assert (a/"marshnet_v2.pt").stat().st_size>0
+          print("TRAINING_PIPELINE_SMOKE_SUCCESS; synthetic only, no scientific accuracy established")
+          PY
   browser-smoke:
     runs-on: ubuntu-latest
     timeout-minutes: 15
