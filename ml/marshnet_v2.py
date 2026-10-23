@@ -48,17 +48,35 @@ def wet_pseudolabel(image):
     """Future-image MNDWI>0.1, NDVI<0.3; NOT independent field truth."""
     valid=image[6]>.5
     return ((image[5]>.1)&(image[4]<.3)&valid).float(),valid.float()
-def masked_bce_dice(logits,target,mask):
+def masked_bce_dice(logits,target,mask,pos_weight=1.):
     mask=mask.float()
     if not mask.any():return logits.sum()*0
-    bce=F.binary_cross_entropy_with_logits(logits,target,reduction="none")
+    # Loss reweighting is computed from the TRAIN split only, never holdout labels.
+    weight=torch.as_tensor(pos_weight,dtype=logits.dtype,device=logits.device)
+    bce=F.binary_cross_entropy_with_logits(logits,target,reduction="none",pos_weight=weight)
     bce=(bce*mask).sum()/mask.sum().clamp_min(1)
     p=logits.sigmoid()*mask;y=target*mask
     return bce+.45*(1-(2*(p*y).sum()+1)/(p.sum()+y.sum()+1))
 @torch.no_grad()
 def evaluate_binary(probs,ys,valid):
+    """Water-class metrics. Do NOT report F1=1 for entirely dry holdouts."""
     probs=probs[valid>.5].float();ys=ys[valid>.5].float()
     if not len(probs):raise ValueError("No valid observed targets to evaluate")
     pred=probs>=.5;truth=ys>=.5
-    tp=(pred&truth).sum().item();fp=(pred&~truth).sum().item();fn=(~pred&truth).sum().item()
-    return {"brier":((probs-ys)**2).mean().item(),"f1":2*tp/(2*tp+fp+fn) if 2*tp+fp+fn else 1.,"iou":tp/(tp+fp+fn) if tp+fp+fn else 1.,"accuracy":(pred==truth).float().mean().item(),"n_valid_pixels":int(len(probs)),"wet_truth_fraction":truth.float().mean().item(),"wet_prediction_fraction":pred.float().mean().item(),"true_positive_pixels":int(truth.sum().item())}
+    tp=int((pred&truth).sum().item());fp=int((pred&~truth).sum().item())
+    fn=int((~pred&truth).sum().item());tn=int((~pred&~truth).sum().item())
+    positive=tp+fn;negative=tn+fp;union=tp+fp+fn
+    return {
+       "brier":float(((probs-ys)**2).mean().item()),
+       "f1":2*tp/(2*tp+fp+fn) if positive else None,
+       "iou":tp/union if union else None,
+       "precision":tp/(tp+fp) if tp+fp else None,
+       "recall":tp/positive if positive else None,
+       "balanced_accuracy":(tp/positive+tn/negative)/2 if positive and negative else None,
+       "accuracy":float((pred==truth).float().mean().item()),
+       "n_valid_pixels":int(len(probs)),
+       "wet_truth_fraction":float(truth.float().mean().item()),
+       "wet_prediction_fraction":float(pred.float().mean().item()),
+       "true_positive_pixels":positive,
+       "status":"OK" if positive and negative else "ONE_CLASS_HOLDOUT"
+    }
