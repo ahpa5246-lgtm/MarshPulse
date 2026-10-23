@@ -62,6 +62,32 @@ try{
   assert.match(await page.locator("h1").textContent(),/تتغيّر/);
   assert.equal(await page.locator('.path-grid .path').count(),3);
   await page.setViewportSize({width:1440,height:950});
+  // Floating dock uses actual MIT Headroom and Gumshoe, not decorative markup.
+  assert.equal(await page.locator("#marsh-floating-nav").count(),1,"single site-wide floating dock");
+  assert.equal(await page.locator(".floating-dock__page").count(),4,"all four destinations are accessible");
+  assert.equal(await page.locator(".floating-dock__chapters a").count(),5,"home chapter navigation should be complete");
+  assert.equal(await page.locator(".floating-dock__page[aria-current=page]").getAttribute("href"),"./index.html");
+  assert.equal(await page.locator("#marsh-floating-nav").evaluate(el=>getComputedStyle(el).visibility),"hidden","dock must not obstruct initial hero");
+  await page.evaluate(()=>window.scrollTo(0,1400));
+  await page.waitForTimeout(280);
+  await page.evaluate(()=>window.scrollBy(0,-280));
+  await page.waitForTimeout(420);
+  const dockState=await page.locator("#marsh-floating-nav").evaluate(el=>({
+    eligible:el.classList.contains("is-available"),
+    pinned:el.classList.contains("headroom--pinned"),
+    visible:getComputedStyle(el).visibility,
+    tracked:Boolean(el.__marshSpy),
+    progress:el.style.getPropertyValue("--dock-progress"),
+    activeSections:el.querySelectorAll(".floating-dock__chapter.active").length
+  }));
+  assert.equal(dockState.eligible,true,"floating bar should become available after scrolling");
+  assert.equal(dockState.pinned,true,"Headroom must reveal bar on scrolling upward");
+  assert.equal(dockState.visible,"visible","floating navigation must actually appear");
+  assert.equal(dockState.tracked,true,"Gumshoe must activate section tracking");
+  assert.ok(parseInt(dockState.progress,10)>0,"scroll reading indicator should advance");
+  assert.ok(dockState.activeSections>=1,"currently viewed chapter should be highlighted");
+  await page.evaluate(()=>window.scrollTo(0,0));
+  await page.waitForTimeout(180);
   // Real visual assets are essential for this design, not decorative placeholders.
   for(const img of await page.locator(".botanical-home img").all()){
     await img.scrollIntoViewIfNeeded();
@@ -145,7 +171,14 @@ try{
   assert.ok(await page.locator(".mf-animate").count()>=4,"MotionFlow must reveal content after scrolling");
   await page.screenshot({path:"artifacts/marshpulse-home-desktop.png",fullPage:true});
   await page.setViewportSize({width:390,height:844});
-  await page.screenshot({path:"artifacts/marshpulse-home-mobile.png",fullPage:true});
+  assert.equal(await page.locator(".floating-dock__page").count(),4);
+  const bottomDock=await page.locator("#marsh-floating-nav").evaluate(el=>({
+    pos:getComputedStyle(el).position,bottom:getComputedStyle(el).bottom,
+    width:el.getBoundingClientRect().width
+  }));
+  assert.equal(bottomDock.pos,"fixed");
+  assert.ok(bottomDock.width<=390,"mobile dock must not overflow");
+    await page.screenshot({path:"artifacts/marshpulse-home-mobile.png",fullPage:true});
   await page.goto("http://127.0.0.1:8765/model.html",{waitUntil:"networkidle"});
   assert.match(await page.locator("h1").textContent(),/MarshNet/);
   assert.equal(await page.locator('[data-organic-pattern] > .organic-pattern-svg').count(),2,"model reading areas need pattern");
