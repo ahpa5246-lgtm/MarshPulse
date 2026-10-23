@@ -1,0 +1,167 @@
+/* MarshPulse · Layered Wetland Photo Essay
+ * Atropos MIT: vendor/atropos/LICENSE | Botanical reed artwork: locally authored.
+ * Real Iraqi marsh photographs retain their CC BY-SA source credit.
+ */
+.flora-stage{isolation:isolate;overflow:visible}
+.marsh-hero-scene,.marsh-story-scene{
+ position:absolute;inset:0;width:100%;height:100%;
+ transform-style:preserve-3d;perspective:1600px;
+ contain:layout;
+}
+.marsh-hero-scene .atropos-inner,.marsh-story-scene .atropos-inner{
+ overflow:visible;transform-style:preserve-3d;
+}
+.marsh-hero-scene [data-atropos-offset],.marsh-story-scene [data-atropos-offset]{
+ backface-visibility:hidden;will-change:transform;
+}
+.marsh-scene-aura{
+ position:absolute;inset:9% 11% 5% 11%;border-radius:42% 54% 47% 40%;
+ background:
+  radial-gradient(ellipse at 39% 31%,#fffde5e5,transparent 46%),
+  radial-gradient(ellipse at 70% 54%,#afd9eab7,transparent 60%),
+  radial-gradient(ellipse at 33% 76%,#9fd2a86b,transparent 60%);
+ filter:blur(24px);
+}
+.marsh-scene-ring{position:absolute;pointer-events:none;border:1px solid rgba(255,255,255,.73);
+ box-shadow:0 0 0 14px rgba(166,217,181,.11),0 0 0 32px rgba(138,178,213,.075);
+ border-radius:50%}
+.marsh-scene-ring-a{width:67%;height:72%;top:9%;left:14%;rotate:18deg}
+.marsh-scene-ring-b{width:80%;height:81%;top:4%;right:2%;rotate:-21deg;border-style:dashed;opacity:.43}
+.marsh-hero-scene .flora-main-photo{
+ position:absolute;top:7%;left:13%;width:64%;height:78%;
+ border:11px solid #fffef5;border-radius:47% 47% 24% 24%;
+ box-shadow:0 38px 65px -17px rgba(17,61,45,.36),0 14px 24px rgba(28,86,56,.22),inset 0 0 0 1px #ffffff80;
+ background:#508965;
+ overflow:hidden;rotate:-6deg;transform:none;
+}
+.marsh-hero-scene .flora-main-photo:after{content:"";position:absolute;inset:0;pointer-events:none;
+ background:linear-gradient(180deg,#ffebb525,transparent 35%,transparent 60%,#041d142b)}
+.marsh-hero-scene .flora-main-photo img{object-fit:cover;object-position:50% 52%;width:100%;height:100%;
+ filter:saturate(1.21) contrast(1.06) brightness(1.07)}
+.marsh-hero-scene .flora-second-photo{
+ position:absolute;right:-1%;bottom:10%;width:43%;height:42%;
+ border:8px solid #fffdf1;border-radius:49% 49% 12% 12%;
+ box-shadow:0 24px 44px rgba(27,57,48,.36),0 6px 13px rgba(41,61,47,.15);
+ overflow:hidden;rotate:9deg;transform:none;background:#779b66;
+}
+.marsh-hero-scene .flora-second-photo img{filter:saturate(1.11) brightness(1.12);width:100%;height:100%;object-fit:cover}
+.marsh-specimen-card{
+ position:absolute;top:47%;left:-3%;width:32%;height:43%;
+ background:#fcf7e7;border:9px solid #fff8e7;border-bottom-width:16px;
+ margin:0;rotate:-10deg;
+ box-shadow:0 29px 45px -10px #284e4269,0 3px 13px #284e4238;
+ border-radius:5px;overflow:hidden;transform:none;
+}
+.marsh-specimen-card img{
+ width:100%;height:70%;object-fit:contain;display:block;
+ background:linear-gradient(145deg,#f4f0e5,#f7f2e8);filter:sepia(.18) contrast(1.09);
+}
+.marsh-specimen-card figcaption{background:#fcf7e7;display:flex;gap:0;flex-direction:column;align-items:center;justify-content:center;
+ text-align:center;padding:3px 4px 0;height:30%;line-height:1.5;color:#3d5946}
+.marsh-specimen-card figcaption span{font:800 9px/1.4 ui-monospace,monospace;letter-spacing:.12em;color:#899076}
+.marsh-specimen-card figcaption strong{font-size:11px;color:#355940}
+.marsh-specimen-card figcaption small{font-size:8px;color:#8a887b}
+.marsh-foreground-reeds{
+ position:absolute;right:-10%;top:1%;height:93%;width:45%;object-fit:contain;
+ opacity:.80;filter:drop-shadow(4px 15px 12px rgba(27,65,43,.25));
+ pointer-events:none;transform:none;rotate:7deg;
+}
+.marsh-hero-scene .flora-photo-sticker{
+ position:absolute;right:-4%;top:8%;width:121px;height:121px;
+ rotate:13deg;transform:none;
+ background:linear-gradient(135deg,#e7ff95,#ffe0a6);
+ border:6px solid #fffdf6;
+ box-shadow:0 14px 30px #42644357;
+}
+.marsh-photo-id{
+ position:absolute;top:6%;left:3%;font:750 11px/1.4 ui-monospace,monospace;letter-spacing:1.5px;
+ color:#2f674a;padding:9px 13px;border:1px solid #d1e2cb;border-radius:99px;
+ background:#fffffae0;box-shadow:0 8px 20px #39755820;direction:ltr;
+}
+.flora-stage .flora-stage-caption{z-index:2;bottom:0;left:14%;font-size:10px}
+.flora-photo-credit{max-width:100%;line-height:1.8}
+/* A second photo essay within the ecological story. Keep composition readable and
+   preserve type hierarchy when the photo group tilts. */
+.flora-story-visual{isolation:isolate}
+.flora-story-visual .marsh-story-scene{position:absolute;inset:0;z-index:1}
+.marsh-story-backlight{
+ position:absolute;inset:9% 12% 8%;
+ border-radius:50%;
+ background:conic-gradient(from 30deg,#d8f3b0,#d1f5e6,#c3e6f9,#f0d8b9,#d8f3b0);
+ filter:blur(12px);opacity:.73;
+}
+.flora-story-visual .marsh-story-photo{
+ position:absolute;top:4%;left:14%;width:71%;height:88%;
+ margin:0;border:9px solid #f8fae0;border-radius:48% 48% 7% 7%;
+ rotate:4deg;transform:none;overflow:hidden;
+ background:#426d4c;box-shadow:0 36px 66px #0c261fba,0 9px 18px #081f1991;
+}
+.flora-story-visual .marsh-story-photo img{
+ width:100%;height:100%;object-fit:cover;filter:saturate(1.2) contrast(1.05) brightness(1.08);
+}
+.flora-story-visual .marsh-story-photo figcaption{
+ position:absolute;inset:auto 0 0;
+ background:linear-gradient(180deg,#10392a40,#062016dc);
+ color:#eaffbd;padding:15px;text-align:center;font:750 10px/1.4 system-ui,sans-serif;
+ letter-spacing:.08em;
+}
+.flora-story-visual .marsh-story-detail{
+ position:absolute;left:-3%;bottom:9%;width:42%;height:31%;rotate:-11deg;
+ transform:none;margin:0;overflow:hidden;
+ border:7px solid #fffae8;border-bottom-width:26px;border-radius:7px;
+ box-shadow:0 19px 33px #09261ea3;background:#fff9ed;
+}
+.flora-story-visual .marsh-story-detail img{
+ width:100%;height:100%;object-fit:cover;filter:saturate(1.17) brightness(1.14);
+}
+.flora-story-visual .marsh-story-detail figcaption{
+ position:absolute;bottom:-22px;left:0;right:0;color:#3a684e;text-align:center;
+ font:750 9px/1.5 ui-monospace,monospace;letter-spacing:.8px;
+}
+.marsh-story-reeds{
+ position:absolute;right:-14%;top:4%;height:96%;width:53%;object-fit:contain;
+ filter:drop-shadow(5px 15px 14px #0d291b8c);opacity:.84;rotate:8deg;transform:none;pointer-events:none;
+}
+.flora-story-visual .flora-story-sun{
+ position:absolute;right:0%;top:2%;z-index:3;color:#e4ffaa;font-size:73px;text-shadow:0 9px 21px #b6d86e70;
+}
+@media(max-width:1020px){
+ .marsh-hero-scene .flora-main-photo{left:14%;width:68%}
+ .marsh-specimen-card{left:-2%;width:31%}
+ .marsh-foreground-reeds{right:-13%;width:48%}
+}
+@media(max-width:720px){
+ .flora-stage{min-height:470px;max-width:520px;margin-inline:auto;width:100%}
+ .marsh-hero-scene .flora-main-photo{top:2%;left:14%;height:82%;width:64%;border-width:7px}
+ .marsh-hero-scene .flora-second-photo{right:0%;bottom:7%;width:43%;height:40%;border-width:5px}
+ .marsh-specimen-card{left:0%;top:52%;width:32%;height:38%;border-width:5px;border-bottom-width:10px}
+ .marsh-specimen-card figcaption span{font-size:7px}
+ .marsh-specimen-card figcaption strong{font-size:9px}
+ .marsh-specimen-card figcaption small{font-size:7px}
+ .marsh-foreground-reeds{right:-11%;width:42%;opacity:.75}
+ .marsh-hero-scene .flora-photo-sticker{right:-2%;top:8%;width:81px;height:81px;border-width:4px}
+ .marsh-photo-id{top:1%;left:1%;font-size:8px;padding:6px 8px}
+ .flora-stage .flora-stage-caption{display:none}
+ .flora-story-visual .marsh-story-photo{top:4%;height:88%;left:19%;width:65%;border-width:6px}
+ .flora-story-visual .marsh-story-detail{left:4%;width:39%;height:31%;border-width:5px;border-bottom-width:21px}
+ .marsh-story-reeds{right:-7%;width:48%}
+}
+@media(max-width:390px){
+ .flora-stage{min-height:390px}
+ .marsh-hero-scene .flora-main-photo{left:14%;top:2%;height:80%;width:65%}
+ .marsh-hero-scene .flora-second-photo{height:39%;right:1%;bottom:10%}
+ .marsh-specimen-card{left:-1%;top:53%;height:36%}
+ .marsh-foreground-reeds{right:-9%;opacity:.69}
+ .marsh-photo-id{font-size:7px}
+}
+@media(hover:none),(pointer:coarse),(prefers-reduced-motion:reduce){
+ .marsh-hero-scene [data-atropos-offset],.marsh-story-scene [data-atropos-offset]{
+  will-change:auto;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ .marsh-hero-scene .atropos-scale,.marsh-story-scene .atropos-scale,
+ .marsh-hero-scene .atropos-rotate,.marsh-story-scene .atropos-rotate{
+  transition:none!important;transform:none!important;
+ }
+}
