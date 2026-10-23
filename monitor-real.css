@@ -1,0 +1,60 @@
+/* Research-grade observed imagery, distinct from the synthetic lab. */
+.real-monitor-page{background:linear-gradient(160deg,#f5fbee 0%,#fafffa 45%,#f4f5ed 100%);color:#183c2a}
+.real-monitor{width:min(1120px,calc(100% - 72px));margin-inline:auto;padding-block:85px 125px}
+.real-monitor-hero{max-width:1000px;padding-bottom:62px}
+.real-monitor-overline{font:800 11px/1.5 ui-monospace,monospace;letter-spacing:2px;color:#418163;direction:ltr;text-align:right}
+.real-monitor-hero h1{font-size:clamp(42px,5vw,74px);font-weight:850;line-height:1.36;letter-spacing:-1.7px;margin:19px 0 20px}
+.real-monitor-hero h1 em{font-style:normal;color:#36895e}
+.real-monitor-hero p{font-size:17px;line-height:2.2;color:#567263;max-width:765px}
+.real-monitor-badges{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
+.real-monitor-badges span{border:1px solid #bad6c4;background:#fff9;border-radius:999px;padding:9px 14px;font-size:12px;font-weight:750;color:#31724d}
+.real-monitor-panel{background:#ffffffeb;border:1px solid #d6e7d6;border-radius:30px;padding:35px 40px;box-shadow:0 22px 65px #215a3930,0 4px 18px #34715217;margin-bottom:32px}
+.real-monitor-head{display:flex;justify-content:space-between;align-items:start;gap:18px;flex-wrap:wrap}
+.real-monitor-head h2,.real-monitor-caveats h2{font-size:clamp(26px,3.2vw,39px);margin:11px 0 9px;color:#1b4b32}
+.real-monitor-warning{font-size:11px;font-weight:800;color:#8b5c3d;background:#f8ead8;border:1px solid #e8c6a3;border-radius:99px;padding:11px 15px}
+.real-monitor-subtitle{font-size:13px;line-height:2.1;color:#557363;margin:0 0 15px}
+.real-monitor-graph{padding:22px 10px 10px;border-radius:24px;background:linear-gradient(160deg,#f5fcf4,#eff8f6);border:1px solid #e0efdf;min-height:160px}
+.real-monitor-graph svg{display:block;width:100%;height:auto;overflow:visible}
+.real-monitor-range-label{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13px;color:#547361;margin-top:28px}
+.real-monitor-range-label strong{font:750 14px/1.4 ui-monospace,monospace;color:#256b54;direction:ltr}
+#monitor-month{width:100%;display:block;margin:12px 0 28px;accent-color:#438c66;cursor:pointer}
+#monitor-month:focus-visible{outline:3px solid #8b68c4;outline-offset:8px}
+.real-monitor-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.real-monitor-stats>div{padding:23px;border-radius:21px;background:#eef7ef;border:1px solid #dcebdc;display:flex;flex-direction:column;gap:8px}
+.real-monitor-stats>div:nth-child(2){background:#edf7f8}
+.real-monitor-stats>div:nth-child(3){background:#f4f0fc}
+.real-monitor-stats span{font-size:12px;font-weight:750;color:#4e7460}
+.real-monitor-stats strong{font:850 clamp(24px,3vw,35px)/1.5 ui-monospace,monospace;color:#1a6646;direction:ltr;text-align:right}
+.real-monitor-stats small{font-size:10px;line-height:1.7;color:#63806b}
+.real-monitor-records{margin-top:28px;border-top:1px solid #dce8d9;padding-top:17px}
+.real-monitor-records summary{cursor:pointer;font-size:14px;font-weight:750;color:#2e7250;padding:12px 0}
+.real-monitor-records summary:focus-visible{outline:3px solid #8b68c4}
+.real-monitor-table-scroll{overflow-x:auto;max-width:100%}
+.real-monitor-records table{width:100%;border-collapse:collapse;text-align:right;min-width:520px;font-size:12px}
+.real-monitor-records th,.real-monitor-records td{padding:12px;border-bottom:1px solid #e5eee7}
+.real-monitor-records th{font-weight:800;color:#466855;background:#f2f8f1}
+.real-monitor-records td{font:600 12px ui-monospace,monospace;direction:ltr;text-align:right;color:#385943}
+.real-monitor-caveats{background:linear-gradient(135deg,#203f32,#1b3e37);color:#eaf8e9}
+.real-monitor-caveats .real-monitor-overline{color:#bae99a}
+.real-monitor-caveats h2{color:#f3ffe7}
+.real-monitor-caveats p{font-size:15px;line-height:2.15;color:#d0e6db;max-width:960px}
+.real-monitor-caveats strong{color:#d6f6b1}
+.real-monitor-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:25px}
+.real-monitor-link{border:1px solid #c8ebc177;color:#f0ffef!important;text-decoration:none;border-radius:99px;padding:11px 17px;font-size:12px;font-weight:800}
+.real-monitor-link:hover{background:#ffffff22}
+.real-monitor-link:focus-visible{outline:3px solid #d7ed99}
+.real-monitor-loaded{font-size:11px;color:#39734f}
+.real-monitor-error{color:#a43f36;font-weight:800}
+@media(max-width:720px){
+ .real-monitor{width:min(100% - 28px,1120px);padding-block:48px 100px}
+ .real-monitor-hero{padding-bottom:32px}
+ .real-monitor-hero h1{font-size:clamp(31px,8.1vw,50px);letter-spacing:-.6px}
+ .real-monitor-hero p{font-size:14px}
+ .real-monitor-panel{padding:19px 15px;border-radius:22px}
+ .real-monitor-warning{font-size:10px}
+ .real-monitor-graph{padding:7px 1px;min-height:110px}
+ .real-monitor-stats{grid-template-columns:1fr;gap:9px}
+ .real-monitor-stats>div{padding:13px;min-height:82px}
+ .real-monitor-stats strong{font-size:26px}
+}
+@media(prefers-reduced-motion:reduce){.real-monitor-page *{scroll-behavior:auto!important;transition:none!important}}
