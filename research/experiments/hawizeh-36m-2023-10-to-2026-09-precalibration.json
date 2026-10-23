@@ -1,0 +1,67 @@
+{
+  "experiment_id": "hawizeh-rolling-36m-2023-10-to-2026-09-uncalibrated-20261024",
+  "workflow_url": "https://github.com/ahpa5246-lgtm/MarshPulse/actions/runs/40035210231",
+  "artifact_url": "https://github.com/ahpa5246-lgtm/MarshPulse/actions/runs/40035210231/artifacts/12536373704",
+  "imagery": "REAL ESA Sentinel-2 L2A via Microsoft Planetary Computer",
+  "bbox_lonlat": [
+    47.64,
+    31.53,
+    47.74,
+    31.63
+  ],
+  "boundary_verified": false,
+  "period": {
+    "first": "2023-10",
+    "last": "2026-09",
+    "months": 36,
+    "months_with_real_scenes": 36,
+    "wet_proxy_months": 22
+  },
+  "resolution_m": 176.91641251242254,
+  "dataset_sha256": "cb3d208c9209e5cd8a074570ebf4bee64774ff161fea43c7ab9ebe0ecd13d0c0",
+  "model": {
+    "type": "Residual ConvGRU U-Net",
+    "parameters": 622305,
+    "best_epoch": 11,
+    "training_positive_pixels": 11584,
+    "training_negative_pixels": 68480,
+    "class_weight_train_only": 5.911602209944752
+  },
+  "heldout": {
+    "months": [
+      "2026-03",
+      "2026-04",
+      "2026-05",
+      "2026-06",
+      "2026-07",
+      "2026-08",
+      "2026-09"
+    ],
+    "shared_observed_pixels": 22109,
+    "shared_observed_fraction": 0.7711007254464286,
+    "proxy_wet_truth_pixels": 856,
+    "model": {
+      "brier": 0.12706457279482408,
+      "f1": 0.2851305334846765,
+      "precision": 0.1769512538743308,
+      "recall": 0.7336448598130841
+    },
+    "persistence": {
+      "brier": 0.036139128861549595,
+      "f1": 0.49780012570710247
+    },
+    "seasonal_12m": {
+      "brier": 0.07842959880591614,
+      "f1": 0.27629382303839733
+    }
+  },
+  "result": "FAIL: MarshNet does not outperform simple previous-month baseline on same pixels. No field labels or spatial holdout.",
+  "readiness": "NOT_VALIDATED",
+  "conclusion": "The pilot now contains observed wet examples and wet-class recall > 0, but low precision and poor calibration make this checkpoint unsuitable for ecological decisions. No water savings measured.",
+  "next_steps": [
+    "calibrate class-weighted probability outputs on validation months only",
+    "independently annotate water pixels",
+    "evaluate separate wetland locations",
+    "audit cloud/threshold sensitivity"
+  ]
+}
