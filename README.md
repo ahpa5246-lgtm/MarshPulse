@@ -23,6 +23,20 @@ The website is still a research prototype: synthetic default data and theoretica
 
 ---
 
+## Scientific core upgrade (October 24, 2026) — real data first
+
+**The previous real-pilot V2 model failed to beat persistence. It is not reliable or safe for water allocation, drought warnings or restoration decisions.** We have therefore implemented a reproducible, conservative improvement path rather than advertising artificial accuracy:
+
+- `ml/quality_gate.py`: coverage/wet-class audits, honest undefined water-class metrics, three-way **same-observed-pixel** comparison against persistence and prior-year seasonal baseline, and an explicit `NOT_VALIDATED` scientific readiness gate.
+- `ml/monitor_wetland.py`: useful independent satellite screening output, even if neural prediction fails: month-level observed water-proxy area, cloud coverage, matched-pixel change, image-space clusters (not actual hydraulic connections), and CSV/JSON exports.
+- `ml/train_satellite.py`: class weighting estimated from **training observations only**; benchmark and quality audit included with every checkpoint. The data input is required and synthetic tests cannot masquerade as real imagery.
+- [Real Satellite Monthly Research workflow](.github/workflows/real-satellite-pilot.yml): 36 most recent **complete** months near Hawizeh KBA, scheduled monthly on the 10th UTC as well as manually invokable. Availability depends on Sentinel scenes, Planetary Computer and available GitHub Actions minutes. Artifacts are retained for up to 90 days; CI **does not** claim success when real observations are missing.
+- New quality and cloud-gap regression tests run on every GitHub push.
+
+See the [scientific validation roadmap and reproducibility instructions](docs/scientific-readiness-roadmap.md). Until geographically independent evaluation and independent reference labels exist, there is **no operationally validated model** and no measured water saving attributable to MarshPulse.
+
+---
+
 ## MarshNet V2 (October 23, 2026)
 
 **New research architecture:** [MarshNet V2](ml/marshnet_v2.py) is an original implementation of a residual spatial encoder + two ConvGRU temporal memory cells + U-Net-style skip decoder. It operates on genuine multi-month multispectral images in Python/PyTorch, using channels B03, B04, B08, B11, NDVI, MNDWI and observed-pixel validity. It predicts a next-month per-pixel probability for a **satellite-derived pseudo-label**, not observed hydraulic flow or an independently verified wetland truth.
