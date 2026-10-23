@@ -19,14 +19,14 @@ jobs:
           node --check src/app.mjs
           node --check earth-engine/export_monthly_grid.js
           python3 -m py_compile ml/train.py
-          python3 -m py_compile ml/collect_sentinel.py ml/train_satellite.py ml/marshnet_v2.py ml/quality_gate.py
+          python3 -m py_compile ml/collect_sentinel.py ml/train_satellite.py ml/marshnet_v2.py ml/quality_gate.py ml/monitor_wetland.py
           python3 -c "import json; n=json.load(open('kaggle/marshnet_v2_hawizeh.ipynb')); assert n['nbformat']==4 and len(n['cells'])>=10"
       - name: Reproducible unit tests
         run: node --test tests/*.test.mjs
       - name: Satellite dataset quality and benchmark unit tests
         run: |
           python3 -m pip install --quiet "numpy>=1.26,<3"
-          python3 -m unittest discover -s tests -p 'test_*quality.py' -v
+          python3 -m unittest discover -s tests -p 'test_*.py' -v
   browser-smoke:
     runs-on: ubuntu-latest
     timeout-minutes: 15
