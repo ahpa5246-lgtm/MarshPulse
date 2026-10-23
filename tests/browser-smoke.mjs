@@ -86,6 +86,7 @@ try{
   assert.equal(dockState.tracked,true,"Gumshoe must activate section tracking");
   assert.ok(parseInt(dockState.progress,10)>0,"scroll reading indicator should advance");
   assert.ok(dockState.activeSections>=1,"currently viewed chapter should be highlighted");
+  await page.screenshot({path:"artifacts/marshpulse-floating-desktop.png",fullPage:false});
   await page.evaluate(()=>window.scrollTo(0,0));
   await page.waitForTimeout(180);
   // Real visual assets are essential for this design, not decorative placeholders.
@@ -178,6 +179,14 @@ try{
   }));
   assert.equal(bottomDock.pos,"fixed");
   assert.ok(bottomDock.width<=390,"mobile dock must not overflow");
+  await page.evaluate(()=>window.scrollTo(0,1250));
+  await page.waitForTimeout(180);
+  await page.evaluate(()=>window.scrollBy(0,-230));
+  await page.waitForTimeout(430);
+  assert.equal(await page.locator("#marsh-floating-nav").evaluate(el=>getComputedStyle(el).visibility),"visible","mobile floating dock must appear when scrolling up");
+  await page.screenshot({path:"artifacts/marshpulse-floating-mobile.png",fullPage:false});
+  await page.evaluate(()=>window.scrollTo(0,0));
+  await page.waitForTimeout(120);
     await page.screenshot({path:"artifacts/marshpulse-home-mobile.png",fullPage:true});
   await page.goto("http://127.0.0.1:8765/model.html",{waitUntil:"networkidle"});
   assert.match(await page.locator("h1").textContent(),/MarshNet/);
