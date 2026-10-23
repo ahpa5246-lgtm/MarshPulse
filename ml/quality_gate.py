@@ -31,6 +31,15 @@ def audit_cube(cube,dates=None,minimum_observed=.20):
                        "observed_pixels":seen,"wet_pixels":water,
                        "wet_fraction_observed":water/seen if seen else None,
                        "observation_fraction":float(observed[i].mean())})
+    # Sensitivity is diagnostic only, NOT permission to tune a label threshold
+    # against the final model test months. Preserve the predeclared 0.1 proxy.
+    threshold_sensitivity={}
+    for threshold in (-.10,0.,.05,.10,.15,.20):
+        count=int(((x[:,5]>threshold)&(x[:,4]<.30)&observed).sum())
+        threshold_sensitivity[str(threshold)]={
+          "wet_observed_pixels":count,
+          "wet_observed_fraction":count/max(1,int(observed.sum()))
+        }
     valid=sum(m["observed_pixels"] for m in months)
     positives=sum(m["wet_pixels"] for m in months)
     return {
@@ -39,12 +48,16 @@ def audit_cube(cube,dates=None,minimum_observed=.20):
       "total_observed_pixels":valid,
       "total_proxy_wet_pixels":positives,
       "overall_wet_fraction":positives/valid if valid else None,
+      "mndwi_threshold_sensitivity_not_ground_truth":threshold_sensitivity,
       "months_with_wet_proxy":sum(m["wet_pixels"]>0 for m in months),
       "months_with_zero_wet_proxy":sum(m["observed_pixels"]>0 and m["wet_pixels"]==0 for m in months),
       "months_below_coverage":sum(m["observation_fraction"]<minimum_observed for m in months),
       "warnings":[
         *([] if positives else ["NO_WET_PIXELS: cannot learn wet detection from this pilot"]),
         *([] if valid and positives/max(valid,1)>=.01 else ["LOW_WET_PREVALENCE: accuracy may be misleading"]),
+        *([] if threshold_sensitivity["0.0"]["wet_observed_pixels"]<=
+              1.5*max(1,threshold_sensitivity["0.2"]["wet_observed_pixels"]) else
+          ["THRESHOLD_SENSITIVE_WET_AREA: area changes substantially with MNDWI cut-off"]),
         *([] if sum(m["wet_pixels"]>0 for m in months)>=6 else ["FEW_WET_MONTHS: insufficient time variation for convincing validation"])
       ]
     }
