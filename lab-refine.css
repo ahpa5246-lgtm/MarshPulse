@@ -28,3 +28,10 @@ body{background:#f3f0e9!important;color:#192f45;font-family:'IBM Plex Sans Arabi
 @media(max-width:1080px){.workspace{grid-template-columns:250px 1fr}.outcomes{display:block}.outcomes>.priority-list{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:760px){.topbar,.shell{width:calc(100% - 32px)}.topbar{height:auto;min-height:85px;flex-wrap:wrap;padding:14px 0;gap:8px}.topnav{display:flex;order:3;width:100%;overflow-x:auto;white-space:nowrap;gap:18px;justify-content:flex-start;padding-bottom:2px}.topnav a{font-size:11px}.header-action{font-size:11px}.hero{padding:45px 0 38px}.hero h1{font-size:clamp(32px,9vw,45px)}.notice{margin:25px 0 60px}.section{margin-bottom:80px}.section-heading h2{font-size:26px}.workspace,.evidence-grid,.method-grid{grid-template-columns:1fr}.metric{min-height:150px}.metric strong{font-size:30px}.map-area{min-height:300px;margin:0 12px;padding:24px 8px}.outcomes{display:block}.outcomes>.priority-list{grid-template-columns:1fr}.chart-panel,.benchmark-panel{padding:23px}.method-card{padding:28px}}
 [hidden]{display:none!important}
+
+
+.model-active{margin:8px 0 11px;font-size:12px;color:#2a4d69;padding:11px 12px;background:#e7ebeb;border-inline-start:3px solid #b8875c}
+.model-upload{display:block;border:1px dashed #aab5b5;background:#f0f1ee;padding:12px 10px;font-size:11px;font-weight:700;color:#3d5c72;cursor:pointer;text-align:center}
+.model-upload:hover,.model-upload:focus-within{background:#e2e7e5;border-color:#527186}
+.model-upload input{position:absolute;opacity:0;width:1px;height:1px}
+.model-learn-link{display:block;color:#355c77;font-size:11px;font-weight:700;margin-top:10px;text-decoration:underline;text-underline-offset:3px}
