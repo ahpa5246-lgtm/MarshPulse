@@ -11,7 +11,7 @@ class FakeElement {
   scrollIntoView(){}
   closest(){return this;}
 }
-const elements=new Map(),ids=["toast","map","history-chart","cell-details","grid-shape","map-date","provenance-title","provenance-desc","data-pill","stat-water","stat-connectivity","stat-corridors","stat-months","stress","stress-value","budget","budget-value","before-largest","after-largest","improvement","selection-count","priority-list","model-brier","baseline-brier","model-f1","holdout-samples","holdout-dates","model-verdict","date-range","data-upload","reset-demo","csv-example","export-report"];
+const elements=new Map(),ids=["toast","map","history-chart","cell-details","grid-shape","map-date","provenance-title","provenance-desc","data-pill","stat-water","stat-connectivity","stat-corridors","stat-months","stress","stress-value","budget","budget-value","before-largest","after-largest","improvement","selection-count","priority-list","model-brier","baseline-brier","model-f1","holdout-samples","holdout-dates","model-verdict","date-range","policy-opt","policy-risk","policy-random","data-upload","reset-demo","csv-example","export-report"];
 for(const id of ids)elements.set(id,new FakeElement(id));
 const buttons=["observed","forecast","protected"].map(layer=>{const b=new FakeElement("button");b.dataset.layer=layer;return b;});
 globalThis.document={
@@ -38,4 +38,6 @@ test("layer switching and stress sliders recalculate output",()=>{
   el("budget").listeners.input({target:{value:"3"}});
   assert.equal(el("budget-value").textContent,"٣ نقاط");
   assert.ok(el("priority-list").children.length>=1);
+  assert.match(el("policy-opt").textContent,/خلية/);
+  assert.match(el("policy-random").textContent,/خلية/);
 });
