@@ -188,10 +188,34 @@ export function scenario(ds,model,{stress=25,budget=6}={}){
     const chosen=pool.splice(best,1)[0];mask[chosen.index]=true;
     selected.push({row:Math.floor(chosen.index/ds.width),col:chosen.index%ds.width,index:chosen.index,wasCritical:corridor.has(chosen.index),marginalUtility:bestGain});
   }
-  return {date:raw.date,stress,budget,probabilities,current,baseline:baseMask,protected:mask,corridor:[...corridor],before:base,after:connectivity(mask,ds.width,ds.height),selected,
+  // Equal-credit decision baselines expose whether topology-aware selection adds value.
+  const eligible=candidates.map(c=>c.index);
+  const spent=selected.length;
+  const trial=indices=>{
+    const testMask=baseMask.slice();
+    for(const i of indices.slice(0,spent))testMask[i]=true;
+    return connectivity(testMask,ds.width,ds.height);
+  };
+  const mostAtRisk=trial(eligible.slice().sort((a,b)=>probabilities[a]-probabilities[b]));
+  const random=rng(140277+Math.floor(stress)*31+Math.floor(budget)*7);
+  const randomTrials=[];
+  for(let run=0;run<20;run++){
+    const sampled=eligible.slice();
+    for(let k=sampled.length-1;k>0;k--){const j=Math.floor(random()*(k+1));[sampled[k],sampled[j]]=[sampled[j],sampled[k]];}
+    randomTrials.push(trial(sampled).largest);
+  }
+  const after=connectivity(mask,ds.width,ds.height);
+  const policyComparison={
+    creditsSpent:spent,optimizedLargest:after.largest,
+    riskFirstLargest:mostAtRisk.largest,
+    randomMeanLargest:randomTrials.reduce((a,b)=>a+b,0)/randomTrials.length,
+    randomTrials:randomTrials.length,
+    warning:"Graph-metric comparisons on the same modeled scenario; not environmental field outcomes."
+  };
+  return {date:raw.date,stress,budget,probabilities,current,baseline:baseMask,protected:mask,corridor:[...corridor],before:base,after,selected,policyComparison,
     assumptions:["Scenario stress applies a hypothetical penalty to predicted water probability.","One credit preserves one forecast-dry cell in this graph only.","No hydrological flow, actual water volumes, biodiversity response or field outcomes are simulated."]};
 }
 export function report(ds,model,sc){
   return {project:"MarshPulse",version:MODEL_VERSION,generatedAt:new Date().toISOString(),dataset:{name:ds.name,origin:ds.origin,dates:[ds.dates[0],ds.dates.at(-1)],grid:[ds.width,ds.height],pixels:ds.width*ds.height,threshold:ds.threshold,verified:false},
-    training:{protocol:"chronological held-out months; no shuffled splits",...model},scenario:{date:sc.date,stress:sc.stress,budget:sc.budget,baseline:{wet:sc.before.wet,largest:sc.before.largest,components:sc.before.components},after:{wet:sc.after.wet,largest:sc.after.largest,components:sc.after.components},interventions:sc.selected,assumptions:sc.assumptions},disclaimer:"Graph-based hypothetical study only; not a physically calibrated allocation or reliable forecast of actual Iraqi marshes."};
+    training:{protocol:"chronological held-out months; no shuffled splits",...model},scenario:{date:sc.date,stress:sc.stress,budget:sc.budget,baseline:{wet:sc.before.wet,largest:sc.before.largest,components:sc.before.components},after:{wet:sc.after.wet,largest:sc.after.largest,components:sc.after.components},interventions:sc.selected,policyComparison:sc.policyComparison,assumptions:sc.assumptions},disclaimer:"Graph-based hypothetical study only; not a physically calibrated allocation or reliable forecast of actual Iraqi marshes."};
 }
