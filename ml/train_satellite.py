@@ -8,6 +8,7 @@ from torch import nn
 from torch.utils.data import Dataset,DataLoader
 from marshnet_v2 import MarshNetV2,wet_pseudolabel,masked_bce_dice,evaluate_binary,BANDS
 from quality_gate import audit_cube,benchmark_temporal,readiness_verdict
+from calibration import fit_validation_calibration,apply_calibration
 class Windows(Dataset):
     def __init__(self,cube,originals,targets,lookback,augment=False):
         self.cube=cube;self.originals=originals;self.targets=targets;self.lookback=lookback;self.augment=augment
@@ -96,14 +97,28 @@ def train(args):
         else:patience+=1
         if patience>=args.patience:break
     model.load_state_dict(best_state);model.eval()
-    probs=[];truth=[];valid=[];baselines=[];fairm=[];periods=[]
+    # Calibration is fitted on validation months, never the chronological test.
+    validation_logits=[];validation_truth=[];validation_mask=[]
+    with torch.no_grad():
+        for xb,yb,vb,_ in loaders[1]:
+            validation_logits.append(model(xb.to(device)).cpu().numpy())
+            validation_truth.append(yb.numpy());validation_mask.append(vb.numpy())
+    calibration=fit_validation_calibration(np.concatenate(validation_logits),
+                                           np.concatenate(validation_truth),
+                                           np.concatenate(validation_mask))
+    print("VALIDATION-ONLY CALIBRATION",json.dumps(calibration),flush=True)
+    raw_logits=[];truth=[];valid=[];baselines=[];fairm=[];periods=[]
     with torch.no_grad():
         for xb,yb,vb,ts in loaders[2]:
-            probs.append(model(xb.to(device)).sigmoid().cpu());truth.append(yb);valid.append(vb)
+            raw_logits.append(model(xb.to(device)).cpu().numpy());truth.append(yb);valid.append(vb)
             for j,t in enumerate(ts.tolist()):
                 prior,prior_valid=wet_pseudolabel(torch.from_numpy(cube[t-1]))
                 baselines.append(prior);fairm.append(prior_valid*vb[j]);periods.append(dates[t])
-    p=torch.cat(probs);y=torch.cat(truth);v=torch.cat(valid);b=torch.stack(baselines);fair=torch.stack(fairm)
+    logits=np.concatenate(raw_logits)
+    raw_p=torch.from_numpy((1/(1+np.exp(-np.clip(logits,-40,40)))).astype(np.float32))
+    p=torch.from_numpy(apply_calibration(logits,calibration).astype(np.float32))
+    y=torch.cat(truth);v=torch.cat(valid);b=torch.stack(baselines);fair=torch.stack(fairm)
+    baseline_three_way_raw=benchmark_temporal(cube,te,raw_p.numpy())
     baseline_three_way=benchmark_temporal(cube,te,p.numpy())
     verdict=readiness_verdict(baseline_three_way,audit)
     report={"status":"SYNTHETIC SMOKE ONLY" if args.synthetic_smoke else "SATELLITE PROXY / UNVERIFIED LABELS",
@@ -111,22 +126,29 @@ def train(args):
             "dataset_sha256":digest,"dates":dates,"test_months":periods,
             "split_targets":{"train":tr,"validation":va,"test":te},
             "model_test_all_valid":evaluate_binary(p,y,v),
+            "raw_model_test_all_valid":evaluate_binary(raw_p,y,v),
             "model_same_pixels_as_baseline":evaluate_binary(p,y,fair),
             "persistence_same_pixels_as_model":evaluate_binary(b,y,fair),
             "best_epoch":best_epoch,"history":history,"params":sum(x.numel() for x in model.parameters()),
             "quality_audit":audit,"class_weight_from_train_only":pos_weight,
             "train_proxy_wet_pixels":positive_count,"train_proxy_dry_pixels":negative_count,
             "same_pixel_model_vs_both_baselines":baseline_three_way,
+            "uncalibrated_same_pixel_baselines":baseline_three_way_raw,
+            "calibration_fit_on_validation_only":calibration,
             "scientific_readiness_gate":verdict,
             "model_config":model.config,
             "limitations":["No field survey labels","One pilot location; no held-out region",
                            "Cloud censoring could bias scores","No real hydraulic intervention modeled"]}
     args.out.mkdir(parents=True,exist_ok=True)
     torch.save({"state":best_state,"config":model.config,"mean":mean,"std":std,
-                "lookback":args.lookback,"source_sha256":digest,"epochs":best_epoch},args.out/"marshnet_v2.pt")
+                "lookback":args.lookback,"source_sha256":digest,"epochs":best_epoch,
+                "calibration":calibration},args.out/"marshnet_v2.pt")
     (args.out/"evaluation.json").write_text(json.dumps(report,indent=2,ensure_ascii=False))
     (args.out/"quality_audit.json").write_text(json.dumps(audit,indent=2,ensure_ascii=False))
-    np.savez_compressed(args.out/"test_predictions.npz",probabilities=p.numpy(),targets=y.numpy(),observed=v.numpy(),dates=np.asarray(periods))
+    np.savez_compressed(args.out/"test_predictions.npz",probabilities=p.numpy(),
+                        raw_probabilities=raw_p.numpy(),targets=y.numpy(),observed=v.numpy(),dates=np.asarray(periods))
+    print("TEST BRIER raw/calibrated",baseline_three_way_raw["metrics"]["model"].get("brier"),
+          baseline_three_way["metrics"]["model"].get("brier"),flush=True)
     print("SCIENTIFIC VERDICT",verdict["status"],"; beats both baselines =",verdict["beats_both_reference_baselines"],flush=True)
     print("SAVED CHECKPOINT AND EVALUATION",args.out,flush=True)
     return report
