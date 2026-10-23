@@ -48,6 +48,12 @@ jobs:
           python ml/quality_gate.py \
             --input /tmp/marshpulse-sentinel/hawizeh_s2_monthly.npz \
             --out /tmp/marshpulse-training/quality_audit.json
+      - name: Produce actual monthly water monitoring, area-change and CSV evidence
+        run: |
+          python ml/monitor_wetland.py \
+            --input /tmp/marshpulse-sentinel/hawizeh_s2_monthly.npz \
+            --manifest /tmp/marshpulse-sentinel/satellite_manifest.json \
+            --out /tmp/marshpulse-monitor
       - name: Train and benchmark residual ConvGRU on genuine imagery
         run: |
           python ml/train_satellite.py \
@@ -63,6 +69,8 @@ jobs:
           path: |
             /tmp/marshpulse-sentinel/satellite_manifest.json
             /tmp/marshpulse-training/quality_audit.json
+            /tmp/marshpulse-monitor/water_monitor.csv
+            /tmp/marshpulse-monitor/water_monitor.json
             /tmp/marshpulse-training/evaluation.json
             /tmp/marshpulse-training/marshnet_v2.pt
             /tmp/marshpulse-training/test_predictions.npz
