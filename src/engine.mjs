@@ -120,7 +120,7 @@ export function articulation(mask,w,h) {
   }
   return result;
 }
-function features(ds,t,i){
+export function extractFeatures(ds,t,i){
   const w=ds.width,h=ds.height,v=ds.frames[t],prev=ds.frames[t-1];
   const neighborhood=neighbors(i,w,h);
   const m=Number(ds.dates[t].slice(5,7));
@@ -132,7 +132,7 @@ export function train(ds,{epochs=72,learningRate=0.38,regularization=0.004}={}){
   const n=ds.dates.length;if(n<12)throw Error("Need at least 12 months");
   const split=Math.max(8,Math.floor(n*0.75)),rows=[];
   for(let t=1;t<split-1;t++)for(let i=0;i<ds.width*ds.height;i++)
-    rows.push([features(ds,t,i),water(targets(ds,t)[i])?1:0]);
+    rows.push([extractFeatures(ds,t,i),water(targets(ds,t)[i])?1:0]);
   if(!rows.length)throw Error("No training observations");
   const weights=[0,0,0,0,0,0];
   for(let epoch=0;epoch<epochs;epoch++){
@@ -143,7 +143,7 @@ export function train(ds,{epochs=72,learningRate=0.38,regularization=0.004}={}){
   const points=[],step=Math.max(1,Math.ceil((n-split)*ds.width*ds.height/60000));
   for(let t=split-1;t<n-1;t++)for(let i=0;i<ds.width*ds.height;i+=step) {
     const truth=water(targets(ds,t)[i])?1:0;
-    const prob=predict(weights,features(ds,t,i));
+    const prob=predict(weights,extractFeatures(ds,t,i));
     const persistence=water(ds.frames[t][i])?1:0;
     points.push({truth,prob,persistence});
   }
@@ -156,7 +156,7 @@ export function train(ds,{epochs=72,learningRate=0.38,regularization=0.004}={}){
   return {weights,trainingEnd:ds.dates[split-1],holdoutStart:ds.dates[split],holdoutEnd:ds.dates[n-1],trainSamples:rows.length,holdoutSamples:points.length,metrics:evaluate("model"),baseline:evaluate("baseline"),params:{epochs,learningRate,regularization,split:"chronological",baseline:"persistence"}};
 }
 export function forecast(ds,model){
-  const t=ds.frames.length-1,probabilities=ds.frames[t].map((_,i)=>predict(model.weights,features(ds,t,i)));
+  const t=ds.frames.length-1,probabilities=ds.frames[t].map((_,i)=>predict(model.weights,extractFeatures(ds,t,i)));
   return {date:nextMonth(ds.dates[t]),probabilities};
 }
 export function scenario(ds,model,{stress=25,budget=6}={}){
