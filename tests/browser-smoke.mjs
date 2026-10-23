@@ -45,7 +45,17 @@ try{
   assert.match(await page.locator("h1").textContent(),/تتغيّر/);
   assert.equal(await page.locator('.path-grid .path').count(),3);
   await page.setViewportSize({width:1440,height:950});
-  await page.screenshot({path:"artifacts/marshpulse-home-desktop.png",fullPage:true});
+  // Real visual assets are essential for this design, not decorative placeholders.
+  for(const img of await page.locator(".botanical-home img").all()){
+    await img.scrollIntoViewIfNeeded();
+    await img.evaluate(el=>{el.loading="eager";});
+    const loaded=await img.evaluate(async el=>{
+      try { await el.decode(); } catch(_) {}
+      return {loaded:el.complete&&el.naturalWidth>0,src:el.currentSrc};
+    });
+    assert.ok(loaded.loaded,"Broken botanical image: "+loaded.src);
+  }
+    await page.screenshot({path:"artifacts/marshpulse-home-desktop.png",fullPage:true});
   await page.setViewportSize({width:390,height:844});
   await page.screenshot({path:"artifacts/marshpulse-home-mobile.png",fullPage:true});
   await page.goto("http://127.0.0.1:8765/model.html",{waitUntil:"networkidle"});
