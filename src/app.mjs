@@ -90,6 +90,9 @@ function updateScenario(){
   $("after-largest").textContent=fmt(state.result.after.largest);
   const delta=state.result.after.largest-state.result.before.largest;
   $("improvement").textContent=(delta>0?"+":"")+fmt(delta)+" خلية";
+  $("policy-opt").textContent=fmt(state.result.policyComparison.optimizedLargest)+" خلية";
+  $("policy-risk").textContent=fmt(state.result.policyComparison.riskFirstLargest)+" خلية";
+  $("policy-random").textContent=fmt(state.result.policyComparison.randomMeanLargest)+" خلية";
   priorityList();drawMap();
 }
 function updateModel(){
