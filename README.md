@@ -4,6 +4,25 @@ MarshPulse is a working, zero-build Arabic RTL research prototype for inspecting
 
 **Website (after successful Pages enablement):** https://ahpa5246-lgtm.github.io/MarshPulse/
 
+## October 2026 design + MarshNet update
+
+The site now has **four purposeful pages**, not one giant dashboard:
+
+| Page | Primary outcome |
+|---|---|
+| [Home](index.html) | Explain the research question with an original cartographic illustration |
+| [Water lab](lab.html) | Inspect connectivity, hypothetical interventions and model comparisons |
+| [MarshNet studio](model.html) | Train our own neural MLP, compare chronologically held-out predictions against persistence and export fitted JSON weights |
+| [Methods](methods.html) | Data provenance, independent checks and scientific limitations |
+
+Visual direction: warm ivory paper, navy type, restrained copper annotations; responsive Arabic reading with clear inter-section whitespace. Compared against actual NASA Worldview, JRC Surface Water Explorer and Earth Timelapse in [design audit](docs/design-audit-2026-10.md), following the owner's Senior-level-website-development-skills guidelines.
+
+**Custom model is functional:** browser-side seeded backpropagation / Adam on 5 temporal inputs and 12 hidden neurons; export .json then load it into the lab for scenario predictions. The independent [PyTorch trainer](ml/train.py) is Kaggle-ready and generates compatible `best.pt` and `marshnet.json`; see [Kaggle guide](ml/KAGGLE.md). We have NOT run Kaggle on a real Iraqi marsh dataset, do not claim we have.
+
+The website is still a research prototype: synthetic default data and theoretical "rescue" credits cannot prove physical wetland improvement. Test evidence is in GitHub Actions browser and unit jobs; real-data scientific validation remains future work.
+
+---
+
 ## Run
 
 No npm, paid API, GPU, database or build step required.
