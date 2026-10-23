@@ -23,6 +23,18 @@ The website is still a research prototype: synthetic default data and theoretica
 
 ---
 
+## MarshNet V2 (October 23, 2026)
+
+**New research architecture:** [MarshNet V2](ml/marshnet_v2.py) is an original implementation of a residual spatial encoder + two ConvGRU temporal memory cells + U-Net-style skip decoder. It operates on genuine multi-month multispectral images in Python/PyTorch, using channels B03, B04, B08, B11, NDVI, MNDWI and observed-pixel validity. It predicts a next-month per-pixel probability for a **satellite-derived pseudo-label**, not observed hydraulic flow or an independently verified wetland truth.
+
+Start with the [ready-to-run Kaggle notebook](kaggle/marshnet_v2_hawizeh.ipynb). It uses the [Planetary Computer STAC collector](ml/collect_sentinel.py) to fetch ESA Sentinel-2 Level-2A scenes for a **small pilot rectangle near Hawizeh, not the Ramsar boundary**, and the [V2 trainer](ml/train_satellite.py) to calculate blocked-in-time test Brier/IoU/F1 against a same-observed-pixel persistence baseline. Scene IDs, scene timestamps, cloud masks, missing observations, and data digest are tracked. The trainer requires a genuine image manifest for normal operation; the explicit `--synthetic-smoke` option generates fixtures for code testing and marks them as **not real satellite training**.
+
+**Not yet done:** A Kaggle run in the user's account, downloading the authentic imagery in this session, obtaining field-certified water segmentation labels, and external validation. No scores from authentic marsh imagery are claimed.
+
+**Important:** The browser's [MarshNet M1](model.html) and the [Kaggle/PyTorch V2](ml/marshnet_v2.py) have different model architectures and weights. A `.pt` V2 checkpoint is **not** compatible with the M1 `.json` import widget. A V2 inference backend or a suitable browser conversion will be a separate engineering milestone.
+
+**Editorial design reference:** homepage now uses an elongated cropped photograph of the southern Iraqi marshes by **Almendilawi / Wikimedia Commons, CC BY-SA 4.0**, with an attribution link in the UI. The photograph remains governed by its original terms; it is not licensed under this repo's MIT software license. We do not copy the user's third-party website screenshot or its proprietary assets.
+
 ## Run
 
 No npm, paid API, GPU, database or build step required.
