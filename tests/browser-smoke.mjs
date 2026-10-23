@@ -55,7 +55,29 @@ try{
     });
     assert.ok(loaded.loaded,"Broken botanical image: "+loaded.src);
   }
-    await page.screenshot({path:"artifacts/marshpulse-home-desktop.png",fullPage:true});
+    // Protect the new design tokens from regressions: real CSS must load and have
+  // visible atmospheric grid, image elevation and distinctly colored cards.
+  const appearance=await page.evaluate(()=>{
+    const g=el=>getComputedStyle(el);
+    const hero=document.querySelector(".flora-hero");
+    const photo=document.querySelector(".flora-main-photo");
+    const cards=[...document.querySelectorAll(".flora-path")];
+    return {
+      stylesheet:!!document.querySelector('link[href="./visual-effects.css"]'),
+      heroGrid:getComputedStyle(hero,"::before").backgroundImage,
+      photoShadow:g(photo).boxShadow,
+      colors:cards.map(c=>g(c).backgroundImage),
+      glow:g(document.querySelector(".flora-stage-glow")).backgroundImage,
+      story:g(document.querySelector(".flora-story")).backgroundImage
+    };
+  });
+  assert.equal(appearance.stylesheet,true,"visual system must be linked");
+  assert.match(appearance.heroGrid,/linear-gradient/,"hero atmospheric grid must render");
+  assert.notEqual(appearance.photoShadow,"none","hero photography must have depth");
+  assert.equal(new Set(appearance.colors).size,3,"feature cards must use three distinct palettes");
+  assert.match(appearance.glow,/gradient/,"photo lighting is absent");
+  assert.match(appearance.story,/gradient/,"story contrast is absent");
+  await page.screenshot({path:"artifacts/marshpulse-home-desktop.png",fullPage:true});
   await page.setViewportSize({width:390,height:844});
   await page.screenshot({path:"artifacts/marshpulse-home-mobile.png",fullPage:true});
   await page.goto("http://127.0.0.1:8765/model.html",{waitUntil:"networkidle"});
@@ -80,9 +102,13 @@ try{
   await modelEvidence.saveAs("artifacts/marshnet-in-lab-evidence.json");
   const loadedReport=JSON.parse(await readFile("artifacts/marshnet-in-lab-evidence.json","utf8"));
   assert.match(loadedReport.predictor,/MarshNet/);
-  await page.goto("http://127.0.0.1:8765/methods.html",{waitUntil:"networkidle"});
+  await page.setViewportSize({width:1440,height:950});
+  await page.screenshot({path:"artifacts/marshpulse-model-desktop.png",fullPage:true});
+  await page.setViewportSize({width:390,height:844});
+    await page.goto("http://127.0.0.1:8765/methods.html",{waitUntil:"networkidle"});
   assert.equal(await page.locator(".timeline li").count(),5);
-  // Reflow audit at 320 CSS px; horizontal scrolling is allowed inside specific data
+  await page.screenshot({path:"artifacts/marshpulse-methods-mobile.png",fullPage:true});
+    // Reflow audit at 320 CSS px; horizontal scrolling is allowed inside specific data
   // tables/controls, but not across the document viewport.
   for(const route of ["/","/lab.html","/model.html","/methods.html"]){
     await page.setViewportSize({width:320,height:700});
