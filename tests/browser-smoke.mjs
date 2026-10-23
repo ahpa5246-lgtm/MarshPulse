@@ -92,7 +92,26 @@ try{
       story:g(document.querySelector(".flora-story")).backgroundImage
     };
   });
-  assert.equal(appearance.stylesheet,true,"visual system must be linked");
+  const depth=await page.evaluate(()=>{
+    const scenes=[...document.querySelectorAll("[data-botanical-tilt]")];
+    return {
+      lib:!!document.querySelector('link[href="./vendor/atropos/atropos.css"]'),
+      main:scenes.length,
+      depths:scenes.map(s=>new Set([...s.querySelectorAll("[data-atropos-offset]")].map(el=>el.getAttribute("data-atropos-offset"))).size),
+      initialized:scenes.map(s=>Boolean(s.__marshAtropos)),
+      specimen:!!document.querySelector(".marsh-specimen-card img"),
+      foreground:[...document.querySelectorAll(".marsh-foreground-reeds,.marsh-story-reeds")].map(el=>({complete:el.complete,naturalWidth:el.naturalWidth})),
+      heroReadable:document.querySelector(".flora-hero h1")?.textContent?.trim().length>10
+    };
+  });
+  assert.equal(depth.lib,true,"Atropos stylesheet should be bundled locally");
+  assert.equal(depth.main,2,"hero and story require separate photo dioramas");
+  assert.ok(depth.depths.every(n=>n>=5),"each scene needs multiple independent depth layers");
+  assert.ok(depth.initialized.every(Boolean),"real Atropos interaction must initialize");
+  assert.ok(depth.specimen,"archival public-domain botanical print required");
+  assert.ok(depth.foreground.every(im=>im.complete&&im.naturalWidth>0),"foreground SVG reeds must load");
+  assert.ok(depth.heroReadable,"hero heading must remain visible");
+    assert.equal(appearance.stylesheet,true,"visual system must be linked");
   assert.equal(appearance.livingStyle,true,"topographic stylesheet must load");
   assert.equal(await page.locator('[data-organic-pattern] > .organic-pattern-svg').count(),4,"four white home sections require original river pattern");
   assert.ok(await page.locator('.organic-ribbon').count()>45,"water-inspired contours should be distributed across the home");
