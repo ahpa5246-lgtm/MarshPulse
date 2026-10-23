@@ -39,6 +39,12 @@ Start with the [ready-to-run Kaggle notebook](kaggle/marshnet_v2_hawizeh.ipynb).
 
 [Living Grid implementation and documentation](docs/living-grid.md): a locally vendored, ISC-licensed **D3 Contour** Marching Squares engine renders restrained marsh-inspired contour patterns and faint coordinate dots on all four pages. The map receives the stronger overlay, while text areas remain mostly clear. Contours move slowly through CSS and stop when reduced motion is requested. **These illustrative geometries are not measured Iraqi terrain or live satellite output.** Tests cover deterministic geometry, real Chromium rendering and noninterference with the interactive map.
 
+## Organic flowing pattern and scroll-driven editorial motion
+
+The light areas on all four pages now use **organic open-ended contour ribbons**, with very long tapered ends rather than short repeated rings. The field is generated locally from vendored **D3 Contour** (ISC); every section uses a different deterministic seed, and the map remains clickable over all ornaments. **MotionFlow** (MIT, vendored locally) adds staggered one-time section reveals and restrained transitions. No CDN or build tooling is required; original licenses are preserved.
+
+See [implementation documentation](docs/organic-pattern-motion.md). **All lines are illustration only, not real Iraq height or water data.** Reduced motion, low-data modes and non-JavaScript readability are explicitly accounted for.
+
 ## Run
 
 No npm, paid API, GPU, database or build step required.
