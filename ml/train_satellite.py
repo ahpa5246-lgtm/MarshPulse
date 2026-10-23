@@ -26,6 +26,12 @@ def split_targets(n,lookback):
     return parts
 def train(args):
     if not args.input.is_file():raise FileNotFoundError("Genuine input file missing: "+str(args.input))
+    if not args.synthetic_smoke:
+        manifest_path=args.input.with_name("satellite_manifest.json")
+        if not manifest_path.is_file():raise FileNotFoundError("Missing satellite acquisition manifest; not treating unlabeled data as real satellite imagery")
+        manifest=json.loads(manifest_path.read_text())
+        if not sum(len(m.get("scenes",[])) for m in manifest.get("months",[])):
+            raise ValueError("No authenticated-looking acquired scenes recorded in metadata")
     digest=hashlib.sha256(args.input.read_bytes()).hexdigest()
     with np.load(args.input,allow_pickle=False) as archive:
         cube=np.asarray(archive["x"],dtype=np.float32)
@@ -87,7 +93,7 @@ def train(args):
                 prior,prior_valid=wet_pseudolabel(torch.from_numpy(cube[t-1]))
                 baselines.append(prior);fairm.append(prior_valid*vb[j]);periods.append(dates[t])
     p=torch.cat(probs);y=torch.cat(truth);v=torch.cat(valid);b=torch.stack(baselines);fair=torch.stack(fairm)
-    report={"status":"satellite-derived research evaluation (unverified labels)",
+    report={"status":"SYNTHETIC SMOKE ONLY" if args.synthetic_smoke else "SATELLITE PROXY / UNVERIFIED LABELS",
             "label_definition":"MNDWI>0.1 and NDVI<0.3 from *future observed satellite images*; not field ground truth",
             "dataset_sha256":digest,"dates":dates,"test_months":periods,
             "split_targets":{"train":tr,"validation":va,"test":te},
