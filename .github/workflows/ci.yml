@@ -18,6 +18,7 @@ jobs:
           node --check src/engine.mjs
           node --check src/app.mjs
           node --check earth-engine/export_monthly_grid.js
+          python3 -m py_compile ml/train.py
       - name: Reproducible unit tests
         run: node --test tests/*.test.mjs
   browser-smoke:
