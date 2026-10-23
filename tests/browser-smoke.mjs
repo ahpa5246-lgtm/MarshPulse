@@ -113,6 +113,8 @@ try{
   assert.ok(depth.heroReadable,"hero heading must remain visible");
   // The new interaction must do more than initialize a library: a real pointer
   // entering the stage should activate Atropos. Scrolling/clicking must remain normal.
+  await page.evaluate(()=>window.scrollTo(0,0));
+  await page.waitForTimeout(120);
   const heroScene=page.locator(".marsh-hero-scene");
   const rect=await heroScene.boundingBox();
   assert.ok(rect&&rect.width>150&&rect.height>200,"photo scene needs visible stage dimensions");
