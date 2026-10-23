@@ -11,6 +11,8 @@
   <link rel="stylesheet" href="./lab-refine.css"/>
 <link rel="stylesheet" href="./botanical-inner.css"/>
 <link rel="stylesheet" href="./visual-effects.css"/>
+<link rel="stylesheet" href="./living-grid.css"/>
+<script type="module" src="./src/living-grid.mjs"></script>
   <script type="module" src="./src/app.mjs"></script>
 </head>
 <body>
@@ -24,7 +26,7 @@
     <a class="header-action" href="./model.html" rel="noopener">MarshNet <span aria-hidden="true">↗</span></a>
   </header>
   <main id="top" class="shell">
-    <section class="hero">
+    <section class="hero" data-topo-zone="intro">
       <div class="hero-copy">
         <div class="eyebrow"><span class="pulse-dot"></span> IRAQ · WETLAND INTELLIGENCE <span class="eyebrow-line"></span> تجربة مفتوحة المصدر</div>
         <h1>من مراقبة الجفاف<br/>إلى <em>اختبار قرارات الإنقاذ.</em></h1>
@@ -67,7 +69,7 @@
           <div class="panel map-panel">
             <div class="map-header"><div><span class="small-index">B / SPATIAL MODEL</span><h3>خريطة الترابط البيئي</h3></div><div class="time-stamp"><span class="timestamp-bullet"></span><span id="map-date">—</span></div></div>
             <div class="map-tabs" role="group" aria-label="طبقة الخريطة"><button type="button" data-layer="observed" class="active" aria-pressed="true">آخر رصد</button><button type="button" data-layer="forecast" aria-pressed="false">التوقع تحت الضغط</button><button type="button" data-layer="protected" aria-pressed="false">بعد التدخل النظري</button></div>
-            <div class="map-area"><div class="map-grid-label">MODEL GRID <span id="grid-shape">—</span></div><svg id="map" role="img" aria-label="خريطة مربعات الشبكة، انقر على خلية لعرض تفاصيلها" viewBox="0 0 640 400"></svg><div class="map-coordinate">REFERENCE GRID · NOT GEOGRAPHIC COORDINATES</div></div>
+            <div class="map-area" data-topo-zone="map"><div class="map-grid-label">MODEL GRID <span id="grid-shape">—</span></div><svg id="map" role="img" aria-label="خريطة مربعات الشبكة، انقر على خلية لعرض تفاصيلها" viewBox="0 0 640 400"></svg><div class="map-coordinate">REFERENCE GRID · NOT GEOGRAPHIC COORDINATES</div></div>
             <div class="map-legend"><span><i class="swatch water"></i> مياه</span><span><i class="swatch dry"></i> يابسة</span><span><i class="swatch critical"></i> نقطة حرجة</span><span><i class="swatch intervention"></i> تدخل افتراضي</span></div>
           </div>
           <div class="panel cell-panel"><span class="small-index">CELL INSPECTOR</span><div id="cell-details" aria-live="polite">اختاري خلية من الخريطة لمعرفة حالتها واحتمال بقائها مائية في الشهر التالي.</div></div>
