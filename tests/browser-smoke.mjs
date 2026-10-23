@@ -4,6 +4,18 @@ import {mkdir,readFile} from "node:fs/promises";
 const browser=await chromium.launch({channel:"chrome",headless:true,args:["--no-sandbox"]});
 const page=await browser.newPage({viewport:{width:1440,height:950},deviceScaleFactor:1,acceptDownloads:true});
 const errors=[];
+async function exposeAllSections(page){
+  await page.evaluate(async()=>{
+    const delay=t=>new Promise(resolve=>setTimeout(resolve,t));
+    const step=Math.max(240,Math.floor(window.innerHeight*0.74));
+    for(let y=0;y<document.documentElement.scrollHeight;y+=step){
+      window.scrollTo(0,y);
+      await delay(45);
+    }
+    window.scrollTo(0,0);
+    await delay(820);
+  });
+}
 page.on("pageerror",err=>errors.push(String(err)));
 page.on("console",msg=>{if(msg.type()==="error")errors.push(msg.text());});
 try{
@@ -26,6 +38,7 @@ try{
   await page.locator("#map [data-cell]").first().click();
   assert.match(await page.locator("#cell-details").textContent(),/الصف/);
   await mkdir("artifacts",{recursive:true});
+  await exposeAllSections(page);
   await page.screenshot({path:"artifacts/marshpulse-desktop.png",fullPage:true});
   const [sample]=await Promise.all([page.waitForEvent("download"),page.locator("#csv-example").click()]);
   const samplePath="artifacts/format-sample.csv";
@@ -95,6 +108,8 @@ try{
   assert.equal(new Set(appearance.colors).size,3,"feature cards must use three distinct palettes");
   assert.match(appearance.glow,/gradient/,"photo lighting is absent");
   assert.match(appearance.story,/gradient/,"story contrast is absent");
+  await exposeAllSections(page);
+  assert.ok(await page.locator(".mf-animate").count()>=4,"MotionFlow must reveal content after scrolling");
   await page.screenshot({path:"artifacts/marshpulse-home-desktop.png",fullPage:true});
   await page.setViewportSize({width:390,height:844});
   await page.screenshot({path:"artifacts/marshpulse-home-mobile.png",fullPage:true});
@@ -107,6 +122,7 @@ try{
   assert.equal(await page.locator("#download-weights").isDisabled(),false);
   assert.ok(Number(await page.locator("#net-brier").textContent())>=0);
   await page.setViewportSize({width:1440,height:950});
+  await exposeAllSections(page);
   await page.screenshot({path:"artifacts/marshpulse-model-desktop.png",fullPage:true});
   await page.setViewportSize({width:390,height:844});
   await page.screenshot({path:"artifacts/marshpulse-model.png",fullPage:true});
@@ -127,6 +143,7 @@ try{
     await page.goto("http://127.0.0.1:8765/methods.html",{waitUntil:"networkidle"});
   assert.equal(await page.locator(".timeline li").count(),5);
   assert.equal(await page.locator('[data-organic-pattern] > .organic-pattern-svg').count(),3,"methods has three background panels");
+  await exposeAllSections(page);
   await page.screenshot({path:"artifacts/marshpulse-methods-mobile.png",fullPage:true});
     // Reflow audit at 320 CSS px; horizontal scrolling is allowed inside specific data
   // tables/controls, but not across the document viewport.
