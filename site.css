@@ -34,3 +34,9 @@
 @keyframes river-trace{to{stroke-dashoffset:-130}}
 @keyframes critical-point{0%,100%{opacity:.5;transform:scale(.88)}50%{opacity:1;transform:scale(1.12)}}
 @media(prefers-reduced-motion:reduce){.plate-art path[stroke="#d7a069"],.plate-art circle[r="24"]{animation:none}}
+
+
+/* Prevent long technical commands from expanding CSS grid min-content width. */
+.two-col > *,.paper-panel,.model-workspace,.main-stack{min-width:0}
+.paper-panel pre{max-width:100%;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word}
+@media(max-width:760px){.two-col{grid-template-columns:minmax(0,1fr)}}
