@@ -12,6 +12,8 @@ try{
   await page.locator("#model-brier").waitFor({state:"visible"});
   await page.waitForFunction(()=>document.getElementById("model-brier").textContent.includes("."));
   assert.ok((await page.locator("#map [data-cell]").count())>100,"rendered raster map");
+  assert.ok((await page.locator('[data-topo-zone="map"] .living-grid-isoline').count())>8,"map should have D3-generated topography");
+  assert.equal(await page.locator('[data-topo-zone="map"] .living-grid-svg').evaluate(el=>getComputedStyle(el).pointerEvents),"none","decorative contours may not intercept map clicks");
   assert.ok((await page.locator("#history-chart polyline").count())>=1,"time series");
   assert.match(await page.locator("#provenance-title").textContent(),/اصطناعية/);
   await page.locator('[data-layer="forecast"]').click();
@@ -64,7 +66,11 @@ try{
     const cards=[...document.querySelectorAll(".flora-path")];
     return {
       stylesheet:!!document.querySelector('link[href="./visual-effects.css"]'),
-      heroGrid:getComputedStyle(hero,"::before").backgroundImage,
+      livingStyle:!!document.querySelector('link[href="./living-grid.css"]'),
+      heroContours:hero.querySelectorAll(".living-grid-isoline").length,
+      heroDots:hero.querySelectorAll(".living-grid-dot").length,
+      pathsContours:document.querySelectorAll('[data-topo-zone="paths"] .living-grid-isoline').length,
+      behindText:getComputedStyle(hero.querySelector(".living-grid-svg")).pointerEvents,
       photoShadow:g(photo).boxShadow,
       colors:cards.map(c=>g(c).backgroundImage),
       glow:g(document.querySelector(".flora-stage-glow")).backgroundImage,
@@ -72,7 +78,11 @@ try{
     };
   });
   assert.equal(appearance.stylesheet,true,"visual system must be linked");
-  assert.match(appearance.heroGrid,/linear-gradient/,"hero atmospheric grid must render");
+  assert.equal(appearance.livingStyle,true,"topographic stylesheet must load");
+  assert.ok(appearance.heroContours>8,"must generate nontrivial contour geometries");
+  assert.ok(appearance.pathsContours>4,"chapter background should feature living contour lines");
+  assert.ok(appearance.heroDots>8,"decorative coordinate dots must render");
+  assert.equal(appearance.behindText,"none","topography must not block readable or interactive content");
   assert.notEqual(appearance.photoShadow,"none","hero photography must have depth");
   assert.equal(new Set(appearance.colors).size,3,"feature cards must use three distinct palettes");
   assert.match(appearance.glow,/gradient/,"photo lighting is absent");
