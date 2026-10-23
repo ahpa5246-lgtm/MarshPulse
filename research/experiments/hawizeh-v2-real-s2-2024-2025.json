@@ -1,0 +1,67 @@
+{
+  "experiment_id": "hawizeh-v2-real-s2-2024-2025-pilot-20261023",
+  "source_workflow": "https://github.com/ahpa5246-lgtm/MarshPulse/actions/runs/40003182078",
+  "github_artifact": "https://github.com/ahpa5246-lgtm/MarshPulse/actions/runs/40003182078/artifacts/12522598463",
+  "imagery": "ESA Copernicus Sentinel-2 L2A via Microsoft Planetary Computer",
+  "study_area": {
+    "name": "Hawizeh vicinity pilot only",
+    "bbox_wgs84": [
+      47.55,
+      31.5,
+      47.65,
+      31.6
+    ],
+    "official_wetland_boundary": false
+  },
+  "period": {
+    "first": "2024-01",
+    "last": "2025-12",
+    "months": 24,
+    "months_with_scenes": 24,
+    "holdout": [
+      "2025-09",
+      "2025-12"
+    ]
+  },
+  "features": [
+    "B03",
+    "B04",
+    "B08",
+    "B11",
+    "NDVI",
+    "MNDWI",
+    "VALID"
+  ],
+  "labels": "MNDWI>0.1 and NDVI<0.3, unverified satellite proxy",
+  "model": {
+    "name": "MarshNet V2",
+    "class": "Residual ConvGRU-U-Net",
+    "parameters": 622305,
+    "best_epoch": 3
+  },
+  "evaluation_same_observed_pixels": {
+    "marshnet": {
+      "brier": 0.10714402794837952,
+      "f1": 0,
+      "iou": 0,
+      "accuracy": 0.8997121453285217,
+      "n_valid_pixels": 12853
+    },
+    "persistence": {
+      "brier": 0.0007002256461419165,
+      "f1": 0,
+      "iou": 0,
+      "accuracy": 0.9992997646331787,
+      "n_valid_pixels": 12853
+    },
+    "verdict": "FAIL: MarshNet does not beat persistence; F1 zero for both; this is not a robust evaluation for wetland water detection"
+  },
+  "data_sha256": "01f4a24f781e747cfd9a48b973fff6dc38f08035eccc6d6ff16c320e57be7a09",
+  "scientific_qualification": "This is real satellite *imagery*, but weak proxy labels and one small pilot AOI. No out-of-region holdout, field labels or hydraulic validation. Do not report as a winning or deployable model.",
+  "next_steps": [
+    "audit wet class prevalence and cloud mask sensitivity",
+    "test predefined broader wetland polygons rather than a tiny pilot",
+    "add seasonal baseline and independent reference labels",
+    "make no ecological intervention claims"
+  ]
+}
