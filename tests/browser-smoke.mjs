@@ -233,7 +233,7 @@ try{
   assert.equal(await page.locator("#monitor-month").isDisabled(),false);
   assert.match(await page.locator("#monitor-date").textContent(),/2026-09/);
   assert.ok(await page.locator("#monitor-chart svg path").count()>=2,"actual SVG chart is not rendered");
-  await page.locator("#monitor-month").fill("5");
+  await page.locator("#monitor-month").evaluate(el=>{el.value="5";el.dispatchEvent(new Event("input",{bubbles:true}));});
   assert.equal(await page.locator("#monitor-date").textContent(),"2024-03","changing month should update actual observation");
   await page.screenshot({path:"artifacts/marshpulse-monitor-real-desktop.png",fullPage:true});
   await page.setViewportSize({width:390,height:844});
