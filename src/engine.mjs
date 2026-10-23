@@ -58,6 +58,7 @@ export function parseCSV(text) {
   for(const fields of rows){
     const date=String(fields[idx.date]??"").trim().slice(0,7);
     if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(date))throw Error("Expected ISO month YYYY-MM");
+    if(String(fields[idx.row]??"").trim()===""||String(fields[idx.col]??"").trim()==="")throw Error("Missing row/col");
     const rr=Number(fields[idx.row]),cc=Number(fields[idx.col]),v=Number(fields[idx.water]);
     if(!Number.isInteger(rr)||!Number.isInteger(cc)||rr<0||cc<0||rr>99||cc>99)throw Error("Invalid row/col");
     if(String(fields[idx.water]??"").trim()===""||!Number.isFinite(v)||v<0||v>1)throw Error("Water must be in [0,1]");
