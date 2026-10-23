@@ -80,3 +80,7 @@ body:has(.topbar) .shell .hero.living-grid-ready:before{background-image:none}
 @media(prefers-reduced-data:reduce){
   .living-grid-contours,.living-grid-dots{animation:none!important}
 }
+
+/* Keep the hero index/ornament correct: the bottom ribbon is anchored to the hero. */
+.flora-hero[data-topo-zone="hero"]>.flora-hero-bottom{position:absolute;z-index:1}
+.flora-hero[data-topo-zone="hero"]>.flora-orbit{position:absolute;z-index:0}
