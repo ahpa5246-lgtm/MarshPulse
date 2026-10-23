@@ -72,6 +72,14 @@ try{
   assert.match(loadedReport.predictor,/MarshNet/);
   await page.goto("http://127.0.0.1:8765/methods.html",{waitUntil:"networkidle"});
   assert.equal(await page.locator(".timeline li").count(),5);
+  // Reflow audit at 320 CSS px; horizontal scrolling is allowed inside specific data
+  // tables/controls, but not across the document viewport.
+  for(const route of ["/","/lab.html","/model.html","/methods.html"]){
+    await page.setViewportSize({width:320,height:700});
+    await page.goto("http://127.0.0.1:8765"+route,{waitUntil:"networkidle"});
+    const widths=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,viewport:window.innerWidth}));
+    assert.ok(widths.scroll<=widths.viewport+1,"Unexpected horizontal overflow on "+route+": "+JSON.stringify(widths));
+  }
   assert.equal(errors.length,0,"browser console errors: "+errors.join(" | "));
   console.log("BROWSER_SMOKE_SUCCESS: 4 routes, desktop/mobile, CSV, MarshNet train/export/reimport, model-driven scenario and evidence verified");
 }finally{await browser.close();}
