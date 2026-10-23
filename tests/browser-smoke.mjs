@@ -15,6 +15,8 @@ try{
   assert.ok((await page.locator('[data-topo-zone="map"] .living-grid-isoline').count())>8,"map should have D3-generated topography");
   assert.equal(await page.locator('[data-topo-zone="map"] .living-grid-svg').evaluate(el=>getComputedStyle(el).pointerEvents),"none","decorative contours may not intercept map clicks");
   assert.ok((await page.locator("#history-chart polyline").count())>=1,"time series");
+  assert.equal(await page.locator('[data-organic-pattern] > .organic-pattern-svg').count(),4,"lab white sections should all have ornament");
+  assert.ok(await page.locator('[data-organic-pattern="analysis"] .organic-ribbon').count()>=6,"lab analysis needs long tapered paths");
   assert.match(await page.locator("#provenance-title").textContent(),/اصطناعية/);
   await page.locator('[data-layer="forecast"]').click();
   assert.equal(await page.locator('[data-layer="forecast"]').getAttribute("aria-pressed"),"true");
@@ -79,6 +81,12 @@ try{
   });
   assert.equal(appearance.stylesheet,true,"visual system must be linked");
   assert.equal(appearance.livingStyle,true,"topographic stylesheet must load");
+  assert.equal(await page.locator('[data-organic-pattern] > .organic-pattern-svg').count(),4,"four white home sections require original river pattern");
+  assert.ok(await page.locator('.organic-ribbon').count()>45,"water-inspired contours should be distributed across the home");
+  assert.ok(await page.locator('[data-organic-pattern="hero"] .organic-ribbon').count()>=10);
+  assert.equal(await page.locator('.flora-hero > .organic-pattern-svg').evaluate(el=>getComputedStyle(el).pointerEvents),"none","pattern must not intercept navigation");
+  assert.ok(await page.locator('[data-mf-animation]').count()>=7,"sections require actual MotionFlow reveal bindings");
+  assert.ok(await page.locator('.mf-init').count()>=4,"vendored MotionFlow should initialize in Chromium");
   assert.ok(appearance.heroContours>8,"must generate nontrivial contour geometries");
   assert.ok(appearance.pathsContours>4,"chapter background should feature living contour lines");
   assert.ok(appearance.heroDots>8,"decorative coordinate dots must render");
@@ -92,6 +100,7 @@ try{
   await page.screenshot({path:"artifacts/marshpulse-home-mobile.png",fullPage:true});
   await page.goto("http://127.0.0.1:8765/model.html",{waitUntil:"networkidle"});
   assert.match(await page.locator("h1").textContent(),/MarshNet/);
+  assert.equal(await page.locator('[data-organic-pattern] > .organic-pattern-svg').count(),2,"model reading areas need pattern");
   await page.locator("#epochs").selectOption("15");
   await page.locator("#train-model").click();
   await page.waitForFunction(()=>!document.getElementById("training-results").hidden,{timeout:60000});
@@ -117,6 +126,7 @@ try{
   assert.match(loadedReport.predictor,/MarshNet/);
     await page.goto("http://127.0.0.1:8765/methods.html",{waitUntil:"networkidle"});
   assert.equal(await page.locator(".timeline li").count(),5);
+  assert.equal(await page.locator('[data-organic-pattern] > .organic-pattern-svg').count(),3,"methods has three background panels");
   await page.screenshot({path:"artifacts/marshpulse-methods-mobile.png",fullPage:true});
     // Reflow audit at 320 CSS px; horizontal scrolling is allowed inside specific data
   // tables/controls, but not across the document viewport.
