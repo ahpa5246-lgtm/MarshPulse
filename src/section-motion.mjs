@@ -9,7 +9,6 @@ const sections=[
  [".flora-section-heading","fade-up",0],
  [".flora-path","fade-up",110],
  [".flora-story-copy","fade-up",0],
- [".flora-bottom-grid > *","fade-up",100],
  [".inner-intro h1","fade-up",0],
  [".inner-intro > p:last-child","fade-up",110],
  [".model-v2-feature .v2-copy","fade-up",0],
