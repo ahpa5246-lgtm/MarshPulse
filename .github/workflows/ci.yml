@@ -19,7 +19,7 @@ jobs:
           node --check src/app.mjs
           node --check earth-engine/export_monthly_grid.js
           python3 -m py_compile ml/train.py
-          python3 -m py_compile ml/collect_sentinel.py ml/train_satellite.py ml/marshnet_v2.py ml/quality_gate.py ml/monitor_wetland.py
+          python3 -m py_compile ml/collect_sentinel.py ml/train_satellite.py ml/marshnet_v2.py ml/quality_gate.py ml/monitor_wetland.py ml/calibration.py
           python3 -c "import json; n=json.load(open('kaggle/marshnet_v2_hawizeh.ipynb')); assert n['nbformat']==4 and len(n['cells'])>=10"
       - name: Reproducible unit tests
         run: node --test tests/*.test.mjs
@@ -54,6 +54,8 @@ jobs:
           assert report["scientific_readiness_gate"]["ready_for_operational_or_ecological_decisions"] is False
           assert "seasonal_12m" in report["same_pixel_model_vs_both_baselines"]["metrics"]
           assert "persistence" in report["same_pixel_model_vs_both_baselines"]["metrics"]
+          assert "calibration_fit_on_validation_only" in report
+          assert "uncalibrated_same_pixel_baselines" in report
           assert (a/"marshnet_v2.pt").stat().st_size>0
           print("TRAINING_PIPELINE_SMOKE_SUCCESS; synthetic only, no scientific accuracy established")
           PY
