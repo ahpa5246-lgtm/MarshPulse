@@ -1,7 +1,8 @@
 import {demoData,parseCSV,connectivity,articulation,train,scenario,report} from "./engine.mjs";
+import {validateMarshNet,predictMarshNet} from "./marshnet.mjs";
 const $ = id => document.getElementById(id);
 const svgNS="http://www.w3.org/2000/svg";
-const state={data:demoData(),model:null,result:null,layer:"observed",selected:null,stress:25,budget:6};
+const state={data:demoData(),model:null,result:null,layer:"observed",selected:null,stress:25,budget:6,custom:null};
 const fmt=n=>new Intl.NumberFormat("ar-IQ",{maximumFractionDigits:1}).format(n);
 const pct=n=>fmt(100*n)+"%";
 function toast(message,isError=false){
@@ -77,7 +78,7 @@ function priorityList(){
 function setTab(){for(const btn of document.querySelectorAll("[data-layer]")){const active=btn.dataset.layer===state.layer;btn.classList.toggle("active",active);btn.setAttribute("aria-pressed",String(active));}}
 function updateScenario(){
   const {data,model}=state;
-  state.result=scenario(data,model,{stress:state.stress,budget:state.budget});
+  state.result=scenario(data,model,{stress:state.stress,budget:state.budget,predictor:state.custom?((data,t,i)=>predictMarshNet(state.custom,data,t,i)):null});
   const actual=data.frames.at(-1).map(v=>v>=0.5),measured=connectivity(actual,data.width,data.height);
   const corridor=articulation(actual,data.width,data.height);
   $("stat-water").textContent=pct(measured.wet/actual.length);
@@ -113,7 +114,7 @@ function updateModel(){
   drawHistory();updateScenario();
 }
 function loadData(ds){
-  state.data=ds;state.selected=null;state.layer="observed";setTab();
+  state.data=ds;state.custom=null;$("active-model").textContent="النموذج المرجعي: Logistic";state.selected=null;state.layer="observed";setTab();
   state.model=train(ds);updateModel();
 }
 for(const btn of document.querySelectorAll("[data-layer]"))btn.addEventListener("click",()=>{state.layer=btn.dataset.layer;setTab();drawMap();});
@@ -128,6 +129,28 @@ $("data-upload").addEventListener("change",async e=>{
     const data=parseCSV(await file.text());
     loadData(data);toast("تم استيراد البيانات وتشغيل التحقق الزمني. لم يُتحقق من المصدر.");
   }catch(err){toast("تعذّر الاستيراد: "+err.message,true);}
+  e.target.value="";
+});
+$("marshnet-upload").addEventListener("change",async e=>{
+  const f=e.target.files?.[0];if(!f)return;
+  try{
+    if(f.size>2e6)throw Error("ملف الأوزان أكبر من 2 ميغابايت");
+    const candidate=JSON.parse(await f.text());validateMarshNet(candidate);
+    const p=candidate.provenance??{},d=state.data;
+    if(p.lastMonth!==d.dates.at(-1)||p.firstMonth!==d.dates[0]||p.grid?.[0]!==d.width||p.grid?.[1]!==d.height||p.origin!==d.origin)
+      throw Error("الملف مُدرّب على مصدر أو فترة أو شبكة مختلفة. اختاري بيانات التدريب المطابقة أولًا.");
+    state.custom=candidate;
+    $("active-model").textContent="MarshNet · نموذج خاص مُدرَّب ("+candidate.training?.bestEpoch+" دورات أفضل وزن)";
+    $("model-brier").textContent=Number(candidate.evaluation?.model?.brier).toFixed(4);
+    $("baseline-brier").textContent=Number(candidate.evaluation?.persistence?.brier).toFixed(4);
+    $("model-f1").textContent=Math.round(100*candidate.evaluation?.model?.f1)+"%";
+    $("holdout-samples").textContent=fmt(candidate.training?.holdoutSamples??0);
+    $("holdout-dates").textContent="نطاق الاختبار المسجّل في ملف MarshNet: "+candidate.training?.holdoutStart+" — "+candidate.training?.holdoutEnd;
+    $("model-verdict").textContent=Number(candidate.evaluation?.model?.brier)<Number(candidate.evaluation?.persistence?.brier)
+      ?"MarshNet تجاوز مرجع الاستمرار في ملف التقييم المستورد؛ نتائج المصدر غير محقَّقة خارجيًا."
+      :"MarshNet لم يتجاوز مرجع الاستمرار وفق ملف التقييم المستورد.";
+    updateScenario();toast("تم تفعيل MarshNet على بيانات مطابقة في الشبكة والفترة. هذا لا يتحقق من مصدرها.");
+  }catch(err){toast("تعذّر تحميل MarshNet: "+err.message,true);}
   e.target.value="";
 });
 $("reset-demo").addEventListener("click",()=>{loadData(demoData());toast("عادت بيانات المحاكاة التركيبية.");});
