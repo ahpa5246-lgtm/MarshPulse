@@ -100,6 +100,7 @@ try{
   assert.equal(await page.locator('.flora-hero > .organic-pattern-svg').evaluate(el=>getComputedStyle(el).pointerEvents),"none","pattern must not intercept navigation");
   assert.ok(await page.locator('[data-mf-animation]').count()>=7,"sections require actual MotionFlow reveal bindings");
   assert.ok(await page.locator('.mf-init').count()>=4,"vendored MotionFlow should initialize in Chromium");
+  assert.equal(await page.locator(".flora-bottom-grid h2").evaluate(el=>getComputedStyle(el).opacity),"1","final call-to-action must be readable without scrolling");
   assert.ok(appearance.heroContours>8,"must generate nontrivial contour geometries");
   assert.ok(appearance.pathsContours>4,"chapter background should feature living contour lines");
   assert.ok(appearance.heroDots>8,"decorative coordinate dots must render");
