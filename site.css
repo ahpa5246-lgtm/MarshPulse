@@ -40,3 +40,29 @@
 .two-col > *,.paper-panel,.model-workspace,.main-stack{min-width:0}
 .paper-panel pre{max-width:100%;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word}
 @media(max-width:760px){.two-col{grid-template-columns:minmax(0,1fr)}}
+
+
+/* 2026 editorial refresh: photographic lens, airy page rhythm and one measured lilac seam.
+   Reference-inspired, not an imitation or copied asset. */
+.site-home .editorial-hero{position:relative;padding-bottom:104px}
+.site-home .editorial-hero:after{content:"";position:absolute;bottom:0;left:50%;width:100vw;height:5px;transform:translateX(-50%);background:linear-gradient(90deg,#e0d9e6,#a66baf 45%,#ecafdb 73%,#d1d6e8);box-shadow:0 -16px 38px #cda7dd55}
+.site-home .hero-layout{grid-template-columns:minmax(0,1fr);justify-items:center;gap:48px;padding-top:46px}
+.site-home .hero-narrative{text-align:center;max-width:840px;display:flex;flex-direction:column;align-items:center}
+.site-home .hero-narrative .overline{letter-spacing:2px;color:#6a6e74;margin-bottom:28px}
+.site-home .hero-narrative h1{font-weight:700;font-size:clamp(43px,5.6vw,77px);line-height:1.36;color:#222521;letter-spacing:-1.65px;margin:34px auto 19px;max-width:780px}
+.site-home .hero-narrative h1 .serif{color:#3c4548;font-weight:600}
+.site-home .hero-description{max-width:620px;color:#62666b;font-size:15px;line-height:2.2;margin:0 auto 25px}
+.site-home .hero-links{justify-content:center;gap:26px}
+.site-home .hero-caveat{margin:28px auto 0;text-align:center;border:0;padding:0;max-width:610px;font-size:11px;color:#7b7880}
+.site-home .plate{max-width:760px;width:100%;margin:22px auto 0;box-shadow:12px 13px 0 #e4dfdc}
+.wetland-lens{margin:0;display:flex;align-items:center;flex-direction:column;gap:10px}
+.wetland-lens-media{position:relative;width:min(355px,calc(100vw - 56px));height:205px;isolation:isolate}
+.wetland-lens-media:before,.wetland-lens-media:after{content:"";position:absolute;left:8%;right:8%;height:58%;background:#cdd5cb;border-radius:50%/48%;z-index:-1}
+.wetland-lens-media:before{top:5px;transform:translateY(-5px)}.wetland-lens-media:after{bottom:4px;transform:translateY(5px)}
+.wetland-lens-media img{width:100%;height:100%;object-fit:cover;object-position:50% 55%;clip-path:path("M 175 4 C 80 -3 0 31 0 64 C 0 92 47 104 59 110 C 19 129 -2 153 9 178 C 28 221 300 218 340 184 C 361 159 333 128 297 111 C 334 96 357 81 354 57 C 347 18 270 3 175 4 Z");filter:saturate(.82) contrast(.96);transition:filter .4s ease,transform .5s ease}
+.wetland-lens-media:hover img{filter:saturate(1.04) contrast(1.02);transform:translateY(-3px)}
+.wetland-lens figcaption{font-size:9px;letter-spacing:.25px;color:#7b7b75;text-align:center;max-width:380px}
+.wetland-lens figcaption a{text-decoration:underline;text-underline-offset:2px}
+.site-home .chapter-strip{margin-top:80px}
+@media(max-width:760px){.site-home .hero-layout{padding-top:28px;gap:30px}.site-home .hero-narrative h1{font-size:clamp(35px,9vw,54px);margin-top:24px}.site-home .editorial-hero{padding-bottom:64px}.wetland-lens-media{width:min(330px,calc(100vw - 44px));height:190px}.wetland-lens-media img{clip-path:ellipse(48% 46% at 50% 50%);border-radius:48%}.wetland-lens figcaption{max-width:300px;line-height:1.9}.site-home .plate{margin-top:8px;box-shadow:6px 7px 0 #e4dfdc}.site-home .chapter-strip{margin-top:56px}}
+@media(prefers-reduced-motion:reduce){.wetland-lens-media img{transition:none!important}}
