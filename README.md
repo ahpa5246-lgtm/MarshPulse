@@ -35,6 +35,10 @@ Start with the [ready-to-run Kaggle notebook](kaggle/marshnet_v2_hawizeh.ipynb).
 
 **Editorial design reference:** homepage now uses an elongated cropped photograph of the southern Iraqi marshes by **Almendilawi / Wikimedia Commons, CC BY-SA 4.0**, with an attribution link in the UI. The photograph remains governed by its original terms; it is not licensed under this repo's MIT software license. We do not copy the user's third-party website screenshot or its proprietary assets.
 
+## Living Grid — offline, D3-based animated contours
+
+[Living Grid implementation and documentation](docs/living-grid.md): a locally vendored, ISC-licensed **D3 Contour** Marching Squares engine renders restrained marsh-inspired contour patterns and faint coordinate dots on all four pages. The map receives the stronger overlay, while text areas remain mostly clear. Contours move slowly through CSS and stop when reduced motion is requested. **These illustrative geometries are not measured Iraqi terrain or live satellite output.** Tests cover deterministic geometry, real Chromium rendering and noninterference with the interactive map.
+
 ## Run
 
 No npm, paid API, GPU, database or build step required.
