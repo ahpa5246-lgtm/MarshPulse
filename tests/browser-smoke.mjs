@@ -111,6 +111,17 @@ try{
   assert.ok(depth.specimen,"archival public-domain botanical print required");
   assert.ok(depth.foreground.every(im=>im.complete&&im.naturalWidth>0),"foreground SVG reeds must load");
   assert.ok(depth.heroReadable,"hero heading must remain visible");
+  // The new interaction must do more than initialize a library: a real pointer
+  // entering the stage should activate Atropos. Scrolling/clicking must remain normal.
+  const heroScene=page.locator(".marsh-hero-scene");
+  const rect=await heroScene.boundingBox();
+  assert.ok(rect&&rect.width>150&&rect.height>200,"photo scene needs visible stage dimensions");
+  await page.mouse.move(rect.x+rect.width*.72,rect.y+rect.height*.32);
+  await page.waitForTimeout(200);
+  const activated=await heroScene.evaluate(el=>!!el.__marshAtropos?.isActive);
+  assert.equal(activated,true,"3D scene must react to real desktop pointer");
+  await page.mouse.move(0,0);
+
     assert.equal(appearance.stylesheet,true,"visual system must be linked");
   assert.equal(appearance.livingStyle,true,"topographic stylesheet must load");
   assert.equal(await page.locator('[data-organic-pattern] > .organic-pattern-svg').count(),4,"four white home sections require original river pattern");
