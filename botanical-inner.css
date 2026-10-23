@@ -1,0 +1,128 @@
+/* Bright botanical companion surfaces for MarshPulse inner pages. */
+:root{--mint:#ecfae8;--leaf:#257c47;--forest:#16452f;--spring:#c7f79b;--paper:#f7fdf2;--ink:#19442e;--blue:#416c81;--rule:#c9e5c9;--warm:#7bb36a;--white:#fff}
+html{scroll-behavior:smooth}
+body{background:linear-gradient(180deg,#f5fced 0,#fff 450px,#fbfefa 100%);color:#1a4230}
+.site-header{background:#f0faeb;border-bottom:1px solid #c5e3c7;box-shadow:0 3px 12px #b4d8b013}
+.site-header .identity-glyph{background:#cdf7ac;border:0;color:#2f8a53}
+.site-header .identity b{color:#1e623c;font:850 22px system-ui,sans-serif}
+.site-header .identity small{color:#5c8667}
+.site-header nav a{color:#3d674e;font-weight:700}
+.site-header nav a[aria-current=page],.site-header nav a:hover{color:#247944;border-bottom-color:#62b966}
+.site-header .header-link{background:#255f3b;color:white;border:0;border-radius:40px;padding:11px 17px}
+.site-header .header-link:hover{background:#3b8c55}
+.inner-intro{position:relative;isolation:isolate;padding-top:105px;padding-bottom:105px;border-bottom:0;overflow:hidden}
+.inner-intro:after{content:"✳";font:330px/1 Georgia,serif;color:#c9eea9aa;position:absolute;left:5%;top:14px;z-index:-1;transform:rotate(15deg)}
+.inner-intro .overline{color:#5eab61}
+.inner-intro h1{color:#194630;font-weight:800}
+.inner-intro>p:last-child{color:#51715b;max-width:820px}
+.main-stack{padding-top:34px}
+.paper-panel{border-top:3px solid #8dcf93}
+.paper-panel h2{color:#225f3c}
+.paper-panel p,.paper-panel li{color:#53725d}
+.paper-panel pre{border-color:#b3d2b2;background:#eff9ed}
+.note-box{background:#e5f5dc;color:#456550;border-right-color:#65b568;border-radius:13px}
+.note-box strong{color:#215e3a}
+.text-arrow{color:#247946;border-bottom-color:#93c997}
+.model-workspace{background:#f0fae9;border:1px solid #c2e3c1;border-radius:22px;box-shadow:12px 12px 0 #deefdb}
+.model-workspace h2{color:#27643f}
+.model-workspace p{color:#597862}
+.model-workspace .overline{color:#57a563}
+.field{color:#235b38}
+.field input,.field select{background:#fff;border:1px solid #bbd9bc;border-radius:10px;color:#235b38}
+.model-actions button{background:#216c41;border-color:#216c41;border-radius:30px}
+.model-actions button.secondary{border-color:#96c69c;color:#286a45}
+.model-status{border-color:#add3ad;background:#fff;color:#356349;border-radius:10px}
+.results-table th,.results-table td{border-color:#c7e4c6}
+.results-table tbody tr:first-child{background:#e2f7dd}
+.timeline li{border-color:#cae5ca}
+.timeline li:before{color:#54a567}
+.timeline li strong{color:#245d3c}
+.timeline li span{color:#5f7b65}
+.study-note{border-color:#c3e6c3}
+.study-note h2{color:#1e633e}
+.study-note p{color:#5b7963}
+.study-note>div:last-child{border-color:#c2dfc1}
+.site-footer{background:#e2f8d9;border-top-color:#c8e8c1}
+.foot-logo{color:#236c43}
+.foot-logo span{color:#71ae61}
+.foot-grid p,.foot-grid>span{color:#598469}
+.model-v2-feature{background:linear-gradient(120deg,#e0f8d8,#f5ffe8);border-color:#bce0be;border-radius:25px}
+.model-v2-feature:before{background:linear-gradient(#a8e477,#5dbd70,#d1eeab)}
+.model-v2-feature h2,.model-v2-feature h2 span{color:#226b42}
+.model-v2-feature h2 small{color:#568466}
+.v2-copy>p:not(.overline){color:#51765b}
+.v2-copy .v2-disclaimer{border-right-color:#69b575;color:#648269!important}
+.v2-diagram{background:#17472f;box-shadow:12px 12px 0 #c9e7c5}
+.v2-layer{background:#2a6748;border-color:#67a87b}
+.v2-layer.emphasis{background:#a7df6e;color:#17472f;border-color:#d8f1a4}
+.v2-layer.emphasis span{color:#31603d}
+.v2-connector{color:#c1eb83}
+.overline{color:#68ae61}
+@media(max-width:760px){.inner-intro{padding-top:55px;padding-bottom:55px}.inner-intro:after{font-size:210px;left:-40px;top:6px}.model-workspace{box-shadow:5px 5px 0 #deefdb}.model-v2-feature{border-radius:15px}}
+/* Lab retains a dark cartographic panel for water contrast, but its controls,
+   context and science figures use daylight spring colors. */
+body:has(.topbar){background:linear-gradient(180deg,#f0fbe9,#fff 540px,#f4faed 100%);color:#215236}
+.topbar{border-bottom:1px solid #b6dfb9;background:#f3fbec;width:100%;max-width:none;padding-inline:max(25px,calc((100vw - 1260px)/2));height:92px}
+.topbar .brand-name,.topbar .brand-name>span{color:#1b6139}
+.topbar .brand-mark{background:#cdf49e;border:0}
+.topbar .topnav a{color:#365c43}
+.topbar .topnav a[aria-current=page],.topbar .topnav a:hover{color:#22854b;border-bottom-color:#70c36f}
+.topbar .header-action{border-color:#83bf8e;background:#e1f3d5;color:#266641}
+.topbar .header-action:hover{background:#d0edae}
+.shell .hero{border-bottom:1px solid #cee6c9;padding-top:80px;padding-bottom:85px}
+.shell .hero h1{color:#165d37}
+.shell .hero h1 em{color:#4dab69}
+.shell .hero .lede{color:#597963}
+.shell .eyebrow,.shell .section-kicker,.shell .small-index{color:#4d9c5c}
+.shell .hero-actions .btn-main{background:#237b46;border-radius:40px}
+.shell .hero-actions .btn-outline{border-radius:40px;border-color:#99c59d;color:#28764c}
+.shell .notice{background:#e8f6d9;border-radius:15px;border-right-color:#8dc770}
+.shell .notice strong{color:#245b3d}
+.shell .notice span:not(.notice-indicator){color:#5d7e67}
+.shell .section-heading h2{color:#235f3f}
+.shell .pill{color:#3c8a52;background:#e5f5dc;border-color:#a9d8aa;border-radius:22px}
+.shell .metric,.shell .panel,.shell .method-card{background:#fff;border-color:#c5e2c7;border-radius:20px;box-shadow:0 4px 14px #9ccea510}
+.shell .metric-label{color:#527763}
+.shell .metric strong{color:#246640}
+.shell .metric small{color:#628a6d}
+.shell .metric-line.teal,.shell .metric-line.blue{background:#62b773}
+.shell .metric-line.orange{background:#e0a85e}
+.shell .metric-line.purple{background:#9bb2de}
+.shell .panel-head h3,.shell .map-header h3{color:#27613f}
+.shell .field-label,.shell .control-caption label{color:#245a3c}
+.shell .upload-zone{background:#f2fbeb;border:1px dashed #9ac79d;border-radius:15px}
+.shell .upload-zone:hover{background:#e4f6d9;border-color:#57a66e}
+.shell .upload-icon{color:#3b9758;border-color:#b0d6b5}
+.shell .upload-zone strong{color:#2b6e44}
+.shell .upload-zone small,.shell .text-button,.shell .control-caption output{color:#4d9e61}
+.shell .control-group input[type=range]{accent-color:#3f9e65}
+.shell .subnote{background:#f2f9e7;border-right-color:#8ccc79;border-radius:12px;color:#507758}
+.shell .subnote strong{color:#3d7544}
+.shell .time-stamp{color:#48715c;border-color:#9fcda7;border-radius:25px}
+.shell .timestamp-bullet{background:#5bb974}
+.shell .map-tabs button{color:#50765e}
+.shell .map-tabs button.active{color:#237647;border-bottom-color:#72bf73}
+.shell .map-area{background:radial-gradient(circle at center,#32677b,#173d50 80%);border-radius:15px}
+.shell .map-grid-label,.shell .map-coordinate{color:#d0e9e1}
+.shell .map-legend{color:#547e68}
+.shell .model-active{background:#e5f7d9;color:#236742;border-inline-start-color:#64bb71}
+.shell .model-upload{background:#eff9e7;border:1px dashed #a1cdaa;border-radius:12px;color:#277447}
+.shell .model-learn-link{color:#3e9455}
+.shell .cell-panel div{color:#5b8068}
+.shell .comparison strong{color:#2c7145}
+.shell .gain-box{background:#e8f5df;border:1px solid #b5dcb6;border-radius:14px}
+.shell .gain-box>span,.shell .gain-box small{color:#4a7a57}
+.shell .gain-box strong{color:#2d8851}
+.shell .policy-panel{background:#f2f9e9;border-color:#c3e1c2;border-radius:13px}
+.shell .policy-panel h4,.shell .policy-panel b{color:#2a7046}
+.shell .priority-list li{background:#f1fae9;border-color:#d5e8d5;border-radius:12px}
+.shell .priority-list strong{color:#326d47}
+.shell .priority-list button{background:#def3d4;color:#357f51;border-radius:8px;border-color:#bddec3}
+.shell .benchmark-grid>div{background:#eff8e9;border-color:#c5e5c5;border-radius:12px}
+.shell .benchmark-grid strong{color:#2b7049}
+.shell .method-card h3{color:#286444}
+.shell .method-card p{color:#64806a}
+.shell .method-warning{background:#f6f4e7;color:#706849;border:1px solid #e4d7ad;border-radius:13px}
+.shell .footer{border-color:#c7e6c7;color:#64836c}
+.shell .footer-brand{color:#216542}.shell .footer-brand span{color:#78b86d}
+@media(max-width:760px){.topbar{padding-inline:18px;height:auto;min-height:85px}.shell .hero{padding-top:55px;padding-bottom:50px}}
