@@ -56,7 +56,7 @@ def monthly(items,grid,n):
     used=[];failures=[]
     for item in items[:n]:
         try:values,valid=scene(item,grid)
-        except Exception as e:failures.append({"item":item.id,"error":str(e)[:240]});continue
+        except Exception as e:failures.append({"item":item.id,"error_type":type(e).__name__});continue
         sum_+=values*valid[None];count+=valid
         used.append({"item":item.id,"acquired":item.datetime.isoformat(),"cloud_cover":item.properties.get("eo:cloud_cover")})
     out=np.zeros((7,grid["height"],grid["width"]),np.float32)
