@@ -25,3 +25,12 @@
 
 /* Cartographic annotation text uses geographic left-to-right coordinates even in RTL. */
 .plate-art{direction:ltr}
+
+
+/* A single meaningful motion cue: the copper dotted corridor suggests flow across
+   the conceptual map. No blanket scroll animations or decorative bounce. */
+.plate-art path[stroke="#d7a069"]{animation:river-trace 13s linear infinite}
+.plate-art circle[r="24"]{transform-box:fill-box;transform-origin:center;animation:critical-point 5s ease-in-out infinite}
+@keyframes river-trace{to{stroke-dashoffset:-130}}
+@keyframes critical-point{0%,100%{opacity:.5;transform:scale(.88)}50%{opacity:1;transform:scale(1.12)}}
+@media(prefers-reduced-motion:reduce){.plate-art path[stroke="#d7a069"],.plate-art circle[r="24"]{animation:none}}
