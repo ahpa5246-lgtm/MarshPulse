@@ -24,6 +24,11 @@ class QualityGateTests(unittest.TestCase):
         self.assertEqual(summary["months"][0]["wet_pixels"],8)
         self.assertGreater(summary["months_with_wet_proxy"],0)
         self.assertTrue(summary["label_source"].startswith("UNVERIFIED"))
+        sensitivity=summary["mndwi_threshold_sensitivity_not_ground_truth"]
+        self.assertGreaterEqual(sensitivity["0.0"]["wet_observed_pixels"],
+                                sensitivity["0.1"]["wet_observed_pixels"])
+        self.assertGreaterEqual(sensitivity["0.1"]["wet_observed_pixels"],
+                                sensitivity["0.2"]["wet_observed_pixels"])
     def test_all_dry_is_warning_not_accuracy_victory(self):
         cube=sample_cube();cube[:,5]=-.5
         summary=audit_cube(cube)
