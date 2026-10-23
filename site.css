@@ -22,3 +22,6 @@
 [hidden]{display:none!important}
 .model-actions button:focus-visible,.model-workspace input:focus-visible,.model-workspace select:focus-visible{outline:3px solid #b78556;outline-offset:3px}
 @media (prefers-reduced-data:reduce){.plate-art{filter:none}}
+
+/* Cartographic annotation text uses geographic left-to-right coordinates even in RTL. */
+.plate-art{direction:ltr}
