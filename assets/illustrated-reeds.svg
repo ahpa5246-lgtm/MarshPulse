@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 650" fill="none" role="img">
+<title>Illustrative reed stems inspired by wetland plants</title>
+<defs>
+ <linearGradient id="leaf" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#1b4d36"/><stop offset=".48" stop-color="#427e52"/><stop offset="1" stop-color="#b5c47a"/></linearGradient>
+ <linearGradient id="seed" x1="0" y1="0" x2=".7" y2="1"><stop stop-color="#d7be78"/><stop offset=".58" stop-color="#a88755"/><stop offset="1" stop-color="#5f583e"/></linearGradient>
+ <filter id="reedShade" x="-35%" y="-10%" width="180%" height="130%"><feGaussianBlur in="SourceAlpha" stdDeviation="2"/><feOffset dx="4" dy="7"/><feComponentTransfer><feFuncA type="linear" slope=".20"/></feComponentTransfer><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<g filter="url(#reedShade)" stroke-linejoin="round">
+ <path d="M122 648 C116 516 137 405 154 287 C168 194 173 132 183 68" stroke="#376845" stroke-width="6" stroke-linecap="round"/>
+ <path d="M228 649 C217 490 219 344 238 206 C249 141 263 82 271 28" stroke="#476544" stroke-width="5" stroke-linecap="round"/>
+ <path d="M320 649 C294 525 310 405 323 289 C333 196 350 137 353 73" stroke="#345e3f" stroke-width="6" stroke-linecap="round"/>
+ <path d="M138 456 C79 427 57 373 34 320 C86 332 123 364 138 456Z" fill="url(#leaf)" stroke="#34643d" stroke-width="1.5"/>
+ <path d="M137 459 C186 409 200 347 213 296 C166 316 148 359 137 459Z" fill="url(#leaf)" stroke="#426b46"/>
+ <path d="M147 342 C110 289 92 260 78 212 C128 236 151 281 147 342Z" fill="url(#leaf)" stroke="#325f40"/>
+ <path d="M217 514 C166 456 153 395 155 341 C197 374 216 425 217 514Z" fill="url(#leaf)" stroke="#366542"/>
+ <path d="M221 433 C269 391 286 323 299 271 C249 298 229 352 221 433Z" fill="url(#leaf)" stroke="#4b8356"/>
+ <path d="M233 282 C192 248 187 199 185 169 C215 184 232 224 233 282Z" fill="url(#leaf)" stroke="#4d7f53"/>
+ <path d="M316 488 C267 444 251 389 250 352 C289 366 308 416 316 488Z" fill="url(#leaf)" stroke="#356b46"/>
+ <path d="M323 357 C362 323 396 260 412 219 C368 230 334 274 323 357Z" fill="url(#leaf)" stroke="#4a7950"/>
+ <path d="M337 212 C300 166 288 128 286 90 C324 116 341 158 337 212Z" fill="url(#leaf)" stroke="#497b4d"/>
+ <path d="M183 68 C159 55 148 27 155 5 C175 14 188 36 183 68Z" fill="url(#seed)" stroke="#736449" stroke-width="1"/>
+ <path d="M271 28 C259 8 257 -2 266 -17 C289 1 288 16 271 28Z" fill="url(#seed)" stroke="#6e664a" stroke-width="1"/>
+ <path d="M353 73 C335 54 333 32 341 5 C361 19 372 48 353 73Z" fill="url(#seed)" stroke="#7a6848" stroke-width="1"/>
+ <g stroke="#88704b" stroke-width=".85" stroke-linecap="round" opacity=".75">
+  <path d="M183 43 L160 24 M181 33 L199 11 M173 20 L156 3 M357 36 L378 16 M346 29 L325 16 M270 12 L247 -10 M277 7 L296 -11"/>
+ </g>
+ <g stroke="#d6c181" stroke-width=".8" opacity=".53">
+  <path d="M178 55 L169 15 M185 52 L182 12 M351 64 L344 23 M356 59 L359 26"/>
+ </g>
+</g>
+</svg>
