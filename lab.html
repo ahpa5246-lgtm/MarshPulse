@@ -12,6 +12,11 @@
 <link rel="stylesheet" href="./botanical-inner.css"/>
 <link rel="stylesheet" href="./visual-effects.css"/>
 <link rel="stylesheet" href="./living-grid.css"/>
+<link rel="stylesheet" href="./organic-pattern.css"/>
+<link rel="stylesheet" href="./vendor/motionflow/motionflow.min.css"/>
+<script src="./vendor/motionflow/motionflow.min.js" defer></script>
+<script type="module" src="./src/organic-pattern.mjs"></script>
+<script type="module" src="./src/section-motion.mjs"></script>
 <script type="module" src="./src/living-grid.mjs"></script>
   <script type="module" src="./src/app.mjs"></script>
 </head>
@@ -26,7 +31,7 @@
     <a class="header-action" href="./model.html" rel="noopener">MarshNet <span aria-hidden="true">↗</span></a>
   </header>
   <main id="top" class="shell">
-    <section class="hero" data-topo-zone="intro">
+    <section data-organic-pattern="hero" class="hero" data-topo-zone="intro">
       <div class="hero-copy">
         <div class="eyebrow"><span class="pulse-dot"></span> IRAQ · WETLAND INTELLIGENCE <span class="eyebrow-line"></span> تجربة مفتوحة المصدر</div>
         <h1>من مراقبة الجفاف<br/>إلى <em>اختبار قرارات الإنقاذ.</em></h1>
@@ -40,7 +45,7 @@
       </div>
     </section>
     <div class="notice" role="note"><span class="notice-indicator">!</span><div><strong id="provenance-title">وضع تجريبي: بيانات اصطناعية</strong><span id="provenance-desc">الخريطة الحالية مولّدة رياضيًا لشرح الأدوات. ليست قياسات فعلية للأهوار العراقية. استوردي CSV مبنيًا على بيانات رصد لاختبار مجموعة حقيقية.</span></div></div>
-    <section id="lab" class="section lab-section" aria-labelledby="lab-title">
+    <section data-organic-pattern="analysis" id="lab" class="section lab-section" aria-labelledby="lab-title">
       <div class="section-heading"><div><div class="section-kicker">01 / ANALYSIS WORKSPACE</div><h2 id="lab-title">مختبر الاتصال المائي</h2></div><span id="data-pill" class="pill">SIMULATED DATA</span></div>
       <div class="metrics" aria-live="polite">
         <article class="metric"><span class="metric-label">مساحة المياه المرصودة <span class="info-mark" title="نسبة الخلايا المائية من كامل الشبكة">ⓘ</span></span><strong id="stat-water">—</strong><small>من كامل شبكة الدراسة</small><div class="metric-line teal"></div></article>
@@ -85,7 +90,7 @@
         </aside>
       </div>
     </section>
-    <section id="evidence" class="section evidence-section">
+    <section data-organic-pattern="light" id="evidence" class="section evidence-section">
       <div class="section-heading"><div><div class="section-kicker">02 / EVIDENCE FIRST</div><h2>المقارنة العلمية</h2></div><span class="subtle-tag">CHRONOLOGICAL HOLDOUT</span></div>
       <div class="evidence-grid">
         <div class="panel chart-panel">
@@ -102,7 +107,7 @@
         </div>
       </div>
     </section>
-    <section id="about" class="section methodology">
+    <section data-organic-pattern="bottom" id="about" class="section methodology">
       <div class="section-heading"><div><div class="section-kicker">03 / SCIENTIFIC BOUNDARIES</div><h2>ما الذي يثبته المشروع؟</h2></div></div>
       <div class="method-grid">
         <article class="method-card"><span class="method-number">01</span><h3>رصد قابل للاستيراد</h3><p>نستقبل شبكة قياسات شهرية، نتحقق من اكتمالها وترتيبها وقيمها، ونحوّل نسبة المياه إلى حالات مائية عند عتبة موثقة.</p></article>
