@@ -18,7 +18,6 @@ function forward(x,w){
   let z=w.b2[0];for(let j=0;j<H;j++)z+=w.W2[j]*h[j];return {h,p:sig(z)};
 }
 export function predictMarshNet(model,ds,t,i){
-  validateMarshNet(model);
   return forward(pack(ds,t,i,model.normalization),model.weights).p;
 }
 function metrics(points){
