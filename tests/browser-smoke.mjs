@@ -224,9 +224,23 @@ try{
   assert.equal(await page.locator('[data-organic-pattern] > .organic-pattern-svg').count(),3,"methods has three background panels");
   await exposeAllSections(page);
   await page.screenshot({path:"artifacts/marshpulse-methods-mobile.png",fullPage:true});
-    // Reflow audit at 320 CSS px; horizontal scrolling is allowed inside specific data
+    // Real Sentinel-2 record is genuinely loaded from tracked observational JSON.
+  // It must never silently substitute the synthetic laboratory grid.
+  await page.setViewportSize({width:1440,height:950});
+  await page.goto("http://127.0.0.1:8765/monitor.html",{waitUntil:"networkidle"});
+  await page.waitForFunction(()=>document.querySelector("#monitor-load-status")?.classList.contains("real-monitor-loaded"));
+  assert.equal(await page.locator("#monitor-data-rows tr").count(),36,"genuine 36-month image record must load");
+  assert.equal(await page.locator("#monitor-month").isDisabled(),false);
+  assert.match(await page.locator("#monitor-date").textContent(),/2026-09/);
+  assert.ok(await page.locator("#monitor-chart svg path").count()>=2,"actual SVG chart is not rendered");
+  await page.locator("#monitor-month").fill("5");
+  assert.equal(await page.locator("#monitor-date").textContent(),"2024-03","changing month should update actual observation");
+  await page.screenshot({path:"artifacts/marshpulse-monitor-real-desktop.png",fullPage:true});
+  await page.setViewportSize({width:390,height:844});
+  await page.screenshot({path:"artifacts/marshpulse-monitor-real-mobile.png",fullPage:true});
+  // Reflow audit at 320 CSS px; horizontal scrolling is allowed inside specific data
   // tables/controls, but not across the document viewport.
-  for(const route of ["/","/lab.html","/model.html","/methods.html"]){
+  for(const route of ["/","/lab.html","/model.html","/methods.html","/monitor.html"]){
     await page.setViewportSize({width:320,height:700});
     await page.goto("http://127.0.0.1:8765"+route,{waitUntil:"networkidle"});
     const widths=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,viewport:window.innerWidth}));
