@@ -87,6 +87,9 @@ try{
   await page.waitForFunction(()=>!document.getElementById("training-results").hidden,{timeout:60000});
   assert.equal(await page.locator("#download-weights").isDisabled(),false);
   assert.ok(Number(await page.locator("#net-brier").textContent())>=0);
+  await page.setViewportSize({width:1440,height:950});
+  await page.screenshot({path:"artifacts/marshpulse-model-desktop.png",fullPage:true});
+  await page.setViewportSize({width:390,height:844});
   await page.screenshot({path:"artifacts/marshpulse-model.png",fullPage:true});
   const [trainedFile]=await Promise.all([page.waitForEvent("download"),page.locator("#download-weights").click()]);
   const trainedPath="artifacts/trained-marshnet-synthetic.json";
@@ -102,9 +105,6 @@ try{
   await modelEvidence.saveAs("artifacts/marshnet-in-lab-evidence.json");
   const loadedReport=JSON.parse(await readFile("artifacts/marshnet-in-lab-evidence.json","utf8"));
   assert.match(loadedReport.predictor,/MarshNet/);
-  await page.setViewportSize({width:1440,height:950});
-  await page.screenshot({path:"artifacts/marshpulse-model-desktop.png",fullPage:true});
-  await page.setViewportSize({width:390,height:844});
     await page.goto("http://127.0.0.1:8765/methods.html",{waitUntil:"networkidle"});
   assert.equal(await page.locator(".timeline li").count(),5);
   await page.screenshot({path:"artifacts/marshpulse-methods-mobile.png",fullPage:true});
