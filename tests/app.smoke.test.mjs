@@ -36,6 +36,6 @@ test("layer switching and stress sliders recalculate output",()=>{
   el("stress").listeners.input({target:{value:"65"}});
   assert.equal(el("stress-value").textContent,"65%");
   el("budget").listeners.input({target:{value:"3"}});
-  assert.equal(el("budget-value").textContent,"3 نقاط");
+  assert.equal(el("budget-value").textContent,"٣ نقاط");
   assert.ok(el("priority-list").children.length>=1);
 });
