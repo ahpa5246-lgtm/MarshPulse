@@ -10,6 +10,11 @@
 <link rel="stylesheet" href="./botanical.css"/>
 <link rel="stylesheet" href="./visual-effects.css"/>
 <link rel="stylesheet" href="./living-grid.css"/>
+<link rel="stylesheet" href="./organic-pattern.css"/>
+<link rel="stylesheet" href="./vendor/motionflow/motionflow.min.css"/>
+<script src="./vendor/motionflow/motionflow.min.js" defer></script>
+<script type="module" src="./src/organic-pattern.mjs"></script>
+<script type="module" src="./src/section-motion.mjs"></script>
 <script type="module" src="./src/living-grid.mjs"></script>
 <title>MarshPulse | حياة تتجدد بين الماء والقصب</title>
 </head>
@@ -21,7 +26,7 @@
   <a class="header-link" href="./lab.html">ابدئي الاستكشاف <span aria-hidden="true">↗</span></a>
 </header>
 <main id="content">
-  <section class="flora-hero" data-topo-zone="hero" aria-labelledby="hero-title">
+  <section data-organic-pattern="hero" class="flora-hero" data-topo-zone="hero" aria-labelledby="hero-title">
     <div class="flora-orbit flora-orbit-one" aria-hidden="true"></div><div class="flora-orbit flora-orbit-two" aria-hidden="true"></div>
     <div class="flora-hero-inner wrap">
       <div class="flora-copy">
@@ -52,14 +57,14 @@
   </section>
   <div class="flora-photo-credit wrap">الصور: <a href="https://commons.wikimedia.org/wiki/File:Marshes_in_southern_Iraq.jpeg" target="_blank" rel="noopener">Almendilawi</a> و<a href="https://commons.wikimedia.org/wiki/File:Marshes_-_South_iraq.jpg" target="_blank" rel="noopener">Wikimedia Commons</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · اقتطاع للعرض</div>
 
-  <section class="flora-intro wrap" aria-labelledby="intro-title">
+  <section data-organic-pattern="light" class="flora-intro wrap" aria-labelledby="intro-title">
     <div class="flora-section-marker"><span class="flora-dot"></span> WHAT WE DO <span class="flora-index">01 / 04</span></div>
     <div class="flora-intro-grid">
       <h2 id="intro-title">الطبيعة تتحدث.<br/><em>نحن نحوّل إشاراتها<br/>إلى معرفة.</em></h2>
       <div><p>ليس الهدف رسم خريطة جميلة فحسب. نريد فهم كيف تتغير المياه بين المواسم، وأين تنقطع الروابط بين المسطحات، وكيف نقارن خيارات الحماية بصورة قابلة للتدقيق.</p><a href="./methods.html" class="flora-inline-link">اقرئي كيف نتحقق من النتائج <span aria-hidden="true">↗</span></a></div>
     </div>
   </section>
-  <section class="flora-experiences wrap" data-topo-zone="paths" aria-labelledby="paths-title">
+  <section data-organic-pattern="cards" class="flora-experiences wrap" data-topo-zone="paths" aria-labelledby="paths-title">
     <div class="flora-section-heading"><div><span class="flora-overline">A JOURNEY THROUGH THE MARSHES</span><h2 id="paths-title">كل اكتشاف يبدأ <span>من هنا.</span></h2></div><p>اختاري مسارك، وتابعي العمل في مساحة مصممة له وحده.</p></div>
     <div class="path-grid flora-path-grid">
       <a class="path flora-path flora-path-photo" href="./lab.html">
@@ -93,7 +98,7 @@
       <div class="flora-story-copy"><span class="flora-overline">WHY MARSH PULSE? — 03 / 04</span><h2 id="story-title">ليست مجرد<br/><span>مساحات مائية.</span></h2><p>الأهوار موطن للنباتات والطيور وتاريخ من التعايش بين الإنسان والماء. لذلك نتعامل مع تغيّرها على أنه مسألة بيئية متصلة، لا مجرد لون على صورة قمر صناعي.</p><div class="flora-story-list"><div><span>01</span><strong>نرصد</strong><small>تاريخ المياه وتغيّر المساحات</small></div><div><span>02</span><strong>نفهم</strong><small>الترابط ونقاط الانقطاع</small></div><div><span>03</span><strong>نختبر</strong><small>التوقعات قبل تقديم أي اقتراح</small></div></div><a href="./lab.html" class="flora-button flora-button-light">ادخلي إلى المختبر <span aria-hidden="true">↗</span></a></div>
     </div>
   </section>
-  <section class="flora-bottom-cta wrap"><div class="flora-section-marker"><span class="flora-dot"></span> THE NEXT STEP <span class="flora-index">04 / 04</span></div><div class="flora-bottom-grid"><h2>لنمنح الماء<br/><em>فرصةً أخرى.</em></h2><div><p>مشروع مفتوح المصدر يطمح إلى جعل مراقبة الأهوار أكثر وضوحًا، والتنبؤات أكثر قابلية للمراجعة. كل تجربة تبدأ بسؤال وتُقاس بالدليل.</p><a href="./model.html" class="flora-button flora-button-primary">تعرّفي على نموذج الذكاء الاصطناعي <span aria-hidden="true">↗</span></a></div></div><div class="flora-science-note"><span>✳</span><p>مهم: MarshNet V2 نموذج بحثي لم يتفوق بعد على خط الأساس في أول تجربة بالصور الحقيقية. لا تُستخدم سيناريوهاته كتوصيات هندسية فعلية لإدارة المياه.</p><a href="./methods.html">التفاصيل العلمية ↗</a></div></section>
+  <section data-organic-pattern="bottom" class="flora-bottom-cta wrap"><div class="flora-section-marker"><span class="flora-dot"></span> THE NEXT STEP <span class="flora-index">04 / 04</span></div><div class="flora-bottom-grid"><h2>لنمنح الماء<br/><em>فرصةً أخرى.</em></h2><div><p>مشروع مفتوح المصدر يطمح إلى جعل مراقبة الأهوار أكثر وضوحًا، والتنبؤات أكثر قابلية للمراجعة. كل تجربة تبدأ بسؤال وتُقاس بالدليل.</p><a href="./model.html" class="flora-button flora-button-primary">تعرّفي على نموذج الذكاء الاصطناعي <span aria-hidden="true">↗</span></a></div></div><div class="flora-science-note"><span>✳</span><p>مهم: MarshNet V2 نموذج بحثي لم يتفوق بعد على خط الأساس في أول تجربة بالصور الحقيقية. لا تُستخدم سيناريوهاته كتوصيات هندسية فعلية لإدارة المياه.</p><a href="./methods.html">التفاصيل العلمية ↗</a></div></section>
 </main>
 <footer class="site-footer flora-footer"><div class="wrap foot-grid"><a class="foot-logo" href="./index.html">MarshPulse <span>✳</span></a><p>Water, nature & responsible AI — Iraq</p><a href="https://github.com/ahpa5246-lgtm/MarshPulse" target="_blank" rel="noopener">المستودع المفتوح ↗</a></div></footer>
 </body></html>
