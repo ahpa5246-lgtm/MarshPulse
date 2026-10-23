@@ -20,3 +20,25 @@ jobs:
           node --check earth-engine/export_monthly_grid.js
       - name: Reproducible unit tests
         run: node --test tests/*.test.mjs
+  browser-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser harness
+        run: npm install --no-save playwright@1.56.1
+      - name: Verify actual browser flow
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/marshpulse-web.log 2>&1 &
+          sleep 2
+          node tests/browser-smoke.mjs
+      - name: Upload browser evidence (even on failure)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: marshpulse-browser-proof
+          path: artifacts/
+          if-no-files-found: ignore
