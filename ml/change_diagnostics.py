@@ -55,7 +55,7 @@ def transition_validation_report(cube,dates,targets,predictions,confidence_band=
         stable=shared&~actual_change
         # Diagnostic only: label sensitivity is measured on FUTURE target band,
         # but is never passed to the neural model or its inputs.
-        uncertain=(np.abs(x[t,5]-.1)<confidence_band |
+        uncertain=((np.abs(x[t,5]-.1)<confidence_band) |
                    (np.abs(x[t,4]-.3)<.03))&shared
         confident=shared&~uncertain
         tp=int((predicted_change&actual_change).sum())
