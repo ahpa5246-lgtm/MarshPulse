@@ -19,8 +19,8 @@ jobs:
           node --check src/app.mjs
           node --check earth-engine/export_monthly_grid.js
           python3 -m py_compile ml/train.py
-          python3 -m py_compile ml/collect_sentinel.py ml/train_satellite.py ml/marshnet_v2.py ml/quality_gate.py ml/monitor_wetland.py ml/calibration.py
-          python3 -c "import json; n=json.load(open('kaggle/marshnet_v2_hawizeh.ipynb')); assert n['nbformat']==4 and len(n['cells'])>=10"
+          python3 -m py_compile ml/collect_sentinel.py ml/train_satellite.py ml/marshnet_v2.py ml/quality_gate.py ml/monitor_wetland.py ml/calibration.py ml/train_v3.py ml/marshnet_v3.py
+          python3 -c "import json; n=json.load(open('kaggle/marshnet_v2_hawizeh.ipynb')); assert n['nbformat']==4 and len(n['cells'])>=10; v=json.load(open("kaggle/MarshPulse_V3_GeoHoldout_GPU.ipynb")); assert v["nbformat"]==4 and len(v["cells"])>=12"
       - name: Reproducible unit tests
         run: node --test tests/*.test.mjs
       - name: Satellite dataset quality and benchmark unit tests
@@ -45,6 +45,11 @@ jobs:
             --input /tmp/marshpulse-synthetic/fixture.npz \
             --out /tmp/marshpulse-synthetic/out \
             --base 8 --epochs 2 --batch 2 --lookback 4 --cpu
+          python -m unittest discover -s tests -p 'test_v3.py' -v
+          python ml/train_v3.py --synthetic-smoke \
+            --train-input /tmp/marshpulse-v3/fixture.npz \
+            --out /tmp/marshpulse-v3/result \
+            --base 8 --epochs 1 --batch 2 --seeds 17 --cpu
           python - <<'PY'
           import json
           from pathlib import Path
@@ -56,6 +61,12 @@ jobs:
           assert "persistence" in report["same_pixel_model_vs_both_baselines"]["metrics"]
           assert "calibration_fit_on_validation_only" in report
           assert "uncalibrated_same_pixel_baselines" in report
+          v3=json.loads(Path("/tmp/marshpulse-v3/result/v3_evaluation.json").read_text())
+          assert v3["status"]=="SYNTHETIC TEST ONLY"
+          assert v3["operationally_reliable"] is False
+          assert "selected_champion" in v3
+          assert v3["test_evaluations"]
+          print("V3_CHALLENGER_SMOKE_SUCCESS: no false field-validation claim")
           assert (a/"marshnet_v2.pt").stat().st_size>0
           print("TRAINING_PIPELINE_SMOKE_SUCCESS; synthetic only, no scientific accuracy established")
           PY
