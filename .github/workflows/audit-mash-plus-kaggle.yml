@@ -1,0 +1,60 @@
+name: Audit Mash Plus V3 Kaggle execution
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/mash-plus-verify-first-run.txt'
+
+permissions:
+  contents: read
+
+jobs:
+  kaggle-execution-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE }}
+      KERNEL_ID: minahussain111/mash-plus-v3-geo-holdout
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify secret is present
+        shell: bash
+        run: |
+          if [ -z "$KAGGLE_API_TOKEN" ]; then echo 'Missing KAGGLE secret in MarshPulse' >&2; exit 1; fi
+      - name: Install official Kaggle CLI
+        run: python -m pip install --disable-pip-version-check 'kaggle==2.2.5'
+      - name: Read authoritative Kaggle execution status and logs
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo '=== KAGGLE EXECUTION STATUS (not inferred from GitHub success) ==='
+          kaggle kernels status "$KERNEL_ID" | tee "$RUNNER_TEMP/kaggle_status.txt"
+          echo '=== KAGGLE EXECUTION LOG (last 120 lines; may be empty while pending) ==='
+          if kaggle kernels logs "$KERNEL_ID" > "$RUNNER_TEMP/kaggle_log.txt" 2>&1; then
+            tail -n 120 "$RUNNER_TEMP/kaggle_log.txt"
+          else
+            echo 'Kaggle execution logs not accessible yet; status above remains authoritative.'
+            tail -n 12 "$RUNNER_TEMP/kaggle_log.txt"
+          fi
+          if grep -Eiq '(failed|error|cancelled)' "$RUNNER_TEMP/kaggle_status.txt"; then
+            echo 'MODEL_RESULT: KAGGLE_EXECUTION_FAILED_OR_ERRORED'
+          elif grep -Eiq '(complete|success)' "$RUNNER_TEMP/kaggle_status.txt"; then
+            echo 'MODEL_RESULT: KAGGLE_EXECUTION_COMPLETE_CHECK_REPORT_AND_BASELINES'
+          else
+            echo 'MODEL_RESULT: TRAINING_IN_PROGRESS_OR_PENDING_NOT_SCIENTIFICALLY_VALIDATED'
+          fi
+      - name: Preserve audit trail
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mash-plus-kaggle-status-audit
+          path: |
+            ${{ runner.temp }}/kaggle_status.txt
+            ${{ runner.temp }}/kaggle_log.txt
+          if-no-files-found: ignore
+          retention-days: 30
