@@ -77,6 +77,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_v4_smp.py' -v
           python -m unittest discover -s tests -p 'test_daily_continuation.py' -v
           python -m unittest discover -s tests -p 'test_change_diagnostics.py' -v
+          python -m unittest discover -s tests -p 'test_transition_training.py' -v
           python ml/train_v3.py --synthetic-smoke \
             --train-input /tmp/marshpulse-v3/fixture.npz \
             --spatial-test-input /tmp/marshpulse-v3/spatial-fixture.npz \
