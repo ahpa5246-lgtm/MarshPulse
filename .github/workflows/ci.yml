@@ -67,6 +67,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_v3.py' -v
           python ml/train_v3.py --synthetic-smoke \
             --train-input /tmp/marshpulse-v3/fixture.npz \
+            --spatial-test-input /tmp/marshpulse-v3/spatial-fixture.npz \
             --out /tmp/marshpulse-v3/result \
             --base 8 --epochs 1 --batch 2 --seeds 17 --cpu
           python - <<'PY'
@@ -84,8 +85,10 @@ jobs:
           assert v3["status"]=="SYNTHETIC TEST ONLY"
           assert v3["operationally_reliable"] is False
           assert "selected_champion" in v3
-          assert v3["test_evaluations"]
-          print("V3_CHALLENGER_SMOKE_SUCCESS: no false field-validation claim")
+          assert len(v3["test_evaluations"])==2
+          assert v3["spatial_transfer_evaluated"] is True
+          assert all(e["months_with_shared_observations"]>0 for e in v3["test_evaluations"])
+          print("V3_CHALLENGER_GEO_HOLDOUT_SMOKE_SUCCESS: no false field-validation claim")
           assert (a/"marshnet_v2.pt").stat().st_size>0
           print("TRAINING_PIPELINE_SMOKE_SUCCESS; synthetic only, no scientific accuracy established")
           PY
