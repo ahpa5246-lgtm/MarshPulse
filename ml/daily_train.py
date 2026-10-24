@@ -72,10 +72,12 @@ def run(args):
         best_val=float(previous["best_validation_brier"])
         best_f1=float(previous["best_validation_f1"])
         best_weights=previous["best_weights"]
+        best_optimizer_state=previous.get("best_optimizer_state")
         stagnant=int(previous.get("days_without_improvement",0))
     else:
         start_days=total_epochs=stagnant=0
         best_val=float("inf");best_f1=-1.0;best_weights=None
+        best_optimizer_state=None
         # Optionally warm-start from a V4 research candidate; never assume it
         # passed the promotion gate. Optimizer begins fresh only on day zero.
         if args.v4_seed and args.v4_seed.is_file():
@@ -84,6 +86,9 @@ def run(args):
                 raise ValueError("Wrong architecture in V4 seed checkpoint")
             if initial.get("lookback")!=args.lookback:raise ValueError("Lookback mismatch in V4 seed")
             model.load_state_dict(initial["state"])
+    effective_lr=max(args.lr/16.,args.lr*(.5**(stagnant//3)))
+    for param_group in optimizer.param_groups:
+        param_group["lr"]=effective_lr
     # Preserve original support/prevalence. Neither validation nor test is
     # oversampled/cropped. Stratification is explicitly TRAIN ONLY.
     trains=[]
@@ -132,6 +137,7 @@ def run(args):
         if improved:
             best_val=float(brier);best_f1=float(candidate_f1)
             best_weights={k:v.detach().cpu().clone() for k,v in model.state_dict().items()}
+            best_optimizer_state=copy.deepcopy(optimizer.state_dict())
             stagnant=0
         history.append({"total_epoch":total_epochs+epoch+1,
                         "train_loss":float(np.mean(losses)),
@@ -158,12 +164,25 @@ def run(args):
             region["x"],region["dates"],validation_months,probabilities)
     change_summary=aggregate_transition_reports(validation_events)
     paired_brier_evidence=monthly_paired_brier_evidence(validation_events)
+    rollback=False
+    optimizer_reset=False
+    if stagnant>=3:
+        # Persist one coherent best-epoch model/optimizer pair. Old daily v1
+        # checkpoints lack the historical best optimizer: reset explicitly.
+        model.load_state_dict(best_weights)
+        if best_optimizer_state is not None:
+            optimizer.load_state_dict(copy.deepcopy(best_optimizer_state))
+        else:
+            optimizer=torch.optim.AdamW(model.parameters(),lr=effective_lr,weight_decay=.01)
+            optimizer_reset=True
+        rollback=True
     last=history[-1]
     state={"protocol":"mash-plus-daily-v1","model_name":"Mash Plus",
            "field_validated":False,"operationally_reliable":False,
            "train_data_sha256":hashes,"architecture":arch,
            "current_weights":{k:v.detach().cpu().clone() for k,v in model.state_dict().items()},
            "best_weights":best_weights,
+           "best_optimizer_state":best_optimizer_state,
            "optimizer_state":optimizer.state_dict(),
            "best_validation_brier":best_val,"best_validation_f1":best_f1,
            "epochs_completed":total_epochs+args.epochs,
@@ -176,6 +195,9 @@ def run(args):
             "day_index":start_days+1,"source_commit":args.source_commit,
             "run_date_utc":args.run_date,
             "days_without_improvement":stagnant,
+            "rollback_to_validation_best":rollback,
+            "optimizer_reset_on_legacy_rollback":optimizer_reset,
+            "effective_learning_rate":effective_lr,
             "epochs_completed":total_epochs+args.epochs,
             "validation_history":history,
             "best_validation_brier":best_val,
