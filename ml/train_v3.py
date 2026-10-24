@@ -369,6 +369,22 @@ def run(args):
         score["candidate_was_promoted"]=bool(best_weights)
         evaluations.append(score)
     out=Path(args.out);out.mkdir(parents=True,exist_ok=True)
+    if spatial is not None and not args.synthetic_smoke:
+        # Predictions are saved for an optional, independent Landsat
+        # cross-sensor audit. Only PAST Sentinel observations form the prior.
+        ids=list(range(max(12,args.lookback),len(spatial["x"])))
+        future_loader=DataLoader(History(spatial,ids,args.lookback,mean,std),batch_size=args.batch)
+        future_probability=predict(candidate_model,future_loader,device).astype(np.float32)
+        prior_wet,prior_available=wet_proxy(spatial["x"])
+        np.savez_compressed(out/"spatial_predictions_FOR_EXTERNAL_AUDIT.npz",
+                            dates=np.asarray([spatial["dates"][i] for i in ids]),
+                            model_probability=future_probability,
+                            persistence_probability=prior_wet[np.asarray(ids)-1].astype(np.float32),
+                            smoothed_persistence_probability=np.where(
+                                prior_wet[np.asarray(ids)-1],.99,.01).astype(np.float32),
+                            previous_observed=prior_available[np.asarray(ids)-1].astype(np.uint8),
+                            candidate_was_promoted=np.asarray(bool(best_weights)),
+                            source_sha256=np.asarray(spatial["sha"]))
     torch.save({"state":research_weights,"architecture":args.architecture,
                 "model_name":"Mash Plus","model_version":version,
                "config":candidate_model.config,"mean":mean.tolist(),"std":std.tolist(),
