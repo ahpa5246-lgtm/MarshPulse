@@ -189,7 +189,7 @@ try{
   await page.waitForTimeout(120);
     await page.screenshot({path:"artifacts/marshpulse-home-mobile.png",fullPage:true});
   await page.goto("http://127.0.0.1:8765/model.html",{waitUntil:"networkidle"});
-  assert.match(await page.locator("h1").textContent(),/MarshNet/);
+  assert.match(await page.locator("h1").textContent(),/Mash Plus/);
   assert.equal(await page.locator('[data-organic-pattern] > .organic-pattern-svg').count(),2,"model reading areas need pattern");
   await page.locator("#epochs").selectOption("15");
   await page.locator("#train-model").click();
@@ -206,15 +206,16 @@ try{
   await trainedFile.saveAs(trainedPath);
   const trainedJSON=JSON.parse(await readFile(trainedPath,"utf8"));
   assert.equal(trainedJSON.format,"marshnet-v1");
+  assert.equal(trainedJSON.modelName,"Mash Plus");
   assert.equal(trainedJSON.provenance.origin,"synthetic");
   await page.goto("http://127.0.0.1:8765/lab.html",{waitUntil:"networkidle"});
   await page.locator("#marshnet-upload").setInputFiles(trainedPath);
-  await page.waitForFunction(()=>document.getElementById("active-model").textContent.includes("MarshNet"));
-  assert.match(await page.locator("#active-model").textContent(),/MarshNet/);
+  await page.waitForFunction(()=>document.getElementById("active-model").textContent.includes("Mash Plus"));
+  assert.match(await page.locator("#active-model").textContent(),/Mash Plus/);
   const [modelEvidence]=await Promise.all([page.waitForEvent("download"),page.locator("#export-report").click()]);
   await modelEvidence.saveAs("artifacts/marshnet-in-lab-evidence.json");
   const loadedReport=JSON.parse(await readFile("artifacts/marshnet-in-lab-evidence.json","utf8"));
-  assert.match(loadedReport.predictor,/MarshNet/);
+  assert.match(loadedReport.predictor,/Mash Plus/);
     await page.setViewportSize({width:1440,height:950});
     await page.goto("http://127.0.0.1:8765/methods.html",{waitUntil:"networkidle"});
     await exposeAllSections(page);
@@ -247,5 +248,5 @@ try{
     assert.ok(widths.scroll<=widths.viewport+1,"Unexpected horizontal overflow on "+route+": "+JSON.stringify(widths));
   }
   assert.equal(errors.length,0,"browser console errors: "+errors.join(" | "));
-  console.log("BROWSER_SMOKE_SUCCESS: 4 routes, desktop/mobile, CSV, MarshNet train/export/reimport, model-driven scenario and evidence verified");
+  console.log("BROWSER_SMOKE_SUCCESS: 4 routes, desktop/mobile, CSV, Mash Plus train/export/reimport, model-driven scenario and evidence verified");
 }finally{await browser.close();}
