@@ -48,6 +48,44 @@ jobs:
           else
             echo 'MODEL_RESULT: TRAINING_IN_PROGRESS_OR_PENDING_NOT_SCIENTIFICALLY_VALIDATED'
           fi
+      - name: Download and evaluate sealed test evidence only after Kaggle completion
+        env:
+          RUNNER_TEMP_DIR: ${{ runner.temp }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! grep -q 'KernelWorkerStatus.COMPLETE' "$RUNNER_TEMP/kaggle_status.txt"; then
+            echo 'No finished Kaggle run. No scientific score can be assessed yet.'
+            exit 0
+          fi
+          mkdir -p "$RUNNER_TEMP/kaggle-final"
+          kaggle kernels output "$KERNEL_ID" --force --page-size 100 \
+            --file-pattern 'Mash_Plus_V3_Kaggle_Real_Research[.]zip|v3_evaluation[.]json' \
+            -p "$RUNNER_TEMP/kaggle-final"
+          python - <<'PY'
+          import json,os,sys,zipfile
+          from pathlib import Path
+          sys.path.insert(0,str(Path.cwd()/"ml"))
+          from judge_readiness import audit,markdown
+          root=Path(os.environ["RUNNER_TEMP_DIR"])/"kaggle-final"
+          standalone=list(root.rglob("v3_evaluation.json"))
+          archives=list(root.rglob("Mash_Plus_V3_Kaggle_Real_Research.zip"))
+          if standalone:
+              raw=standalone[0].read_text(encoding="utf8")
+          elif archives:
+              with zipfile.ZipFile(archives[0]) as z:
+                  names=[n for n in z.namelist() if n.endswith("evaluation/v3_evaluation.json")]
+                  if len(names)!=1:raise RuntimeError("Missing or ambiguous V3 evaluation inside archive")
+                  raw=z.read(names[0]).decode("utf8")
+          else:
+              raise RuntimeError("Kaggle reports COMPLETE but no V3 research evidence archive is downloadable")
+          result=audit(json.loads(raw))
+          (root/"judge_readiness.json").write_text(json.dumps(result,indent=2,ensure_ascii=False)+"\n",encoding="utf8")
+          (root/"judge_readiness.md").write_text(markdown(result),encoding="utf8")
+          print("KAGGLE_SCIENTIFIC_EVIDENCE:",result["status"])
+          for reason in result["reasons"]:print("CONDITION:",reason)
+          print("Field validated:",result["field_or_operational_claim_permitted"])
+          PY
       - name: Preserve audit trail
         if: always()
         uses: actions/upload-artifact@v4
@@ -56,5 +94,7 @@ jobs:
           path: |
             ${{ runner.temp }}/kaggle_status.txt
             ${{ runner.temp }}/kaggle_log.txt
+            ${{ runner.temp }}/kaggle-final/judge_readiness.json
+            ${{ runner.temp }}/kaggle-final/judge_readiness.md
           if-no-files-found: ignore
           retention-days: 30
