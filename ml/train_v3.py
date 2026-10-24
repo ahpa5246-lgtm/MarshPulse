@@ -183,6 +183,14 @@ def val_score(regions,lookback,mean,std,net,device,batch):
     if not n:raise ValueError("No observed validation targets")
     return weighted/n,allpred,allbaselines
 
+def evaluation_checkpoint(best_weights,research_weights):
+    """Evaluate precisely the validation-selected weights; never substitute a rejected seed."""
+    if best_weights is not None:
+        return best_weights,"VALIDATION_PASSED_RESEARCH_ONLY"
+    if research_weights is not None:
+        return research_weights,"REJECTED_RESEARCH_CHALLENGER"
+    raise ValueError("No trained checkpoint exists")
+
 def run(args):
     if (args.lookback<2 or args.base%8 or args.epochs<1 or args.batch<1 or
         args.patience<1 or args.lr<=0 or not (0<=args.min_f1_gain<=1)):
@@ -282,8 +290,9 @@ def run(args):
             "selection_method":"validation only, no test score used",
             "seed":best_seed,"validation_challengers":candidates,
             "model_never_authorized_for_field_decisions":True}
+    test_weights,test_weights_status=evaluation_checkpoint(best_weights,research_weights)
     candidate_model=MarshNetV3(base=args.base).to(device)
-    candidate_model.load_state_dict(research_weights);candidate_model.eval()
+    candidate_model.load_state_dict(test_weights);candidate_model.eval()
     evaluations=[]
     for name,region in [(f"train_aoi_{i}",r) for i,r in enumerate(regions)]+([("spatial_holdout",spatial)] if spatial else []):
         ids=split(len(region["x"]),args.lookback)[2] if name!="spatial_holdout" else list(range(max(12,args.lookback),len(region["x"])))
@@ -304,9 +313,19 @@ def run(args):
                 "model_name":"Mash Plus","model_version":"V3",
                "config":candidate_model.config,"mean":mean.tolist(),"std":std.tolist(),
                "lookback":args.lookback,"seed":research_seed,
-               "passed_validation_gate":bool(best_weights),
+               "passed_validation_gate":bool(best_weights is not None and best_seed==research_seed),
+               "checkpoint_role":"research-only selection by validation Brier; may have FAILED wet-class F1 gate",
                "dataset_sha256":[r["sha"] for r in regions],"field_validated":False},
               out/"marshnet_v3_RESEARCH_ONLY.pt")
+    if best_weights is not None:
+        torch.save({"state":best_weights,"architecture":"MarshNetV3",
+                    "model_name":"Mash Plus","model_version":"V3",
+                    "config":candidate_model.config,"mean":mean.tolist(),"std":std.tolist(),
+                    "lookback":args.lookback,"seed":best_seed,
+                    "checkpoint_role":"validation-selected challenger (still RESEARCH_ONLY)",
+                    "passed_validation_gate":True,"field_validated":False,
+                    "dataset_sha256":[r["sha"] for r in regions]},
+                   out/"mash_plus_v3_validation_winner_RESEARCH_ONLY.pt")
     report={"model_name":"Mash Plus","model_version":"V3",
       "status":"SYNTHETIC TEST ONLY" if args.synthetic_smoke else "REAL SATELLITE PROXY / NO FIELD VALIDATION",
       "architecture":"persistence-residual ConvGRU U-Net",
@@ -314,6 +333,7 @@ def run(args):
       "data_provenance":[{"path":r["path"],"sha256":r["sha"],"manifest_sha256":r["manifest_sha"],"bbox":r["bbox"]} for r in regions],
       "spatial_test_provenance":{"path":spatial["path"],"sha256":spatial["sha"],"manifest_sha256":spatial["manifest_sha"],"bbox":spatial["bbox"]} if spatial else None,
       "device":str(device),"selected_champion":chosen,"test_evaluations":evaluations,
+      "evaluated_neural_checkpoint":test_weights_status,
       "operationally_reliable":False,"independent_field_labels":False,
       "spatial_transfer_evaluated":spatial is not None,
       "validation_requires_wet_f1_improvement":True,
