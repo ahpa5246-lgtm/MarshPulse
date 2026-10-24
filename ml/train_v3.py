@@ -92,11 +92,15 @@ def stats(regions,lookback):
     return mean,std
 
 class History(Dataset):
-    def __init__(self,region,targets,lookback,mean,std,augment=False,crop_size=0,water_center_prob=.75):
+    def __init__(self,region,targets,lookback,mean,std,augment=False,crop_size=0,water_center_prob=.75,water_margin=0.,ndvi_margin=0.):
         self.original=region["x"];self.targets=targets
         self.lookback=lookback;self.mean=mean;self.std=std;self.augment=augment
         self.crop_size=int(crop_size) if augment else 0
         self.water_center_prob=float(water_center_prob)
+        self.water_margin=float(water_margin) if augment else 0.
+        self.ndvi_margin=float(ndvi_margin) if augment else 0.
+        if not (0<=self.water_margin<=.10 and 0<=self.ndvi_margin<=.10):
+            raise ValueError("Training label confidence margins outside [0,0.1]")
     def __len__(self):return len(self.targets)
     def __getitem__(self,i):
         t=self.targets[i]
@@ -109,6 +113,12 @@ class History(Dataset):
         current=self.original[t]
         label=((current[5]>.1)&(current[4]<.3)&(current[6]>.5)).astype(np.float32)
         observed=(current[6]>.5).astype(np.float32)
+        if self.water_margin or self.ndvi_margin:
+            # Suppress only ambiguous TRAIN targets; validation and test retain
+            # the original natural observed pixels, including uncertain labels.
+            confident=(np.abs(current[5]-.1)>=self.water_margin)&(
+                np.abs(current[4]-.3)>=self.ndvi_margin)
+            observed=observed*confident.astype(np.float32)
         if self.crop_size:
             # Training-only label-aware crop around rare water. Validation/test
             # are full image; the sealed spatial area is never cropped this way.
