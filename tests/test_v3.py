@@ -28,12 +28,13 @@ class V3Tests(unittest.TestCase):
             f=Path(d)/"fixture.npz"
             smoke_data(f,0)
             region=load_region(f,synthetic=True)
+            region["x"]=np.repeat(np.repeat(region["x"],2,axis=2),2,axis=3)
             mean,std=stats([region],4)
             tr,va,te=split(len(region["x"]),4)
             train=History(region,[tr[0]],4,mean,std,augment=True,crop_size=32)[0]
             test=History(region,[te[0]],4,mean,std,augment=False,crop_size=32)[0]
             self.assertEqual(tuple(train[0].shape), (4,7,32,32))
-            self.assertEqual(tuple(test[0].shape), (4,7,32,32))
+            self.assertEqual(tuple(test[0].shape), (4,7,64,64))
             self.assertTrue(test[2].sum()>=0)
 
     def test_weighted_bce_is_finite_and_has_gradients(self):
