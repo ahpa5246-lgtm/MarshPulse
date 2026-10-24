@@ -23,6 +23,18 @@ The website is still a research prototype: synthetic default data and theoretica
 
 ---
 
+## Mash Plus V4 — real open-source challenger + fresh test geography (October 24, 2026)
+
+**[New V4 Kaggle GPU notebook](kaggle/Mash_Plus_V4_Independent_Dalmaj_GPU.ipynb)** was uploaded as a private version 1 and GPU execution requested via [successful GitHub-to-Kaggle workflow](https://github.com/ahpa5246-lgtm/MarshPulse/actions/runs/40117636891). [Authenticated Kaggle verification](https://github.com/ahpa5246-lgtm/MarshPulse/actions/runs/40117780164) reported **RUNNING**, not completed or scientifically validated, at the time of the check. [Open the actual Kaggle notebook](https://www.kaggle.com/code/minahussain111/mash-plus-v4-independent-dalmaj).
+
+This preregistered experiment adds a **genuine upstream** open-source [segmentation_models_pytorch](https://github.com/qubvel-org/segmentation_models.pytorch) ResNet18 U-Net alongside ConvGRU; rare wet/transition sampling and targeted training crops use **training labels only**. Three real Sentinel training pilots: Hawizeh, Central Marshes, Sinnaf; the **new, genuinely unseen Dalmaj Marsh** is the spatial test because V3's Hammar holdout was already examined. It also implements independent-SENSOR Landsat 8/9 optical screening and generates a **blank, blinded** human-reference annotation queue (not fabricated field labels).
+
+**Scientific interpretation:** V3 failed to improve wet F1 beyond persistence. V4 is an attempt to address that failure, **not proof it has been solved**. The first authenticated status check confirmed only active execution; a scientifically credible result requires sealed Dalmaj scores, Brier/F1 superiority on natural support, and independent reviewer labels. The original V3 negative result remains published.
+
+Read the [full protocol, license provenance, and limitations](research/V4_REPRODUCIBILITY.md). CI includes real upstream U-Net forward/backward, Sentinel sampler anti-leakage, Landsat QA and blind sampling tests; [passing CI proof](https://github.com/ahpa5246-lgtm/MarshPulse/actions/runs/40117489555).
+
+---
+
 ## Mash Plus V3 — executed Kaggle GPU research, negative neural baseline result
 
 **[One Kaggle notebook: Mash Plus V3 Geo-Holdout GPU](kaggle/MarshPulse_V3_GeoHoldout_GPU.ipynb)**. This is the Mash Plus V3 research challenger (legacy Python class: `MarshNetV3`), not a certified replacement for its V2 predecessor. It includes actual Sentinel-2 collection from two training pilot areas and an independently held-out third pilot area, a persistence-residual ConvGRU architecture, three independent seeded trainings, chronological validation, and strict **hard/soft persistence plus annual seasonality** comparisons. Promotion requires meaningful validation improvement over ALL simple baselines; failed neural candidates remain labeled RESEARCH ONLY.
