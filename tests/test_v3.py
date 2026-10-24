@@ -6,7 +6,7 @@ import numpy as np
 import torch
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/"ml"))
 from marshnet_v3 import MarshNetV3,prior_probability,masked_brier_bce
-from train_v3 import split,disjoint_bbox,smoke_data,load_region,History,stats
+from train_v3 import split,disjoint_bbox,smoke_data,load_region,History,stats,benchmark
 class V3Tests(unittest.TestCase):
     def test_model_exact_soft_baseline_at_initialization(self):
         net=MarshNetV3(base=8)
@@ -38,6 +38,19 @@ class V3Tests(unittest.TestCase):
         a=[47.6,31.5,47.7,31.6]
         self.assertFalse(disjoint_bbox(a,[47.65,31.56,47.75,31.66]))
         self.assertTrue(disjoint_bbox(a,[47.7,31.56,47.8,31.66]))
+    def test_soft_persistence_is_independent_baseline(self):
+        from tempfile import TemporaryDirectory
+        with TemporaryDirectory() as tmp:
+            path=Path(tmp)/"pilot.npz";smoke_data(path)
+            r=load_region(path,synthetic=True)
+            _,_,te=split(28,4)
+            prob=np.zeros((len(te),32,32),dtype=np.float32)
+            metrics=benchmark(r,te,prob)["metrics"]
+            self.assertIn("smoothed_persistence",metrics)
+            self.assertEqual(metrics["model"]["evaluated_pixels"],
+                             metrics["smoothed_persistence"]["evaluated_pixels"])
+            self.assertLess(metrics["smoothed_persistence"]["brier"],
+                            metrics["model"]["brier"])
     def test_training_history_excludes_target(self):
         from tempfile import TemporaryDirectory
         with TemporaryDirectory() as tmp:
