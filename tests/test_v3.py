@@ -11,6 +11,8 @@ from collect_sentinel import keys
 class V3Tests(unittest.TestCase):
     def test_model_exact_soft_baseline_at_initialization(self):
         net=MarshNetV3(base=8)
+        self.assertEqual(net.config["model_name"],"Mash Plus")
+        self.assertEqual(net.config["model_version"],"V3")
         x=torch.zeros(1,4,7,32,32)
         prior=torch.full((1,32,32),.23)
         with torch.no_grad():got=net(x,prior).sigmoid()
