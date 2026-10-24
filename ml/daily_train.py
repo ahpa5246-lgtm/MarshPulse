@@ -1,0 +1,183 @@
+#!/usr/bin/env python3
+"""Mash Plus daily *continuation* training, with held-out geographic data excluded.
+
+This script consumes a private training-only state bundle and never downloads or
+inspects Hammar/Dalmaj test imagery. It persists the optimizer and weights across
+Kaggle versions, but labels the model RESEARCH_ONLY until external validation.
+"""
+from __future__ import annotations
+import argparse,copy,hashlib,json,random
+from pathlib import Path
+import numpy as np
+import torch
+from torch.utils.data import DataLoader,ConcatDataset,WeightedRandomSampler
+from marshnet_v3 import MarshNetV3,masked_brier_bce
+from train_v3 import load_region,split,stats,History,val_score,aggregate_f1,training_sample_weights
+
+REGIONS=("hawizeh_train","central_train","sinnaf_train")
+def digest(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+def prepare_region_paths(root):
+    root=Path(root)
+    paths=[]
+    for area in REGIONS:
+        p=root/"source_imagery"/area/"hawizeh_s2_monthly.npz"
+        if not p.is_file():raise ValueError(f"Missing trusted training region: {area}")
+        paths.append(p)
+    if any((root/"source_imagery"/x).exists() for x in ("dalmaj_spatial_test","hammar_spatial_test")):
+        raise ValueError("Final geographic test data must NEVER be mounted into daily training")
+    return paths
+def metric_gate(brier,wet_f1,baseline_brier,baseline_f1,wet_pixels):
+    """Thresholds frozen before daily attempts; validation-only screening."""
+    return bool(wet_pixels>=25 and wet_f1 is not None and baseline_f1 is not None and
+                brier<=baseline_brier*.98 and baseline_brier-brier>=.0005 and
+                wet_f1>=baseline_f1+.02)
+def validate_training_history(state,hashes,arch):
+    if not isinstance(state,dict) or state.get("protocol")!="mash-plus-daily-v1":
+        raise ValueError("Incompatible or missing persistent daily training state")
+    if state.get("train_data_sha256")!=hashes:raise ValueError("Persistent checkpoint does not match input satellite arrays")
+    if state.get("architecture")!=arch:raise ValueError("Architecture mismatch: refusing incompatible checkpoint")
+    if state.get("training_days",0)<0:raise ValueError("Bad training-day counter")
+    return state
+def run(args):
+    if not 1<=args.epochs<=4 or args.batch<1 or not .0<args.lr<=.001:
+        raise ValueError("Daily stage must be bounded (1-4 epochs, positive LR, batch size)")
+    paths=prepare_region_paths(args.data)
+    regions=[load_region(p,synthetic=args.synthetic_smoke) for p in paths]
+    hashes=[r["sha"] for r in regions]
+    mean,std=stats(regions,args.lookback)
+    arch={"base":args.base,"lookback":args.lookback,"lr":args.lr,
+          "wet_bce_ratio":3.0,"crop_size":32,"sampler_wet_boost":3.,
+          "sampler_change_boost":3.,"model_class":"MarshNetV3"}
+    seed=args.seed
+    random.seed(seed);np.random.seed(seed);torch.manual_seed(seed)
+    if torch.cuda.is_available():torch.cuda.manual_seed_all(seed)
+    device=torch.device("cuda" if torch.cuda.is_available() and not args.cpu else "cpu")
+    if device.type=="cuda":torch.backends.cudnn.benchmark=False
+    torch.set_num_threads(min(torch.get_num_threads(),4))
+    model=MarshNetV3(base=args.base).to(device)
+    optimizer=torch.optim.AdamW(model.parameters(),lr=args.lr,weight_decay=.01)
+    previous=None
+    if args.state_in and args.state_in.is_file():
+        previous=torch.load(args.state_in,map_location="cpu",weights_only=True)
+        validate_training_history(previous,hashes,arch)
+        model.load_state_dict(previous["current_weights"])
+        optimizer.load_state_dict(previous["optimizer_state"])
+        for group in optimizer.param_groups:
+            group["lr"]=args.lr
+        start_days=int(previous["training_days"])
+        total_epochs=int(previous["epochs_completed"])
+        best_val=float(previous["best_validation_brier"])
+        best_f1=float(previous["best_validation_f1"])
+        best_weights=previous["best_weights"]
+        stagnant=int(previous.get("days_without_improvement",0))
+    else:
+        start_days=total_epochs=stagnant=0
+        best_val=float("inf");best_f1=-1.0;best_weights=None
+        # Optionally warm-start from a V4 research candidate; never assume it
+        # passed the promotion gate. Optimizer begins fresh only on day zero.
+        if args.v4_seed and args.v4_seed.is_file():
+            initial=torch.load(args.v4_seed,map_location="cpu",weights_only=True)
+            if initial.get("architecture") not in ("convgru","MarshNetV3"):
+                raise ValueError("Wrong architecture in V4 seed checkpoint")
+            if initial.get("lookback")!=args.lookback:raise ValueError("Lookback mismatch in V4 seed")
+            model.load_state_dict(initial["state"])
+    # Preserve original support/prevalence. Neither validation nor test is
+    # oversampled/cropped. Stratification is explicitly TRAIN ONLY.
+    trains=[]
+    for r in regions:
+        tr,va,te=split(len(r["x"]),args.lookback)
+        trains.append(History(r,tr,args.lookback,mean,std,augment=True,
+                              crop_size=32,water_center_prob=.75))
+    samples=ConcatDataset(trains)
+    weights=training_sample_weights(regions,args.lookback,3.,3.)
+    sampler=WeightedRandomSampler(torch.tensor(weights,dtype=torch.double),
+        num_samples=len(samples)*2,replacement=True,
+        generator=torch.Generator().manual_seed(seed+total_epochs))
+    loader=DataLoader(samples,batch_size=args.batch,sampler=sampler,num_workers=0)
+    history=[]
+    # A plateau does not authorize resetting architecture or test tuning.
+    for epoch in range(args.epochs):
+        model.train();losses=[]
+        for history_data,prior,label,mask in loader:
+            history_data=history_data.to(device);prior=prior.to(device)
+            label=label.to(device);mask=mask.to(device)
+            if not mask.any():continue
+            optimizer.zero_grad(set_to_none=True)
+            loss=masked_brier_bce(model(history_data,prior),label,mask,pos_weight=3.)
+            if not torch.isfinite(loss):raise RuntimeError("Non-finite loss, no state exported")
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(),1.0)
+            optimizer.step()
+            losses.append(float(loss.detach().cpu()))
+        if not losses:raise ValueError("No training target labels")
+        brier,pred,reference=val_score(regions,args.lookback,mean,std,model,device,args.batch)
+        candidate_f1=aggregate_f1(pred)
+        reference_briers={name:sum(x[name]["brier"]*x[name]["evaluated_pixels"] for x in reference)/
+                          sum(x[name]["evaluated_pixels"] for x in reference)
+                          for name in ("persistence","smoothed_persistence","seasonal_12m")}
+        baseline=min(reference_briers.values())
+        reference_f1=max(aggregate_f1([r[name] for r in reference]) or 0.
+                         for name in ("persistence","smoothed_persistence","seasonal_12m"))
+        wet_pixels=sum(x["wet_truth_pixels"] for x in pred)
+        improved=brier<best_val-1e-6 and (candidate_f1 is not None and candidate_f1>=best_f1-1e-6)
+        if improved:
+            best_val=float(brier);best_f1=float(candidate_f1)
+            best_weights={k:v.detach().cpu().clone() for k,v in model.state_dict().items()}
+            stagnant=0
+        history.append({"total_epoch":total_epochs+epoch+1,
+                        "train_loss":float(np.mean(losses)),
+                        "validation_brier":float(brier),
+                        "validation_wet_f1":candidate_f1,
+                        "baseline_best_brier":baseline,
+                        "baseline_best_wet_f1":reference_f1,
+                        "validation_wet_pixels":wet_pixels,
+                        "passed_promotion_gate":metric_gate(brier,candidate_f1,baseline,reference_f1,wet_pixels),
+                        "best_model_renewed":improved})
+    if not best_weights:raise ValueError("No valid improved model checkpoint")
+    if not any(x["best_model_renewed"] for x in history):stagnant+=1
+    last=history[-1]
+    state={"protocol":"mash-plus-daily-v1","model_name":"Mash Plus",
+           "field_validated":False,"operationally_reliable":False,
+           "train_data_sha256":hashes,"architecture":arch,
+           "current_weights":{k:v.detach().cpu().clone() for k,v in model.state_dict().items()},
+           "best_weights":best_weights,
+           "optimizer_state":optimizer.state_dict(),
+           "best_validation_brier":best_val,"best_validation_f1":best_f1,
+           "epochs_completed":total_epochs+args.epochs,
+           "training_days":start_days+1,"days_without_improvement":stagnant}
+    args.out.mkdir(parents=True,exist_ok=True)
+    torch.save(state,args.out/"daily_continuation_state.pt")
+    report={"status":"RESEARCH_ONLY_NOT_FIELD_VALIDATED",
+            "data_origin":"three real Sentinel-2 train AOIs",
+            "geographic_test_used_for_training":False,
+            "day_index":start_days+1,"source_commit":args.source_commit,
+            "days_without_improvement":stagnant,
+            "epochs_completed":total_epochs+args.epochs,
+            "validation_history":history,
+            "best_validation_brier":best_val,
+            "best_validation_wet_f1":best_f1,
+            "best_promoted_for_field_use":False,
+            "can_claim_generalization":False,
+            "next_action":"HOLD_AND_REVIEW" if stagnant>=5 else "CONTINUE_EXPERIMENTALLY"}
+    (args.out/"daily_training_report.json").write_text(json.dumps(report,indent=2,ensure_ascii=False)+"\n")
+    print("DAILY_CONTINUATION",json.dumps({k:v for k,v in report.items() if k!="validation_history"}),flush=True)
+    return report
+
+def main():
+    p=argparse.ArgumentParser()
+    p.add_argument("--data",required=True,type=Path)
+    p.add_argument("--out",required=True,type=Path)
+    p.add_argument("--state-in",type=Path)
+    p.add_argument("--v4-seed",type=Path)
+    p.add_argument("--epochs",type=int,default=2)
+    p.add_argument("--lookback",type=int,default=4)
+    p.add_argument("--base",type=int,default=16)
+    p.add_argument("--batch",type=int,default=2)
+    p.add_argument("--seed",type=int,default=17)
+    p.add_argument("--lr",type=float,default=.0001)
+    p.add_argument("--source-commit",default="unknown")
+    p.add_argument("--synthetic-smoke",action="store_true")
+    p.add_argument("--cpu",action="store_true")
+    args=p.parse_args();run(args)
+if __name__=="__main__":main()
