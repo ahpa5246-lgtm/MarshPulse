@@ -82,6 +82,12 @@ def fetch_context(bbox,start,end,timeout=40):
     parsed=json.loads(raw)
     monthly=parse_daily_power(parsed)
     if len(monthly)<6:raise ValueError("Insufficient NASA POWER complete months")
+    targets=[]
+    current=dt.date.fromisoformat(start+"-01")
+    until=dt.date.fromisoformat(end+"-01")
+    while current<=until:
+        targets.append(current.strftime("%Y-%m"))
+        current=(current.replace(day=28)+dt.timedelta(days=4)).replace(day=1)
     return {"source":"NASA POWER Daily AG, historical MERRA-2/reanalysis-derived meteorology",
             "api_url":url,"retrieved_bytes_sha256":hashlib.sha256(raw).hexdigest(),
             "location":{"latitude":lat,"longitude":lon},
@@ -90,7 +96,7 @@ def fetch_context(bbox,start,end,timeout=40):
             "complete_month_count":len(monthly),
             "monthly":monthly,
             "forecast_context_by_month":{month:past_only_features(monthly,month)
-                for month in sorted(monthly) if past_only_features(monthly,month) is not None}}
+                for month in targets if past_only_features(monthly,month) is not None}}
 def main():
     import argparse
     p=argparse.ArgumentParser()
