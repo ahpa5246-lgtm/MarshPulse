@@ -126,3 +126,12 @@ body:has(.topbar){background:linear-gradient(180deg,#f0fbe9,#fff 540px,#f4faed 1
 .shell .footer{border-color:#c7e6c7;color:#64836c}
 .shell .footer-brand{color:#216542}.shell .footer-brand span{color:#78b86d}
 @media(max-width:760px){.topbar{padding-inline:18px;height:auto;min-height:85px}.shell .hero{padding-top:55px;padding-bottom:50px}}
+
+/* Verified accessible small-text contrast for light botanical skins.
+   These choices are intentional: atmospheric accents cannot replace readable UI text. */
+.site-header .identity small{color:#365b42}
+.foot-grid>span{color:#355d42}
+.shell .panel .small-index{color:#29653a}
+.shell .text-button{color:#28663b}
+.shell .model-learn-link{color:#28663b}
+.shell footer>span,footer>span{color:#47634f}
