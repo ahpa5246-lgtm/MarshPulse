@@ -102,18 +102,28 @@ def prepare_kernel(work,session_id,run_date):
     metadata_path.write_text(json.dumps(metadata,indent=2),encoding="utf8")
     return stage
 
-def state_day(state_zip):
-    manifest=validate_bundle(state_zip)
+def completed_training_report(state_zip):
+    validate_bundle(state_zip)
     with zipfile.ZipFile(state_zip) as z:
-        if "daily_training_report.json" not in z.namelist():return None
-        report=json.loads(z.read("daily_training_report.json"))
-    day=report.get("run_date_utc")
-    return dt.date.fromisoformat(day) if day else None
+        if "daily_training_report.json" not in z.namelist():
+            return {}
+        return json.loads(z.read("daily_training_report.json"))
 
-def run(today,work):
+def scheduled_slot(cron):
+    if cron:
+        if cron not in SLOTS:
+            raise ValueError("Unexpected GitHub cron schedule")
+        return SLOTS[cron]
+    return "manual"
+
+def run(today,work,slot="manual"):
     if today<START or today>END:
         print("DATE_GUARD_SKIP",today,"allowed",START,"through",END,flush=True)
         return "STOPPED_OUTSIDE_DATE_RANGE"
+    if slot not in (*SLOTS.values(),"manual"):
+        raise ValueError("Unexpected Mash Plus session slot")
+    session_id=f"{today.isoformat()}_{slot.replace(':','')}"
+    print("REQUESTED_SESSION",session_id,flush=True)
     if not os.environ.get("KAGGLE_API_TOKEN","").startswith("KGAT_"):
         raise RuntimeError("Expected KGAT_ Kaggle token in GitHub Actions KAGGLE secret; do not print key")
     work=Path(work);work.mkdir(parents=True,exist_ok=True)
@@ -150,14 +160,15 @@ def run(today,work):
         # Dataset already exists after a partial publish; reuse rather than recreate.
     else:
         prior=output_zip(KERNEL,work/"previous-complete",NAME)
-        if state_day(prior)==today:
-            print("SAFE_SKIP_ALREADY_FINISHED_TODAY",today,flush=True)
-            return "SKIP_DUPLICATE_DATE"
+        prior_report=completed_training_report(prior)
+        if prior_report.get("session_id")==session_id:
+            print("SAFE_SKIP_ALREADY_FINISHED_SESSION",session_id,flush=True)
+            return "SKIP_DUPLICATE_SESSION"
         # The previous notebook COMPLETED, with an immutable new checkpoint.
         # Only now may the next private Kaggle dataset version be created.
         # If publication of this dataset fails, the next notebook MUST NOT start.
-        publish_dataset(prior,work,exists=existing,day=str(state_day(prior) or "prior"))
-    stage=prepare_kernel(work)
+        publish_dataset(prior,work,exists=existing,day=str(prior_report.get("session_id","legacy-prior")))
+    stage=prepare_kernel(work,session_id,today.isoformat())
     execute("kernels","push","-p",str(stage),"--accelerator","NvidiaTeslaT4")
     print("KAGGLE_DAILY_GPU_REQUEST_ACCEPTED",KERNEL,
           "but results UNVERIFIED until completed; days through",END,flush=True)
@@ -165,7 +176,8 @@ def run(today,work):
 
 if __name__=="__main__":
     p=argparse.ArgumentParser()
-    p.add_argument("--date",default=dt.datetime.now(dt.timezone.utc).date().isoformat())
+    p.add_argument("--date",default=dt.datetime.now(BAGHDAD).date().isoformat())
+    p.add_argument("--slot",default="",help="Exact GitHub cron event.schedule; empty for one manual slot/day")
     p.add_argument("--work",type=Path,default=Path("/tmp/mash-plus-daily"))
     args=p.parse_args()
-    print("BRIDGE_RESULT",run(dt.date.fromisoformat(args.date),args.work))
+    print("BRIDGE_RESULT",run(dt.date.fromisoformat(args.date),args.work,scheduled_slot(args.slot)))
