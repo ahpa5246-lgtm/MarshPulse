@@ -67,8 +67,10 @@ def publish_dataset(state_zip,workspace,exists,day):
         execute("datasets","version","-p",str(stage),"-m",f"Mash Plus continuous training: source completed {day} — research only")
     else:
         execute("datasets","create","-p",str(stage))
-    ready=execute("datasets","status",DATASET)
-    print("PRIVATE_KAGGLE_DATASET_SYNC",DATASET,"status",(ready or "").strip()[-250:],flush=True)
+    # KGAT_ tokens may permit dataset upload but deny the optional status API.
+    # Never equate that 403 with failed upload; mounting is checked in Kaggle.
+    print("PRIVATE_KAGGLE_DATASET_UPLOAD_ACCEPTED",DATASET,
+          "Kaggle notebook must verify that the private input is mounted.",flush=True)
 
 def prepare_kernel(work):
     stage=Path(work)/"private-kernel";stage.mkdir(exist_ok=True,parents=True)
@@ -118,7 +120,7 @@ def run(today,work):
     owned_datasets=execute("datasets","list","--mine","-v")
     existing=DATASET.split("/",1)[1] in (owned_datasets or "").lower()
     if existing:
-        execute("datasets","status",DATASET)
+        print("OWNED_PRIVATE_DATASET_FOUND",DATASET,flush=True)
     if status=="ABSENT":
         if not existing:
             previous=execute("kernels","status",SOURCE)
