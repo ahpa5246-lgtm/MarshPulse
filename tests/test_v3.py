@@ -6,9 +6,45 @@ import numpy as np
 import torch
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/"ml"))
 from marshnet_v3 import MarshNetV3,prior_probability,masked_brier_bce
-from train_v3 import split,disjoint_bbox,smoke_data,load_region,History,stats,benchmark,aggregate_f1,evaluation_checkpoint
+from train_v3 import split,disjoint_bbox,smoke_data,load_region,History,stats,benchmark,aggregate_f1,evaluation_checkpoint,training_sample_weights
 from collect_sentinel import keys
 class V3Tests(unittest.TestCase):
+    def test_train_only_sampling_ignores_validation_and_test_targets(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            f=Path(d)/"fixture.npz"
+            smoke_data(f,0)
+            region=load_region(f,synthetic=True)
+            original=training_sample_weights([region],4,wet_boost=3.,change_boost=2.)
+            tr,va,te=split(len(region["x"]),4)
+            region["x"][va+te,5]=0.
+            updated=training_sample_weights([region],4,wet_boost=3.,change_boost=2.)
+            self.assertEqual(original,updated)
+            self.assertTrue(all(v>=1. for v in original))
+
+    def test_training_crop_never_applied_on_evaluation(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            f=Path(d)/"fixture.npz"
+            smoke_data(f,0)
+            region=load_region(f,synthetic=True)
+            mean,std=stats([region],4)
+            tr,va,te=split(len(region["x"]),4)
+            train=History(region,[tr[0]],4,mean,std,augment=True,crop_size=32)[0]
+            test=History(region,[te[0]],4,mean,std,augment=False,crop_size=32)[0]
+            self.assertEqual(tuple(train[0].shape), (4,7,32,32))
+            self.assertEqual(tuple(test[0].shape), (4,7,32,32))
+            self.assertTrue(test[2].sum()>=0)
+
+    def test_weighted_bce_is_finite_and_has_gradients(self):
+        x=torch.randn(1,8,8,requires_grad=True)
+        y=torch.zeros_like(x);y.detach()[0,2,2]=1
+        mask=torch.ones_like(x)
+        loss=masked_brier_bce(x,y,mask,pos_weight=4.)
+        self.assertTrue(torch.isfinite(loss))
+        loss.backward()
+        self.assertTrue(torch.isfinite(x.grad).all())
+
     def test_validation_selected_weights_are_always_evaluated(self):
         research={"w":torch.tensor([1.])}
         passed={"w":torch.tensor([2.])}
