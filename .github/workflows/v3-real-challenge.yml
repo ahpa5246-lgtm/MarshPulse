@@ -9,6 +9,9 @@ on:
   push:
     paths:
       - .github/workflows/v3-real-challenge.yml
+      - ml/train_v3.py
+      - ml/marshnet_v3.py
+      - ml/quality_gate.py
 permissions:
   contents: read
   actions: read
@@ -54,10 +57,12 @@ jobs:
           assert r["operationally_reliable"] is False
           assert len(r["selected_champion"]["validation_challengers"])==2
           assert r["test_evaluations"]
+          assert "smoothed_persistence" in r["test_evaluations"][0]["metrics"]
+          assert all("val_smoothed_persistence_brier" in v for v in r["selected_champion"]["validation_challengers"])
           for e in r["test_evaluations"]:
               s=e["metrics"]
               print("REGION",e["region"],"CHAMPION",r["selected_champion"]["type"],
-                    "model",s["model"]["brier"],"persistence",s["persistence"]["brier"])
+                    "challenger",s["model"]["brier"],"soft",s["smoothed_persistence"]["brier"],"selected",e["selected_champion_metric"])
           PY
       - name: Preserve real-data V3 scores (negative results included)
         if: always()
