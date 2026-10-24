@@ -11,9 +11,17 @@ FEATURES=("B03","B04","B08","B11","NDVI","MNDWI","VALID")
 def next_month(x):
     y,m=map(int,x.split("-"));return f"{y+(m==12):04d}-{m%12+1:02d}"
 def keys(start,end):
+    """Inclusive, bounded monthly range. Invalid input must never loop forever."""
+    import re
+    for date in (start,end):
+        if not re.fullmatch(r"\\d{4}-(0[1-9]|1[0-2])",date):
+            raise ValueError("Dates must be YYYY-MM with month 01–12")
+    if start>end:
+        raise ValueError("Start month must precede end month")
     m=[start]
-    while m[-1]<end:m.append(next_month(m[-1]))
-    if m[-1]!=end:raise ValueError("Invalid date range")
+    while m[-1]!=end:
+        if len(m)>=240:raise ValueError("Date window exceeds 240 months")
+        m.append(next_month(m[-1]))
     return m
 def grid_for(bbox,pixels):
     from rasterio.transform import from_origin
