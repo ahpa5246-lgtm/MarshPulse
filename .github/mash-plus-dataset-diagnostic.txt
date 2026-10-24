@@ -1,0 +1,1 @@
+Read-only diagnostics of private Kaggle dataset, notebook metadata, attached inputs, and file downloads. 2026-10-24
