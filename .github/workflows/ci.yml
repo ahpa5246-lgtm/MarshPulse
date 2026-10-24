@@ -26,6 +26,17 @@ jobs:
           v=json.load(open("kaggle/MarshPulse_V3_GeoHoldout_GPU.ipynb"))
           assert n["nbformat"] == v["nbformat"] == 4
           assert len(n["cells"]) >= 10 and len(v["cells"]) >= 12
+          import ast
+          for number, cell in enumerate(v["cells"]):
+              if cell["cell_type"] != "code":
+                  continue
+              source = "".join(cell["source"])
+              stripped = "\n".join(line for line in source.splitlines()
+                                  if not line.lstrip().startswith(("%", "!")))
+              try:
+                  ast.parse(stripped, filename=f"V3 Kaggle notebook cell {number}")
+              except SyntaxError as exc:
+                  raise AssertionError(f"Invalid executable notebook cell {number}") from exc
           PY
       - name: Reproducible unit tests
         run: node --test tests/*.test.mjs
