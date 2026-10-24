@@ -1,0 +1,77 @@
+name: Audit Mash Plus daily checkpoint continuation
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/mash-plus-daily-verify.txt'
+
+permissions:
+  contents: read
+
+jobs:
+  audit-daily:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE }}
+      KERNEL_ID: minahussain111/mash-plus-daily-trainer
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Kaggle CLI
+        run: python -m pip install -q 'kaggle==2.2.5'
+      - name: Read actual Kaggle execution status and log
+        shell: bash
+        run: |
+          set -euo pipefail
+          kaggle kernels status "$KERNEL_ID" | tee "$RUNNER_TEMP/daily-status.txt"
+          kaggle kernels logs "$KERNEL_ID" > "$RUNNER_TEMP/daily-log.txt" 2>&1 || true
+          echo '=== tail of actual notebook log ==='
+          tail -n 45 "$RUNNER_TEMP/daily-log.txt"
+      - name: Verify persisted real checkpoints when completed
+        env:
+          CHECK_DIR: ${{ runner.temp }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! grep -q 'KernelWorkerStatus.COMPLETE' "$CHECK_DIR/daily-status.txt"; then
+            echo 'Not complete: do not claim the model was resumed or that an improvement occurred.'
+            exit 0
+          fi
+          mkdir -p "$CHECK_DIR/output"
+          kaggle kernels output "$KERNEL_ID" --force --page-size 100 \
+            --file-pattern 'Mash_Plus_Daily_State[.]zip' -p "$CHECK_DIR/output"
+          python - <<'PY'
+          import sys,os,json,zipfile
+          from pathlib import Path
+          sys.path.insert(0,str(Path.cwd()/"ml"))
+          from daily_bundle import validate_bundle
+          files=list((Path(os.environ["CHECK_DIR"])/"output").rglob("Mash_Plus_Daily_State.zip"))
+          if len(files)!=1:raise RuntimeError("Complete run has no persistent model state ZIP")
+          report=validate_bundle(files[0])
+          with zipfile.ZipFile(files[0]) as z:
+              day=json.loads(z.read("daily_training_report.json"))
+          assert day["day_index"]>=1 and day["epochs_completed"]>=1
+          assert day["geographic_test_used_for_training"] is False
+          assert day["status"]=="RESEARCH_ONLY_NOT_FIELD_VALIDATED"
+          print("GENUINE_DAILY_CONTINUATION_VERIFIED",json.dumps({
+              "day_index":day["day_index"],"epochs_completed":day["epochs_completed"],
+              "run_date_utc":day.get("run_date_utc"),
+              "best_validation_brier":day["best_validation_brier"],
+              "best_validation_wet_f1":day["best_validation_wet_f1"],
+              "field_validated":False},indent=2))
+          PY
+      - name: Archive audit log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mash-plus-daily-audit
+          path: |
+            ${{ runner.temp }}/daily-status.txt
+            ${{ runner.temp }}/daily-log.txt
+          if-no-files-found: ignore
+          retention-days: 30
