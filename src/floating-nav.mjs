@@ -10,7 +10,7 @@ import Headroom from "../vendor/headroom/Headroom.mjs";
 export const FLOAT_PAGES=[
  {path:"index.html",label:"الرئيسية",short:"الرئيسية",icon:"home"},
  {path:"lab.html",label:"مختبر المياه",short:"المختبر",icon:"water"},
- {path:"model.html",label:"MarshNet AI",short:"MarshNet",icon:"brain"},
+ {path:"model.html",label:"Mash Plus AI",short:"Mash Plus",icon:"brain"},
  {path:"methods.html",label:"المنهجية",short:"المنهجية",icon:"book"}
 ];
 export const FLOAT_CHAPTERS={
@@ -29,7 +29,7 @@ export const FLOAT_CHAPTERS={
  ],
  "model.html":[
   {selector:".inner-intro",id:"model-overview",label:"المقدمة"},
-  {selector:".model-v2-feature",id:"model-v2",label:"MarshNet V2"},
+  {selector:".model-v2-feature",id:"model-v2",label:"Mash Plus V3"},
   {selector:".main-stack",id:"model-workbench",label:"التدريب والتقييم"}
  ],
  "methods.html":[
@@ -193,7 +193,7 @@ export function initFloatingNavigation(doc=globalThis.document,win=globalThis.wi
   if(!dock.contains(event.relatedTarget))dock.classList.remove("is-keyboard-open");
  });
  // Hide the floating control while users are editing forms, especially in
- // the water lab and MarshNet workbench; primary header navigation remains.
+ // the water lab and Mash Plus workbench; primary header navigation remains.
  doc.addEventListener("focusin",event=>{
   const target=event.target;
   const editing=target?.matches?.("input,textarea,select,[contenteditable='true']");
