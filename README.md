@@ -23,6 +23,16 @@ The website is still a research prototype: synthetic default data and theoretica
 
 ---
 
+## Mash Plus — one daily continuing Kaggle notebook (through 15 November 2026)
+
+**The first real daily Kaggle GPU continuation ran successfully on 2026-10-24**, starting from V4 research-only ConvGRU weights and saving the model, AdamW optimizer and data manifest in a private state ZIP. It completed **day 1 / 2 cumulative epochs**. [Actual Kaggle COMPLETE state and downloaded 19.4 MB research checkpoint proof](https://github.com/ahpa5246-lgtm/MarshPulse/actions/runs/40122873091); [separate same-day no-duplicate safety check](https://github.com/ahpa5246-lgtm/MarshPulse/actions/runs/40123033045).
+
+The [single canonical Kaggle notebook](kaggle/Mash_Plus_Daily_Trainer.ipynb) and [real private Kaggle notebook](https://www.kaggle.com/code/minahussain111/mash-plus-daily-trainer) run via [daily GitHub Actions scheduler](.github/workflows/mash-plus-daily-until-nov15.yml) at **05:15 Baghdad**, with a hard cutoff after **2026-11-15**. Each next day waits for a successful previous Kaggle version, transfers its checkpoint to a versioned private dataset, and resumes rather than trains afresh. Quota exhaustion, missing/failed outputs, or schedule delays can prevent a given day; there is **no guarantee of 23 GPU sessions**. [Complete implementation, safeguards, and reproducibility](research/DAILY_TRAINING.md).
+
+**Scientific status remains research-only.** Repeated training on three fixed ESA Sentinel-2 regions does NOT establish independent field accuracy or scientific recognition. Hammar and Dalmaj test data are excluded from daily model fitting.
+
+---
+
 ## Mash Plus V4 — real open-source challenger + fresh test geography (October 24, 2026)
 
 **[New V4 Kaggle GPU notebook](kaggle/Mash_Plus_V4_Independent_Dalmaj_GPU.ipynb)** was uploaded as a private version 1 and GPU execution requested via [successful GitHub-to-Kaggle workflow](https://github.com/ahpa5246-lgtm/MarshPulse/actions/runs/40117636891). [Authenticated Kaggle verification](https://github.com/ahpa5246-lgtm/MarshPulse/actions/runs/40117780164) reported **RUNNING**, not completed or scientifically validated, at the time of the check. [Open the actual Kaggle notebook](https://www.kaggle.com/code/minahussain111/mash-plus-v4-independent-dalmaj).
