@@ -11,7 +11,7 @@ from pathlib import Path
 import numpy as np
 import torch
 from torch.utils.data import DataLoader,ConcatDataset,WeightedRandomSampler
-from marshnet_v3 import MarshNetV3,masked_brier_bce
+from marshnet_v3 import MarshNetV3,masked_brier_bce,masked_change_brier
 from train_v3 import load_region,split,stats,History,val_score,aggregate_f1,training_sample_weights,predict
 from change_diagnostics import transition_validation_report,aggregate_transition_reports
 
@@ -89,7 +89,8 @@ def run(args):
     for r in regions:
         tr,va,te=split(len(r["x"]),args.lookback)
         trains.append(History(r,tr,args.lookback,mean,std,augment=True,
-                              crop_size=32,water_center_prob=.75))
+                              crop_size=32,water_center_prob=.75,
+                              water_margin=.025,ndvi_margin=.025))
     samples=ConcatDataset(trains)
     weights=training_sample_weights(regions,args.lookback,3.,3.)
     sampler=WeightedRandomSampler(torch.tensor(weights,dtype=torch.double),
@@ -105,7 +106,12 @@ def run(args):
             label=label.to(device);mask=mask.to(device)
             if not mask.any():continue
             optimizer.zero_grad(set_to_none=True)
-            loss=masked_brier_bce(model(history_data,prior),label,mask,pos_weight=3.)
+            logits=model(history_data,prior)
+            loss=masked_brier_bce(logits,label,mask,pos_weight=3.)
+            # Prior and last observed validity are derived from PAST inputs
+            # only; target change is sampled from TRAIN months exclusively.
+            loss=loss+masked_change_brier(
+                logits,label,mask,prior,history_data[:,-1,6],strength=.20)
             if not torch.isfinite(loss):raise RuntimeError("Non-finite loss, no state exported")
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(),1.0)
@@ -172,6 +178,8 @@ def run(args):
             "validation_history":history,
             "best_validation_brier":best_val,
             "best_validation_wet_f1":best_f1,
+            "training_objective":"brier+weighted_bce+0.20_train_transition_brier",
+            "confidence_masks_train_only":{"MNDWI":0.025,"NDVI":0.025},
             "validation_change_diagnostics":{"aggregate":change_summary,
                                              "by_region":validation_events},
             "best_promoted_for_field_use":False,
