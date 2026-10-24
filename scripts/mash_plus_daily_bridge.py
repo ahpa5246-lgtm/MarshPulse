@@ -115,10 +115,21 @@ def run(today,work):
     if status in ("RUNNING","QUEUED","PENDING"):
         print("SAFE_SKIP_ALREADY_RUNNING — do not overwrite notebook or checkpoint",flush=True)
         return "SKIP_RUNNING"
-    if status in ("ERROR","CANCELLED"):
-        raise RuntimeError("Previous daily Kaggle kernel ended with ERROR/CANCELLED. State not overwritten; inspect Kaggle logs.")
     owned_datasets=execute("datasets","list","--mine","-v")
     existing=DATASET.split("/",1)[1] in (owned_datasets or "").lower()
+    if status in ("ERROR","CANCELLED"):
+        # One narrowly scoped recovery is allowed for the FIRST erroneous day:
+        # Kaggle auto-extracted the training ZIP, so notebook v1 could not see
+        # it. Verify there is no trained state before retrying from V4 seed.
+        if status=="ERROR" and today==START and existing:
+            listings=execute("datasets","files",DATASET,"-v")
+            if "v4_seed.pt" in listings and "daily_continuation_state.pt" not in listings:
+                print("RECOVER_FIRST_DAY_ZIP_AUTOEXTRACTION_ERROR_FROM_UNCHANGED_V4_WEIGHTS",flush=True)
+                status="ABSENT"
+            else:
+                raise RuntimeError("Failed Kaggle run has unexpected or existing checkpoint; refuse reset")
+        else:
+            raise RuntimeError("Previous daily Kaggle run ERROR/CANCELLED. No silent retry or checkpoint reset.")
     if existing:
         print("OWNED_PRIVATE_DATASET_FOUND",DATASET,flush=True)
     if status=="ABSENT":
