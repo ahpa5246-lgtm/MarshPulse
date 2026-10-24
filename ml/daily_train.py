@@ -152,6 +152,7 @@ def run(args):
             "data_origin":"three real Sentinel-2 train AOIs",
             "geographic_test_used_for_training":False,
             "day_index":start_days+1,"source_commit":args.source_commit,
+            "run_date_utc":args.run_date,
             "days_without_improvement":stagnant,
             "epochs_completed":total_epochs+args.epochs,
             "validation_history":history,
@@ -177,6 +178,7 @@ def main():
     p.add_argument("--seed",type=int,default=17)
     p.add_argument("--lr",type=float,default=.0001)
     p.add_argument("--source-commit",default="unknown")
+    p.add_argument("--run-date",default="unknown")
     p.add_argument("--synthetic-smoke",action="store_true")
     p.add_argument("--cpu",action="store_true")
     args=p.parse_args();run(args)
