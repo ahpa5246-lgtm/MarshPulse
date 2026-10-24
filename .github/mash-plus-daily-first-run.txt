@@ -10,3 +10,4 @@ Validation: chronological train-areas only; Hammar and Dalmaj excluded permanent
 Stop if earlier run still queued/running; fail closed on missing output, invalid token, or GPU quota.
 Scientific limitation: no independent field labels; not certified for ecological decisions.
 CI prerequisite: https://github.com/ahpa5246-lgtm/MarshPulse/actions/runs/40121941096 SUCCESS
+retry_after_private_kernel_listing_fix: 2026-10-24
