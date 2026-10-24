@@ -37,7 +37,7 @@ jobs:
             *) echo 'The KAGGLE secret is not a KGAT_ personal access token. Check token type without exposing its value.' >&2; exit 1 ;;
           esac
       - name: Install the official Kaggle CLI with token support
-        run: python -m pip install --disable-pip-version-check 'kaggle>=2.2,<3'
+        run: python -m pip install --disable-pip-version-check 'kaggle>=2.2.5,<3'
       - name: Prepare private Kaggle notebook using authenticated owner
         env:
           RUNNER_TEMP_DIR: ${{ runner.temp }}
