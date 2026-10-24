@@ -13,7 +13,7 @@ from quality_gate import binary_metrics
 
 LABEL_COLUMN="human_open_water_0_or_1_or_uncertain"
 def read_csv(path):
-    with open(path,newline="",encoding="utf8-sig") as file:
+    with open(path,newline="",encoding="utf-8-sig") as file:
         values=list(csv.DictReader(file))
     if not values:raise ValueError("Empty annotation file "+str(path))
     ids=[str(row.get("sample_id","")).strip() for row in values]
