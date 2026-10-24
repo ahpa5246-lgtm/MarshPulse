@@ -1,9 +1,9 @@
 name: Audit Mash Plus daily checkpoint continuation
 
 on:
-  # Separate from 05:15 Baghdad GPU dispatch; audit four hours later.
+  # Audit at 23:15 Baghdad, after four 30-minute training slots.
   schedule:
-    - cron: '15 6 * * *'
+    - cron: '15 20 * * *'
   workflow_dispatch:
   push:
     branches: [main]
@@ -67,6 +67,12 @@ jobs:
           assert day["status"]=="RESEARCH_ONLY_NOT_FIELD_VALIDATED"
           audit={
               "day_index":day["day_index"],"epochs_completed":day["epochs_completed"],
+              "session_id":day.get("session_id"),
+              "session_index":day.get("session_index"),
+              "calendar_training_days":day.get("calendar_training_days"),
+              "today_training_loop_minutes":day.get("today_training_loop_minutes"),
+              "session_training_loop_minutes":day.get("session_training_loop_minutes"),
+              "daily_two_hour_target_reached":day.get("daily_two_hour_target_reached"),
               "run_date_utc":day.get("run_date_utc"),
               "best_validation_brier":day["best_validation_brier"],
               "best_validation_wet_f1":day["best_validation_wet_f1"],
@@ -82,7 +88,9 @@ jobs:
           summary=Path(os.environ["GITHUB_STEP_SUMMARY"])
           with summary.open("a") as output:
               output.write("# Mash Plus — authenticated Kaggle evidence\\n\\n")
-              output.write(f"**Day:** {audit['day_index']} · **Epochs:** {audit['epochs_completed']}\\n\\n")
+              output.write(f"**Session:** {audit['session_id'] or audit['day_index']} · **Epochs:** {audit['epochs_completed']}\\n\\n")
+              if audit["today_training_loop_minutes"] is not None:
+                  output.write(f"**Measured training-loop minutes:** {audit['today_training_loop_minutes']:.1f} / 120 today\\n\\n")
               output.write(f"**Validation Brier:** {audit['best_validation_brier']:.6f} · ")
               output.write(f"**Wet F1:** {audit['best_validation_wet_f1']:.4f}\\n\\n")
               output.write(f"**Transition F1:** {audit['transition_f1_on_training_region_validation']}\\n\\n")
