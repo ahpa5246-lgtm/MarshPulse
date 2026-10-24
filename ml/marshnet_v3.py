@@ -1,4 +1,4 @@
-"""MarshNet V3: persistence-anchored residual ConvGRU, research-only.
+"""Mash Plus V3 (legacy MarshNetV3 class): persistence-anchored residual ConvGRU, research-only.
 
 Input history contains only previously acquired Sentinel images.  The optional
 prior is derived from last observed month (NOT future target).  The learned
@@ -37,7 +37,8 @@ class MarshNetV3(nn.Module):
         nn.init.zeros_(self.backbone.head.weight)
         nn.init.zeros_(self.backbone.head.bias)
         self.residual_gain=nn.Parameter(torch.tensor(1.0))
-        self.config={"architecture":"V3_persistence_residual_convgru_unet",
+        self.config={"model_name":"Mash Plus","model_version":"V3",
+                     "architecture":"V3_persistence_residual_convgru_unet",
                      "base":base,"prior_epsilon":self.prior_epsilon,
                      "bands":["B03","B04","B08","B11","NDVI","MNDWI","VALID"]}
     def forward(self,normalized_history,prior):
