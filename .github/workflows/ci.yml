@@ -21,7 +21,7 @@ jobs:
           node --check src/floating-nav.mjs
           node --check earth-engine/export_monthly_grid.js
           python3 -m py_compile ml/train.py
-          python3 -m py_compile ml/collect_sentinel.py ml/train_satellite.py ml/marshnet_v2.py ml/quality_gate.py ml/monitor_wetland.py ml/calibration.py ml/train_v3.py ml/marshnet_v3.py
+          python3 -m py_compile ml/collect_sentinel.py ml/train_satellite.py ml/marshnet_v2.py ml/quality_gate.py ml/monitor_wetland.py ml/calibration.py ml/train_v3.py ml/marshnet_v3.py ml/judge_readiness.py
           python3 - <<'PY'
           import json
           n=json.load(open("kaggle/marshnet_v2_hawizeh.ipynb"))
@@ -67,6 +67,7 @@ jobs:
             --out /tmp/marshpulse-synthetic/out \
             --base 8 --epochs 2 --batch 2 --lookback 4 --cpu
           python -m unittest discover -s tests -p 'test_v3.py' -v
+          python -m unittest discover -s tests -p 'test_judge_readiness.py' -v
           python ml/train_v3.py --synthetic-smoke \
             --train-input /tmp/marshpulse-v3/fixture.npz \
             --spatial-test-input /tmp/marshpulse-v3/spatial-fixture.npz \
