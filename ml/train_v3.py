@@ -12,7 +12,7 @@ import torch
 from torch.utils.data import Dataset,DataLoader,ConcatDataset
 from marshnet_v2 import BANDS
 from marshnet_v3 import MarshNetV3,masked_brier_bce
-from quality_gate import benchmark_temporal,wet_proxy
+from quality_gate import benchmark_temporal,wet_proxy,binary_metrics
 
 def next_month(date):
     y,m=map(int,date.split("-"));return f"{y+(m==12):04d}-{m%12+1:02d}"
@@ -104,7 +104,13 @@ def predict(net,loader,device):
     return np.concatenate(output)
 
 def benchmark(region,targets,preds):
-    return benchmark_temporal(region["x"],targets,preds)
+    result=benchmark_temporal(region["x"],targets,preds)
+    wet,valid=wet_proxy(region["x"])
+    fair=np.stack([valid[t]&valid[t-1]&valid[t-12] for t in targets])
+    soft=np.stack([np.where(wet[t-1],.99,.01) for t in targets])
+    result["metrics"]["smoothed_persistence"]=binary_metrics(soft,wet[targets],fair)
+    result["baselines_include_soft_prior"]=True
+    return result
 
 def val_score(regions,lookback,mean,std,net,device,batch):
     weighted=0.;n=0
@@ -117,7 +123,7 @@ def val_score(regions,lookback,mean,std,net,device,batch):
         match=scores["model"].get("evaluated_pixels",0)
         if match:
             weighted+=scores["model"]["brier"]*match;n+=match
-        allpred.append(scores["model"]);allbaselines.append(scores["persistence"])
+        allpred.append(scores["model"]);allbaselines.append({k:scores[k] for k in ("persistence","smoothed_persistence","seasonal_12m")})
     if not n:raise ValueError("No observed validation targets")
     return weighted/n,allpred,allbaselines
 
@@ -143,6 +149,8 @@ def run(args):
         trains.append(History(region,tr,args.lookback,mean,std,augment=True))
     loader=DataLoader(ConcatDataset(trains),batch_size=args.batch,shuffle=True,num_workers=0)
     candidates=[];best_weights=None;best_val=float("inf");best_seed=None
+    research_weights=None;research_val=float("inf");research_seed=None
+    baseline_votes=[]
     for seed in seeds:
         random.seed(seed);np.random.seed(seed);torch.manual_seed(seed)
         if torch.cuda.is_available():torch.cuda.manual_seed_all(seed)
@@ -171,43 +179,56 @@ def run(args):
             if patience>=args.patience:break
         net.load_state_dict(local_state)
         score,pred_stats,baseline_stats=val_score(regions,args.lookback,mean,std,net,device,args.batch)
-        baseline_brier=sum(s["brier"]*s["evaluated_pixels"] for s in baseline_stats)/sum(s["evaluated_pixels"] for s in baseline_stats)
-        # Gate is precommitted: val improvement plus non-empty wet support.
-        supports=sum(s["wet_truth_pixels"] for s in pred_stats)
-        passed=bool(supports>=args.min_wet_valid and score+1e-5<baseline_brier)
+        baseline_briers={name:sum(item[name]["brier"]*item[name]["evaluated_pixels"] for item in baseline_stats)/
+                          sum(item[name]["evaluated_pixels"] for item in baseline_stats)
+                         for name in ("persistence","smoothed_persistence","seasonal_12m")}
+        best_simple_name=min(baseline_briers,key=baseline_briers.get)
+        baseline_brier=baseline_briers[best_simple_name]
+        baseline_votes.append((best_simple_name,baseline_brier))
+        # Require meaningful gain beyond smoothing binary previous-month predictions.
+        supports=sum(item["wet_truth_pixels"] for item in pred_stats)
+        passed=bool(supports>=args.min_wet_valid and
+                    score<=baseline_brier*(1-args.min_relative_gain) and
+                    baseline_brier-score>=args.min_absolute_gain)
+        if score<research_val:
+            research_val=score;research_weights=copy.deepcopy(local_state);research_seed=seed
         candidates.append({"seed":seed,"best_epoch":local_epoch,"val_brier":score,
-                           "val_persistence_brier":baseline_brier,"validation_wet_pixels":supports,
+                           "val_persistence_brier":baseline_briers["persistence"],
+                           "val_smoothed_persistence_brier":baseline_briers["smoothed_persistence"],
+                           "val_seasonal_brier":baseline_briers["seasonal_12m"],
+                           "best_simple_reference":best_simple_name,
+                           "minimum_relative_improvement":args.min_relative_gain,
+                           "minimum_absolute_improvement":args.min_absolute_gain,
+                           "validation_wet_pixels":supports,
                            "passed_validation_gate":passed,"history":history})
         if passed and score<best_val:
             best_val=score;best_weights=copy.deepcopy(local_state);best_seed=seed
-    chosen={"type":"MarshNetV3" if best_weights else "PERSISTENCE_BASELINE",
+    reference_name=min(baseline_votes,key=lambda item:item[1])[0]
+    chosen={"type":"MarshNetV3" if best_weights else reference_name.upper()+"_BASELINE",
             "selection_method":"validation only, no test score used",
             "seed":best_seed,"validation_challengers":candidates,
             "model_never_authorized_for_field_decisions":True}
-    checkpoints={}
-    if best_weights:
-        best_model=MarshNetV3(base=args.base).to(device)
-        best_model.load_state_dict(best_weights);best_model.eval()
+    candidate_model=MarshNetV3(base=args.base).to(device)
+    candidate_model.load_state_dict(research_weights);candidate_model.eval()
     evaluations=[]
     for name,region in [(f"train_aoi_{i}",r) for i,r in enumerate(regions)]+([("spatial_holdout",spatial)] if spatial else []):
         ids=split(len(region["x"]),args.lookback)[2] if name!="spatial_holdout" else list(range(max(12,args.lookback),len(region["x"])))
-        if best_weights:
-            inputs=DataLoader(History(region,ids,args.lookback,mean,std),batch_size=args.batch)
-            probs=predict(best_model,inputs,device)
-        else:
-            wet,valid=wet_proxy(region["x"])
-            probs=np.stack([np.where(valid[t-1],np.where(wet[t-1],.99,.01),.5) for t in ids]).astype(np.float32)
+        inputs=DataLoader(History(region,ids,args.lookback,mean,std),batch_size=args.batch)
+        # Evaluate the rejected candidate once, but never call it the champion.
+        probs=predict(candidate_model,inputs,device)
         score=benchmark(region,ids,probs)
         score["region"]=name;score["data_sha256"]=region["sha"]
         score["has_spatial_holdout"]=name=="spatial_holdout"
+        score["selected_champion_metric"]="model" if best_weights else reference_name
+        score["candidate_was_promoted"]=bool(best_weights)
         evaluations.append(score)
     out=Path(args.out);out.mkdir(parents=True,exist_ok=True)
-    if best_weights:
-        torch.save({"state":best_weights,"architecture":"MarshNetV3",
-                   "config":best_model.config,"mean":mean.tolist(),"std":std.tolist(),
-                   "lookback":args.lookback,"seed":best_seed,
-                   "dataset_sha256":[r["sha"] for r in regions],"field_validated":False},
-                  out/"marshnet_v3_challenger.pt")
+    torch.save({"state":research_weights,"architecture":"MarshNetV3",
+               "config":candidate_model.config,"mean":mean.tolist(),"std":std.tolist(),
+               "lookback":args.lookback,"seed":research_seed,
+               "passed_validation_gate":bool(best_weights),
+               "dataset_sha256":[r["sha"] for r in regions],"field_validated":False},
+              out/"marshnet_v3_RESEARCH_ONLY.pt")
     report={"status":"SYNTHETIC TEST ONLY" if args.synthetic_smoke else "REAL SATELLITE PROXY / NO FIELD VALIDATION",
       "architecture":"persistence-residual ConvGRU U-Net",
       "normalization_fit":"training input months only",
@@ -246,6 +267,8 @@ def cli():
     p.add_argument("--base",type=int,default=16);p.add_argument("--lr",type=float,default=.00015)
     p.add_argument("--seeds",default="17,42,2026")
     p.add_argument("--min-wet-valid",type=int,default=25)
+    p.add_argument("--min-relative-gain",type=float,default=.02)
+    p.add_argument("--min-absolute-gain",type=float,default=.0005)
     p.add_argument("--cpu",action="store_true")
     p.add_argument("--synthetic-smoke",action="store_true")
     args=p.parse_args()
