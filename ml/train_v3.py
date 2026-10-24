@@ -9,7 +9,7 @@ import argparse,copy,hashlib,json,random
 from pathlib import Path
 import numpy as np
 import torch
-from torch.utils.data import Dataset,DataLoader,ConcatDataset
+from torch.utils.data import Dataset,DataLoader,ConcatDataset,WeightedRandomSampler
 from marshnet_v2 import BANDS
 from marshnet_v3 import MarshNetV3,masked_brier_bce
 from quality_gate import benchmark_temporal,wet_proxy,binary_metrics
@@ -92,9 +92,11 @@ def stats(regions,lookback):
     return mean,std
 
 class History(Dataset):
-    def __init__(self,region,targets,lookback,mean,std,augment=False):
+    def __init__(self,region,targets,lookback,mean,std,augment=False,crop_size=0,water_center_prob=.75):
         self.original=region["x"];self.targets=targets
         self.lookback=lookback;self.mean=mean;self.std=std;self.augment=augment
+        self.crop_size=int(crop_size) if augment else 0
+        self.water_center_prob=float(water_center_prob)
     def __len__(self):return len(self.targets)
     def __getitem__(self,i):
         t=self.targets[i]
@@ -107,6 +109,23 @@ class History(Dataset):
         current=self.original[t]
         label=((current[5]>.1)&(current[4]<.3)&(current[6]>.5)).astype(np.float32)
         observed=(current[6]>.5).astype(np.float32)
+        if self.crop_size:
+            # Training-only label-aware crop around rare water. Validation/test
+            # are full image; the sealed spatial area is never cropped this way.
+            h,w=label.shape
+            size=self.crop_size
+            if size>min(h,w):raise ValueError("Crop exceeds image size")
+            wet_locations=np.argwhere(label>.5)
+            if len(wet_locations) and random.random()<self.water_center_prob:
+                rr,cc=wet_locations[random.randrange(len(wet_locations))]
+                top=max(0,min(h-size,int(rr)-random.randrange(size)))
+                left=max(0,min(w-size,int(cc)-random.randrange(size)))
+            else:
+                top=random.randrange(h-size+1)
+                left=random.randrange(w-size+1)
+            sl=(slice(top,top+size),slice(left,left+size))
+            normalized=normalized[...,sl[0],sl[1]]
+            prior=prior[sl];label=label[sl];observed=observed[sl]
         if self.augment:
             if random.random()<.5:
                 normalized=normalized[...,::-1];prior=prior[...,::-1]
@@ -166,6 +185,33 @@ def aggregate_f1(statistics):
     fn=sum(s["confusion"]["fn"] for s in statistics)
     return 2*tp/(2*tp+fp+fn) if 2*tp+fp+fn else None
 
+def training_sample_weights(regions,lookback,wet_boost=0.,change_boost=0.):
+    """Only observed TRAIN target months affect sampling; no test leakage."""
+    weights=[]
+    for region in regions:
+        wet,valid=wet_proxy(region["x"])
+        tr,_,_=split(len(wet),lookback)
+        for t in tr:
+            current=valid[t]
+            wet_fraction=float(wet[t].sum())/max(1,int(current.sum()))
+            shared=current&valid[t-1]
+            changes=(wet[t]^wet[t-1])&shared
+            change_fraction=float(changes.sum())/max(1,int(shared.sum()))
+            weights.append(1.+wet_boost*min(wet_fraction/.03,1.)+
+                           change_boost*min(change_fraction/.03,1.))
+    if not weights or any(not np.isfinite(w) or w<=0 for w in weights):
+        raise ValueError("Invalid train-only sampling weights")
+    return weights
+
+def create_neural_challenger(args):
+    if args.architecture=="convgru":
+        return MarshNetV3(base=args.base)
+    if args.architecture=="smp-unet":
+        from mash_plus_smp import SMPPersistenceUnet
+        return SMPPersistenceUnet(lookback=args.lookback,encoder=args.encoder,
+                                 pretrained=args.imagenet_pretrained)
+    raise ValueError("Unreviewed neural architecture")
+
 def val_score(regions,lookback,mean,std,net,device,batch):
     weighted=0.;n=0
     allpred=[];allbaselines=[]
@@ -193,7 +239,10 @@ def evaluation_checkpoint(best_weights,research_weights):
 
 def run(args):
     if (args.lookback<2 or args.base%8 or args.epochs<1 or args.batch<1 or
-        args.patience<1 or args.lr<=0 or not (0<=args.min_f1_gain<=1)):
+        args.patience<1 or args.lr<=0 or not (0<=args.min_f1_gain<=1) or
+        not (1<=args.wet_bce_ratio<=32) or args.wet_sampler_boost<0 or
+        args.change_sampler_boost<0 or not (0<=args.water_center_prob<=1) or
+        (args.crop_size and (args.crop_size<32 or args.crop_size%4))):
         raise ValueError("Invalid training parameters")
     regions=[load_region(p,args.synthetic_smoke) for p in args.train_input]
     spatial=load_region(args.spatial_test_input,args.synthetic_smoke) if args.spatial_test_input else None
@@ -211,15 +260,25 @@ def run(args):
     trains=[]
     for region in regions:
         tr,_,_=split(len(region["x"]),args.lookback)
-        trains.append(History(region,tr,args.lookback,mean,std,augment=True))
-    loader=DataLoader(ConcatDataset(trains),batch_size=args.batch,shuffle=True,num_workers=0)
+        trains.append(History(region,tr,args.lookback,mean,std,augment=True,
+                              crop_size=args.crop_size,water_center_prob=args.water_center_prob))
+    full_training=ConcatDataset(trains)
+    weights=training_sample_weights(regions,args.lookback,
+                                    args.wet_sampler_boost,args.change_sampler_boost)
     candidates=[];best_weights=None;best_val=float("inf");best_seed=None
     research_weights=None;research_val=float("inf");research_seed=None
     baseline_votes=[]
     for seed in seeds:
         random.seed(seed);np.random.seed(seed);torch.manual_seed(seed)
         if torch.cuda.is_available():torch.cuda.manual_seed_all(seed)
-        net=MarshNetV3(base=args.base).to(device)
+        net=create_neural_challenger(args).to(device)
+        if args.wet_sampler_boost or args.change_sampler_boost:
+            generator=torch.Generator().manual_seed(seed)
+            sampler=WeightedRandomSampler(torch.as_tensor(weights,dtype=torch.double),
+                        num_samples=max(len(full_training)*2,2),replacement=True,generator=generator)
+            loader=DataLoader(full_training,batch_size=args.batch,sampler=sampler,num_workers=0)
+        else:
+            loader=DataLoader(full_training,batch_size=args.batch,shuffle=True,num_workers=0)
         optimizer=torch.optim.AdamW(net.parameters(),lr=args.lr,weight_decay=.01)
         patience=0;local_best=float("inf");local_state=None;local_epoch=0
         history=[]
@@ -232,7 +291,7 @@ def run(args):
                     # Skip without calling a loss that divides by zero.
                     continue
                 optimizer.zero_grad(set_to_none=True)
-                loss=masked_brier_bce(net(x,prior),y,mask)
+                loss=masked_brier_bce(net(x,prior),y,mask,pos_weight=args.wet_bce_ratio)
                 if not torch.isfinite(loss):raise RuntimeError("Nonfinite training loss")
                 loss.backward()
                 torch.nn.utils.clip_grad_norm_(net.parameters(),1.0);optimizer.step()
@@ -286,12 +345,13 @@ def run(args):
         if passed and score<best_val:
             best_val=score;best_weights=copy.deepcopy(local_state);best_seed=seed
     reference_name=min(baseline_votes,key=lambda item:item[1])[0]
-    chosen={"type":"Mash Plus V3" if best_weights else reference_name.upper()+"_BASELINE",
+    version="V4" if args.v4 or args.architecture=="smp-unet" else "V3"
+    chosen={"type":("Mash Plus "+version) if best_weights else reference_name.upper()+"_BASELINE",
             "selection_method":"validation only, no test score used",
             "seed":best_seed,"validation_challengers":candidates,
             "model_never_authorized_for_field_decisions":True}
     test_weights,test_weights_status=evaluation_checkpoint(best_weights,research_weights)
-    candidate_model=MarshNetV3(base=args.base).to(device)
+    candidate_model=create_neural_challenger(args).to(device)
     candidate_model.load_state_dict(test_weights);candidate_model.eval()
     evaluations=[]
     for name,region in [(f"train_aoi_{i}",r) for i,r in enumerate(regions)]+([("spatial_holdout",spatial)] if spatial else []):
@@ -309,8 +369,8 @@ def run(args):
         score["candidate_was_promoted"]=bool(best_weights)
         evaluations.append(score)
     out=Path(args.out);out.mkdir(parents=True,exist_ok=True)
-    torch.save({"state":research_weights,"architecture":"MarshNetV3",
-                "model_name":"Mash Plus","model_version":"V3",
+    torch.save({"state":research_weights,"architecture":args.architecture,
+                "model_name":"Mash Plus","model_version":version,
                "config":candidate_model.config,"mean":mean.tolist(),"std":std.tolist(),
                "lookback":args.lookback,"seed":research_seed,
                "passed_validation_gate":bool(best_weights is not None and best_seed==research_seed),
@@ -318,17 +378,25 @@ def run(args):
                "dataset_sha256":[r["sha"] for r in regions],"field_validated":False},
               out/"marshnet_v3_RESEARCH_ONLY.pt")
     if best_weights is not None:
-        torch.save({"state":best_weights,"architecture":"MarshNetV3",
-                    "model_name":"Mash Plus","model_version":"V3",
+        torch.save({"state":best_weights,"architecture":args.architecture,
+                    "model_name":"Mash Plus","model_version":version,
                     "config":candidate_model.config,"mean":mean.tolist(),"std":std.tolist(),
                     "lookback":args.lookback,"seed":best_seed,
                     "checkpoint_role":"validation-selected challenger (still RESEARCH_ONLY)",
                     "passed_validation_gate":True,"field_validated":False,
                     "dataset_sha256":[r["sha"] for r in regions]},
-                   out/"mash_plus_v3_validation_winner_RESEARCH_ONLY.pt")
-    report={"model_name":"Mash Plus","model_version":"V3",
+                   out/("mash_plus_"+version.lower()+"_validation_winner_RESEARCH_ONLY.pt"))
+    report={"model_name":"Mash Plus","model_version":version,
       "status":"SYNTHETIC TEST ONLY" if args.synthetic_smoke else "REAL SATELLITE PROXY / NO FIELD VALIDATION",
-      "architecture":"persistence-residual ConvGRU U-Net",
+      "architecture":args.architecture,
+      "training_method":{"sampler":"train_only_wet_and_transition_months" if (args.wet_sampler_boost or args.change_sampler_boost) else "uniform",
+                         "training_crop_size":args.crop_size,
+                         "water_center_prob":args.water_center_prob,
+                         "wet_bce_ratio":args.wet_bce_ratio,
+                         "wet_sampler_boost":args.wet_sampler_boost,
+                         "change_sampler_boost":args.change_sampler_boost,
+                         "encoder":args.encoder if args.architecture=="smp-unet" else None,
+                         "imagenet_pretrained":args.imagenet_pretrained if args.architecture=="smp-unet" else False},
       "normalization_fit":"training input months only",
       "data_provenance":[{"path":r["path"],"sha256":r["sha"],"manifest_sha256":r["manifest_sha"],"bbox":r["bbox"]} for r in regions],
       "spatial_test_provenance":{"path":spatial["path"],"sha256":spatial["sha"],"manifest_sha256":spatial["manifest_sha"],"bbox":spatial["bbox"]} if spatial else None,
@@ -370,6 +438,15 @@ def cli():
     p.add_argument("--base",type=int,default=16);p.add_argument("--lr",type=float,default=.00015)
     p.add_argument("--seeds",default="17,42,2026")
     p.add_argument("--min-wet-valid",type=int,default=25)
+    p.add_argument("--architecture",choices=("convgru","smp-unet"),default="convgru")
+    p.add_argument("--v4",action="store_true",help="V4 experiment identity, not field endorsement")
+    p.add_argument("--encoder",choices=("resnet18","resnet34"),default="resnet18")
+    p.add_argument("--imagenet-pretrained",action="store_true")
+    p.add_argument("--wet-bce-ratio",type=float,default=1.)
+    p.add_argument("--wet-sampler-boost",type=float,default=0.)
+    p.add_argument("--change-sampler-boost",type=float,default=0.)
+    p.add_argument("--crop-size",type=int,default=0)
+    p.add_argument("--water-center-prob",type=float,default=.75)
     p.add_argument("--min-relative-gain",type=float,default=.02)
     p.add_argument("--min-absolute-gain",type=float,default=.0005)
     p.add_argument("--min-f1-gain",type=float,default=.02)
