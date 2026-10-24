@@ -90,4 +90,31 @@ class DailyContinuationTests(unittest.TestCase):
                 self.assertTrue(torch.equal(param,latest["current_weights"][name]))
             self.assertTrue(latest["best_optimizer_state"] is not None)
 
+    def test_multiple_same_day_sessions_accumulate_measured_training_time(self):
+        # Synthetic smoke: verifies measured training-loop budget and true
+        # resumed optimizer, NOT 120 minutes of real Kaggle GPU allocation.
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d)
+            for i,area in enumerate(("hawizeh_train","central_train","sinnaf_train")):
+                smoke_data(root/"source_imagery"/area/"hawizeh_s2_monthly.npz",i)
+            def args(out,session,state=None):
+                return Namespace(data=root,out=out,state_in=state,v4_seed=None,
+                    epochs=4,target_train_minutes=.00001,batch=3,lookback=4,base=8,
+                    seed=17,lr=.0001,source_commit="synthetic-only",
+                    run_date="2026-10-25",session_id=session,
+                    synthetic_smoke=True,cpu=True)
+            first=run(args(root/"first","2026-10-25_0515"))
+            second=run(args(root/"second","2026-10-25_0915",
+                root/"first"/"daily_continuation_state.pt"))
+            self.assertTrue(first["target_reached"])
+            self.assertTrue(second["target_reached"])
+            self.assertEqual(first["epochs_this_session"],2)
+            self.assertEqual(second["epochs_this_session"],2)
+            self.assertEqual(second["session_index"],first["session_index"]+1)
+            self.assertGreater(second["today_training_loop_minutes"],
+                               first["today_training_loop_minutes"])
+            self.assertEqual(second["calendar_training_days"],1)
+            self.assertEqual(second["session_id"],"2026-10-25_0915")
+            self.assertEqual(second["epochs_completed"],4)
+
 if __name__=="__main__":unittest.main()
