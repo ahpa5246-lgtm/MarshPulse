@@ -96,6 +96,7 @@ export async function fitMarshNet(ds,{epochs=32,seed=42,learningRate=.012,report
   const baseline=metrics(holdout.map(r=>({p:r.baseline,y:r.y})));
   return {
     format:MARSHNET_FORMAT,
+    modelName:"Mash Plus",modelVersion:"M1",
     architecture:{kind:"MLP",inputs:["water_t","water_tminus1","neighbor_mean_t","sin_month","cos_month"],input:D,hidden:H,output:1,activation:"tanh/sigmoid"},
     weights:bestW,normalization:norm,
     training:{seed,requestedEpochs:epochs,completedEpochs:history.length,bestEpoch,learningRate,batchSize:192,trainSamples:training.length,validationSamples:validation.length,holdoutSamples:holdout.length,trainingEnd:ds.dates[validationStart],validationEnd:ds.dates[split-1],holdoutStart:ds.dates[split],holdoutEnd:ds.dates.at(-1),split:"chronological-with-internal-validation",history},
