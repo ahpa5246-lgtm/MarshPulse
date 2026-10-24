@@ -8,6 +8,11 @@ on:
         type: boolean
         default: false
         required: true
+  # One-time start requested by the project owner. Only changing this marker triggers GPU use.
+  push:
+    branches: [main]
+    paths:
+      - '.github/mash-plus-first-gpu-training.txt'
 
 permissions:
   contents: read
@@ -91,9 +96,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if [ "${{ inputs.run_training }}" = 'true' ]; then
-            kaggle kernels push -p "$RUNNER_TEMP_DIR/mash-plus-kaggle"
+          if [ "${{ github.event_name }}" = 'push' ] || [ "${{ inputs.run_training }}" = 'true' ]; then
+            kaggle kernels push -p "$RUNNER_TEMP_DIR/mash-plus-kaggle" --accelerator NvidiaTeslaT4
             echo 'Kaggle accepted the upload and a run was requested. Check Kaggle status and output before claiming successful training.'
+            echo 'Model: Mash Plus V3 | status: KAGGLE_GPU_REQUESTED_NOT_VALIDATED'
           else
             kaggle kernels push -p "$RUNNER_TEMP_DIR/mash-plus-kaggle" --no-run
             echo 'Kaggle notebook uploaded WITHOUT running cells or consuming GPU.'
