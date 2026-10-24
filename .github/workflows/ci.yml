@@ -21,24 +21,26 @@ jobs:
           node --check src/floating-nav.mjs
           node --check earth-engine/export_monthly_grid.js
           python3 -m py_compile ml/train.py
-          python3 -m py_compile ml/collect_sentinel.py ml/train_satellite.py ml/marshnet_v2.py ml/quality_gate.py ml/monitor_wetland.py ml/calibration.py ml/train_v3.py ml/marshnet_v3.py ml/judge_readiness.py
+          python3 -m py_compile ml/collect_sentinel.py ml/train_satellite.py ml/marshnet_v2.py ml/quality_gate.py ml/monitor_wetland.py ml/calibration.py ml/train_v3.py ml/marshnet_v3.py ml/judge_readiness.py ml/mash_plus_smp.py ml/landsat_crosscheck.py ml/prepare_field_review.py
           python3 - <<'PY'
           import json
           n=json.load(open("kaggle/marshnet_v2_hawizeh.ipynb"))
           v=json.load(open("kaggle/MarshPulse_V3_GeoHoldout_GPU.ipynb"))
-          assert n["nbformat"] == v["nbformat"] == 4
-          assert len(n["cells"]) >= 10 and len(v["cells"]) >= 12
+          v4=json.load(open("kaggle/Mash_Plus_V4_Independent_Dalmaj_GPU.ipynb"))
+          assert n["nbformat"] == v["nbformat"] == v4["nbformat"] == 4
+          assert len(n["cells"]) >= 10 and len(v["cells"]) >= 12 and len(v4["cells"]) >= 15
           import ast
-          for number, cell in enumerate(v["cells"]):
-              if cell["cell_type"] != "code":
-                  continue
-              source = "".join(cell["source"])
-              stripped = "\n".join(line for line in source.splitlines()
-                                  if not line.lstrip().startswith(("%", "!")))
-              try:
-                  ast.parse(stripped, filename=f"V3 Kaggle notebook cell {number}")
-              except SyntaxError as exc:
-                  raise AssertionError(f"Invalid executable notebook cell {number}") from exc
+          for study in (v,v4):
+           for number, cell in enumerate(study["cells"]):
+               if cell["cell_type"] != "code":
+                   continue
+               source = "".join(cell["source"])
+               stripped = "\n".join(line for line in source.splitlines()
+                                   if not line.lstrip().startswith(("%", "!")))
+               try:
+                   ast.parse(stripped, filename=f"Kaggle notebook cell {number}")
+               except SyntaxError as exc:
+                   raise AssertionError(f"Invalid executable notebook cell {number}") from exc
           PY
       - name: Reproducible unit tests
         run: node --test tests/*.test.mjs
@@ -60,6 +62,7 @@ jobs:
         run: |
           python -m pip install -q "numpy>=1.26,<3"
           python -m pip install -q torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -q "segmentation-models-pytorch>=0.4,<1"
       - name: End-to-end synthetic fixture (NEVER real scientific evidence)
         run: |
           python ml/train_satellite.py --synthetic-smoke \
@@ -68,6 +71,9 @@ jobs:
             --base 8 --epochs 2 --batch 2 --lookback 4 --cpu
           python -m unittest discover -s tests -p 'test_v3.py' -v
           python -m unittest discover -s tests -p 'test_judge_readiness.py' -v
+          python -m unittest discover -s tests -p 'test_landsat_crosscheck.py' -v
+          python -m unittest discover -s tests -p 'test_field_review.py' -v
+          python -m unittest discover -s tests -p 'test_v4_smp.py' -v
           python ml/train_v3.py --synthetic-smoke \
             --train-input /tmp/marshpulse-v3/fixture.npz \
             --spatial-test-input /tmp/marshpulse-v3/spatial-fixture.npz \
