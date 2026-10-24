@@ -1,0 +1,50 @@
+name: Diagnose Kaggle private daily dataset mounting
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/mash-plus-dataset-diagnostic.txt'
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Kaggle CLI
+        run: python -m pip install -q 'kaggle==2.2.5'
+      - name: Inspect authorized Kaggle dataset listing and notebook metadata without secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo '=== Private dataset listing ==='
+          kaggle datasets list --mine -v | grep -i 'mash-plus' || true
+          echo '=== Exact dataset files and access ==='
+          kaggle datasets files minahussain111/mash-plus-daily-state -v || true
+          echo '=== Kaggle notebook source metadata ==='
+          mkdir -p "$RUNNER_TEMP/pulled"
+          kaggle kernels pull minahussain111/mash-plus-daily-trainer \
+            -p "$RUNNER_TEMP/pulled" -m
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          path=Path(os.environ["RUNNER_TEMP"])/"pulled"/"kernel-metadata.json"
+          data=json.loads(path.read_text())
+          for key in ("id","id_no","code_file","dataset_sources","kernel_sources","enable_gpu","enable_internet","is_private"):
+              print(key,data.get(key))
+          PY
+          echo '=== Direct Kaggle dataset file download without exposing secrets ==='
+          mkdir -p "$RUNNER_TEMP/data"
+          kaggle datasets download minahussain111/mash-plus-daily-state \
+            -p "$RUNNER_TEMP/data" -f Mash_Plus_Daily_State.zip || true
+          find "$RUNNER_TEMP/data" -maxdepth 2 -type f -printf '%f %s bytes\n'
