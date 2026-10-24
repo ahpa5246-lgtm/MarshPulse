@@ -62,9 +62,17 @@ def monthly(items,grid,n):
     sum_=np.zeros((4,grid["height"],grid["width"]),np.float32)
     count=np.zeros((grid["height"],grid["width"]),np.float32)
     used=[];failures=[]
-    for item in items[:n]:
+    # If the cloud-preferred source fails, try other REAL scenes before declaring
+    # the month missing. Never invent imagery or replace observed pixels.
+    for item in items[:max(n*5,n)]:
+        if len(used)>=n:break
         try:values,valid=scene(item,grid)
-        except Exception as e:failures.append({"item":item.id,"error_type":type(e).__name__});continue
+        except Exception as e:
+            failures.append({"item":item.id,"error_type":type(e).__name__})
+            continue
+        if not valid.any():
+            failures.append({"item":item.id,"error_type":"ZERO_CLEAR_PIXELS"})
+            continue
         sum_+=values*valid[None];count+=valid
         used.append({"item":item.id,"acquired":item.datetime.isoformat(),"cloud_cover":item.properties.get("eo:cloud_cover")})
     out=np.zeros((7,grid["height"],grid["width"]),np.float32)
@@ -81,9 +89,12 @@ def main():
     p.add_argument("--start",default="2023-01");p.add_argument("--end",default="2025-12")
     p.add_argument("--pixels",type=int,default=96);p.add_argument("--max-scenes",type=int,default=2)
     p.add_argument("--cloud",type=float,default=80);p.add_argument("--min-coverage",type=float,default=.2)
+    p.add_argument("--area-label",default="Unspecified study-area pilot, not official wetland boundary")
     p.add_argument("--out",type=Path,default=Path("/kaggle/working/marshpulse/sentinel"))
     args=p.parse_args()
     if args.pixels%4 or not 32<=args.pixels<=256:raise ValueError("pixels must be divisible by 4 in [32,256]")
+    if not (1<=args.max_scenes<=6):raise ValueError("max-scenes must be 1..6")
+    if not (0<args.min_coverage<=1):raise ValueError("min-coverage must be in (0,1]")
     if not (args.bbox[0]<args.bbox[2] and args.bbox[1]<args.bbox[3]):raise ValueError("Invalid AOI bbox")
     months=keys(args.start,args.end)
     if len(months)<24:raise ValueError("At least 24 months required")
@@ -101,7 +112,7 @@ def main():
     args.out.mkdir(parents=True,exist_ok=True)
     np.savez_compressed(args.out/"hawizeh_s2_monthly.npz",x=np.stack(images),dates=np.asarray(months),bands=np.asarray(FEATURES))
     provenance={"source":"REAL ESA Sentinel-2 L2A via Microsoft Planetary Computer",
-                "location":"Hawizeh approximate pilot rectangle, NOT official Ramsar boundary",
+                "location":args.area_label,
                 "bbox_lonlat":args.bbox,"epsg":grid["crs"],"pixel_size_m":grid["resolution_m"],
                 "months":records,"errors":errors,"bands":FEATURES,
                 "labels":"UNVERIFIED water proxies from threshold MNDWI>0.1 & NDVI<0.3",
