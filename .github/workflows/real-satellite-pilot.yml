@@ -61,6 +61,15 @@ jobs:
             --out /tmp/marshpulse-training \
             --base 16 --lookback 4 --epochs 16 --patience 6 \
             --batch 2 --min-valid 0.20 --cpu
+      - name: Independently replay actual predictions, observed masks and benchmarks
+        run: |
+          python ml/verify_experiment.py \
+            --data /tmp/marshpulse-sentinel/hawizeh_s2_monthly.npz \
+            --manifest /tmp/marshpulse-sentinel/satellite_manifest.json \
+            --evaluation /tmp/marshpulse-training/evaluation.json \
+            --predictions /tmp/marshpulse-training/test_predictions.npz \
+            --monitor /tmp/marshpulse-monitor/water_monitor.json \
+            --out /tmp/marshpulse-training/independent-verification.json
       - name: Preserve real-data audit, metrics, model and scene provenance
         if: always()
         uses: actions/upload-artifact@v4
@@ -75,5 +84,6 @@ jobs:
             /tmp/marshpulse-training/evaluation.json
             /tmp/marshpulse-training/marshnet_v2.pt
             /tmp/marshpulse-training/test_predictions.npz
+            /tmp/marshpulse-training/independent-verification.json
           if-no-files-found: warn
           retention-days: 90
