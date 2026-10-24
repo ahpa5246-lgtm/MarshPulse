@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""MarshNet V3 challenger / baseline champion-selection on real satellite data.
+"""Mash Plus V3 challenger / baseline champion-selection on real satellite data.
 
 Comparable observed-pixel scores. Chronological model selection, entire-region
 spatial holdout, immutable SHA, deterministic seeds. No test-set tuning.
@@ -278,7 +278,7 @@ def run(args):
         if passed and score<best_val:
             best_val=score;best_weights=copy.deepcopy(local_state);best_seed=seed
     reference_name=min(baseline_votes,key=lambda item:item[1])[0]
-    chosen={"type":"MarshNetV3" if best_weights else reference_name.upper()+"_BASELINE",
+    chosen={"type":"Mash Plus V3" if best_weights else reference_name.upper()+"_BASELINE",
             "selection_method":"validation only, no test score used",
             "seed":best_seed,"validation_challengers":candidates,
             "model_never_authorized_for_field_decisions":True}
@@ -301,12 +301,14 @@ def run(args):
         evaluations.append(score)
     out=Path(args.out);out.mkdir(parents=True,exist_ok=True)
     torch.save({"state":research_weights,"architecture":"MarshNetV3",
+                "model_name":"Mash Plus","model_version":"V3",
                "config":candidate_model.config,"mean":mean.tolist(),"std":std.tolist(),
                "lookback":args.lookback,"seed":research_seed,
                "passed_validation_gate":bool(best_weights),
                "dataset_sha256":[r["sha"] for r in regions],"field_validated":False},
               out/"marshnet_v3_RESEARCH_ONLY.pt")
-    report={"status":"SYNTHETIC TEST ONLY" if args.synthetic_smoke else "REAL SATELLITE PROXY / NO FIELD VALIDATION",
+    report={"model_name":"Mash Plus","model_version":"V3",
+      "status":"SYNTHETIC TEST ONLY" if args.synthetic_smoke else "REAL SATELLITE PROXY / NO FIELD VALIDATION",
       "architecture":"persistence-residual ConvGRU U-Net",
       "normalization_fit":"training input months only",
       "data_provenance":[{"path":r["path"],"sha256":r["sha"],"manifest_sha256":r["manifest_sha"],"bbox":r["bbox"]} for r in regions],
@@ -342,7 +344,7 @@ def cli():
     p=argparse.ArgumentParser()
     p.add_argument("--train-input",type=Path,action="append",required=True)
     p.add_argument("--spatial-test-input",type=Path)
-    p.add_argument("--out",type=Path,default=Path("/kaggle/working/marshpulse-v3"))
+    p.add_argument("--out",type=Path,default=Path("/kaggle/working/mash-plus-v3"))
     p.add_argument("--epochs",type=int,default=24);p.add_argument("--patience",type=int,default=6)
     p.add_argument("--batch",type=int,default=2);p.add_argument("--lookback",type=int,default=4)
     p.add_argument("--base",type=int,default=16);p.add_argument("--lr",type=float,default=.00015)
