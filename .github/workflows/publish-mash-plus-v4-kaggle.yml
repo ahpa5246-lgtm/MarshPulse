@@ -72,7 +72,7 @@ jobs:
               raise RuntimeError("Kaggle did not resolve an authenticated account")
           if placeholder!="INSERT_KERNEL_SLUG_HERE":
               raise RuntimeError("Unexpected metadata template; refusing to use another kernel")
-          ref=f"{owner}/mash-plus-v4-dalmaj-research"
+          ref=f"{owner}/mash-plus-v4-independent-dalmaj"
           metadata.update({
               "id":ref,
               "title":"Mash Plus V4 Independent Dalmaj",
