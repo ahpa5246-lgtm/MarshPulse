@@ -1,0 +1,6 @@
+Mash Plus V3 — user-authorized first Kaggle GPU training request
+requested: 2026-10-24
+target: private Kaggle notebook, satellite-image training and sealed spatial holdout
+accelerator: NvidiaTeslaT4 (subject to Kaggle account quota/availability)
+verification: never confuse successful GitHub upload with completed Kaggle training
+field_status: RESEARCH_ONLY until independent labels, reproducibility, external expert review
