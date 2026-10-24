@@ -64,3 +64,28 @@ def masked_brier_bce(logits,labels,observed,bce_weight=.20,pos_weight=1.0):
 def masked_brier(probs,labels,mask):
     if mask.sum()==0:raise ValueError("No valid pixels")
     return (((probs-labels)**2)*mask).sum()/mask.sum()
+
+def masked_change_brier(logits, labels, observed, prior, history_last_valid,
+                        strength=.20):
+    """Bounded event-only auxiliary penalty from TRAIN past + TRAIN target.
+
+    Keeps the ordinary proper-scoring objective primary. This term adds a
+    learning signal on observed wet↔dry transitions that persistence misses,
+    without touching validation or final test labels. The objective is not
+    independently a calibrated probability scoring rule: validate Brier on
+    natural-prevalence scenes before accepting a new checkpoint.
+    """
+    if logits.shape!=labels.shape or logits.shape!=observed.shape:
+        raise ValueError("Prediction, target and observed masks must align")
+    if prior.shape!=logits.shape or history_last_valid.shape!=logits.shape:
+        raise ValueError("Prior/previous-observation mask must align")
+    if not 0<=float(strength)<=1:
+        raise ValueError("Invalid transition objective weight")
+    if not torch.isfinite(logits).all() or not torch.isfinite(labels).all():
+        raise ValueError("Nonfinite transition inputs")
+    valid=(observed>.5)&(history_last_valid>.5)&(prior!=.5)
+    change=valid&((prior>=.5)!=(labels>=.5))
+    if not change.any() or strength==0:
+        return logits.sum()*0.
+    loss=(torch.sigmoid(logits)-labels).square()
+    return float(strength)*loss[change].mean()
