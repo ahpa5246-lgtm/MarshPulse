@@ -14,7 +14,7 @@ def keys(start,end):
     """Inclusive, bounded monthly range. Invalid input must never loop forever."""
     import re
     for date in (start,end):
-        if not re.fullmatch(r"\\d{4}-(0[1-9]|1[0-2])",date):
+        if not re.fullmatch(r"\d{4}-(0[1-9]|1[0-2])",date):
             raise ValueError("Dates must be YYYY-MM with month 01–12")
     if start>end:
         raise ValueError("Start month must precede end month")
