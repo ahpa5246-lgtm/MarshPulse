@@ -7,6 +7,7 @@ with personal credentials or let Kaggle re-train over its sealed test sets.
 """
 from __future__ import annotations
 import argparse,datetime as dt,json,os,re,shutil,subprocess,sys,tempfile,zipfile
+from zoneinfo import ZoneInfo
 from pathlib import Path
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/"ml"))
@@ -17,6 +18,9 @@ DATASET=f"{USER}/mash-plus-daily-state"
 SOURCE=f"{USER}/mash-plus-v4-independent-dalmaj"
 START=dt.date(2026,10,24)
 END=dt.date(2026,11,15)
+BAGHDAD=ZoneInfo("Asia/Baghdad")
+SLOTS={"15 2 * * *":"05:15","15 6 * * *":"09:15",
+       "15 10 * * *":"13:15","15 14 * * *":"17:15"}
 
 def execute(*args,optional=False):
     cmd=["kaggle",*map(str,args)]
@@ -72,14 +76,17 @@ def publish_dataset(state_zip,workspace,exists,day):
     print("PRIVATE_KAGGLE_DATASET_UPLOAD_ACCEPTED",DATASET,
           "Kaggle notebook must verify that the private input is mounted.",flush=True)
 
-def prepare_kernel(work):
+def prepare_kernel(work,session_id,run_date):
     stage=Path(work)/"private-kernel";stage.mkdir(exist_ok=True,parents=True)
     src=Path("kaggle/Mash_Plus_Daily_Trainer.ipynb")
     data=json.loads(src.read_text(encoding="utf8"))
     if data.get("nbformat")!=4 or len(data.get("cells",[]))<8:
         raise ValueError("Invalid canonical daily Kaggle notebook")
     name="Mash_Plus_Daily_Trainer.ipynb"
-    shutil.copyfile(src,stage/name)
+    # Stamp the original GitHub request rather than guessing from queued Kaggle start time.
+    bootstrap=data["cells"][1]
+    bootstrap["source"]+=["\n",f"RUN_ID={session_id!r}\n",f"RUN_DATE={run_date!r}\n"]
+    (stage/name).write_text(json.dumps(data,ensure_ascii=False,indent=1)+"\n")
     execute("kernels","init","-p",str(stage))
     metadata_path=stage/"kernel-metadata.json"
     metadata=json.loads(metadata_path.read_text(encoding="utf8"))
