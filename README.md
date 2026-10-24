@@ -23,6 +23,14 @@ The website is still a research prototype: synthetic default data and theoretica
 
 ---
 
+## MarshNet V3 — genuine Kaggle GPU research workflow
+
+**[One Kaggle notebook: MarshPulse V3 Geo-Holdout GPU](kaggle/MarshPulse_V3_GeoHoldout_GPU.ipynb)**. This is an implemented challenger, not a certified replacement for MarshNet V2. It includes actual Sentinel-2 collection from two training pilot areas and an independently held-out third pilot area, a persistence-residual ConvGRU architecture, three independent seeded trainings, chronological validation, and strict **hard/soft persistence plus annual seasonality** comparisons. Promotion requires meaningful validation improvement over ALL simple baselines; failed neural candidates remain labeled RESEARCH ONLY.
+
+A Kaggle account with accelerator GPU and Internet access is needed to execute. GitHub access does not provide Kaggle GPU execution. This does not validate the proxy labels against independent field observations or turn the mathematical pixel-connectivity game into a hydraulic model. See [reproducibility and limitations](ml/KAGGLE.md) and [real CPU V3 check](.github/workflows/v3-real-challenge.yml).
+
+---
+
 ## Scientific core upgrade (October 24, 2026) — real data first
 
 **The previous real-pilot V2 model failed to beat persistence. It is not reliable or safe for water allocation, drought warnings or restoration decisions.** We have therefore implemented a reproducible, conservative improvement path rather than advertising artificial accuracy:
