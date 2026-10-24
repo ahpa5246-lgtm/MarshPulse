@@ -61,4 +61,33 @@ class DailyContinuationTests(unittest.TestCase):
             self.assertTrue(checkpoint["optimizer_state"]["state"])
             self.assertFalse(second["can_claim_generalization"])
 
+
+    def test_three_stagnant_days_roll_back_same_best_epoch_weights(self):
+        # Synthetic data and a deliberately impossible saved best Brier
+        # force the rollback branch, rather than assuming random training loss.
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d)
+            for i,area in enumerate(("hawizeh_train","central_train","sinnaf_train")):
+                smoke_data(root/"source_imagery"/area/"hawizeh_s2_monthly.npz",i)
+            def args(out,existing=None):
+                return Namespace(data=root,out=out,state_in=existing,v4_seed=None,
+                       epochs=1,batch=3,lookback=4,base=8,seed=17,
+                       lr=.0001,source_commit="synthetic-only",
+                       run_date="2026-10-24",synthetic_smoke=True,cpu=True)
+            run(args(root/"first"))
+            state_path=root/"first"/"daily_continuation_state.pt"
+            state=torch.load(state_path,weights_only=True)
+            state["days_without_improvement"]=2
+            state["best_validation_brier"]=0.0
+            assert state["best_optimizer_state"] is not None
+            torch.save(state,state_path)
+            report=run(args(root/"rollback",state_path))
+            self.assertTrue(report["rollback_to_validation_best"])
+            self.assertFalse(report["optimizer_reset_on_legacy_rollback"])
+            latest=torch.load(root/"rollback"/"daily_continuation_state.pt",weights_only=True)
+            self.assertEqual(latest["days_without_improvement"],3)
+            for name,param in latest["best_weights"].items():
+                self.assertTrue(torch.equal(param,latest["current_weights"][name]))
+            self.assertTrue(latest["best_optimizer_state"] is not None)
+
 if __name__=="__main__":unittest.main()
