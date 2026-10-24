@@ -7,6 +7,8 @@ test("MarshNet trains reproducibly with a chronological holdout",async()=>{
   const first=await fitMarshNet(ds,{epochs:5,seed:17});
   const second=await fitMarshNet(ds,{epochs:5,seed:17});
   assert.ok(validateMarshNet(first));
+  assert.equal(first.modelName,"Mash Plus");
+  assert.equal(first.modelVersion,"M1");
   assert.deepEqual(first.weights,second.weights);
   assert.ok(first.training.holdoutStart>first.training.validationEnd);
   assert.ok(first.training.validationEnd>=first.training.trainingEnd);
