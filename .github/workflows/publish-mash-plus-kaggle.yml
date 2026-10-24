@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       run_training:
-        description: 'Start Kaggle GPU execution after publishing (can consume GPU quota)'
+        description: 'Run V3 on Kaggle GPU after upload (uses Kaggle quota)'
         type: boolean
         default: false
         required: true
@@ -17,57 +17,84 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
-      KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
+      # Kaggle personal access token (KGAT_...), stored only in this repo's secret.
+      # The official CLI introspects the token to discover the account username.
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Verify Kaggle account credentials are configured for this repository
+      - name: Check that this repository has a Kaggle personal access token
+        shell: bash
         run: |
-          if [ -z "$KAGGLE_USERNAME" ] || [ -z "$KAGGLE_KEY" ]; then
-            echo 'Kaggle not connected to this repository. Add KAGGLE_USERNAME and KAGGLE_KEY to Settings > Secrets and variables > Actions.' >&2
+          if [ -z "$KAGGLE_API_TOKEN" ]; then
+            echo 'No KAGGLE secret in this repository. Add it under Settings > Secrets and variables > Actions (or grant access via an organization secret).' >&2
             exit 1
           fi
-      - name: Install official Kaggle CLI
-        run: python -m pip install --disable-pip-version-check 'kaggle>=1.7,<3'
-      - name: Package the actual Mash Plus V3 research notebook
+          case "$KAGGLE_API_TOKEN" in
+            KGAT_*) echo 'New Kaggle API token detected (value suppressed).' ;;
+            *) echo 'The KAGGLE secret is not a KGAT_ personal access token. Check token type without exposing its value.' >&2; exit 1 ;;
+          esac
+      - name: Install the official Kaggle CLI with token support
+        run: python -m pip install --disable-pip-version-check 'kaggle>=2.2,<3'
+      - name: Prepare private Kaggle notebook using authenticated owner
         env:
           RUNNER_TEMP_DIR: ${{ runner.temp }}
-        run: |
-          python - <<'PY'
-          import json,os,shutil
-          from pathlib import Path
-          source=Path('kaggle/MarshPulse_V3_GeoHoldout_GPU.ipynb')
-          notebook=json.loads(source.read_text(encoding='utf8'))
-          assert notebook['nbformat']==4 and len(notebook['cells'])>=12
-          assert 'Mash Plus' in ''.join(notebook['cells'][0]['source'])
-          target=Path(os.environ['RUNNER_TEMP_DIR'])/'mash-plus-kaggle'
-          target.mkdir(parents=True,exist_ok=True)
-          name='MashPlus_V3_GeoHoldout_GPU.ipynb'
-          shutil.copyfile(source,target/name)
-          metadata={
-              'id':os.environ['KAGGLE_USERNAME']+'/mash-plus-v3-geo-holdout',
-              'title':'Mash Plus V3 Geo-Holdout',
-              'code_file':name,'language':'python','kernel_type':'notebook',
-              'is_private':'true','enable_gpu':'true','enable_internet':'true',
-              'dataset_sources':[],'competition_sources':[],'kernel_sources':[],
-              'model_sources':[]
-          }
-          (target/'kernel-metadata.json').write_text(json.dumps(metadata,indent=2),encoding='utf8')
-          print('Prepared private Kaggle notebook:',metadata['id'])
-          PY
-      - name: Push notebook to Kaggle (do not imply successful training)
-        env:
-          RUNNER_TEMP_DIR: ${{ runner.temp }}
+        shell: bash
         run: |
           set -euo pipefail
-          if [ '${{ inputs.run_training }}' = 'true' ]; then
+          TARGET="$RUNNER_TEMP_DIR/mash-plus-kaggle"
+          mkdir -p "$TARGET"
+          # Authenticates using KAGGLE_API_TOKEN, generates the correct Kaggle owner.
+          kaggle kernels init -p "$TARGET"
+          python - <<'PY'
+          import json,os,re,shutil
+          from pathlib import Path
+          source=Path("kaggle/MarshPulse_V3_GeoHoldout_GPU.ipynb")
+          notebook=json.loads(source.read_text(encoding="utf8"))
+          if notebook.get("nbformat")!=4 or len(notebook.get("cells",[]))<12:
+              raise RuntimeError("V3 Kaggle notebook is incomplete")
+          if "Mash Plus" not in "".join(notebook["cells"][0]["source"]):
+              raise RuntimeError("Wrong notebook supplied for Mash Plus")
+          target=Path(os.environ["RUNNER_TEMP_DIR"])/"mash-plus-kaggle"
+          name="MashPlus_V3_GeoHoldout_GPU.ipynb"
+          shutil.copyfile(source,target/name)
+          metadata_file=target/"kernel-metadata.json"
+          metadata=json.loads(metadata_file.read_text(encoding="utf8"))
+          owner,separator,placeholder=metadata.get("id","").partition("/")
+          if not separator or not re.fullmatch(r"[A-Za-z0-9_-]+",owner):
+              raise RuntimeError("Kaggle did not resolve an authenticated account")
+          if placeholder!="INSERT_KERNEL_SLUG_HERE":
+              raise RuntimeError("Unexpected metadata template; refusing to use another kernel")
+          ref=f"{owner}/mash-plus-v3-geo-holdout"
+          metadata.update({
+              "id":ref,
+              "title":"Mash Plus V3 Geo-Holdout",
+              "code_file":name,
+              "language":"python",
+              "kernel_type":"notebook",
+              "is_private":"true",
+              "enable_gpu":"true",
+              "enable_internet":"true",
+              "dataset_sources":[],
+              "competition_sources":[],
+              "kernel_sources":[],
+              "model_sources":[]
+          })
+          metadata_file.write_text(json.dumps(metadata,indent=2),encoding="utf8")
+          print("PRIVATE_NOTEBOOK:",f"https://www.kaggle.com/code/{ref}")
+          PY
+      - name: Sync Kaggle notebook
+        env:
+          RUNNER_TEMP_DIR: ${{ runner.temp }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ inputs.run_training }}" = 'true' ]; then
             kaggle kernels push -p "$RUNNER_TEMP_DIR/mash-plus-kaggle"
-            echo 'Kaggle upload accepted; inspect the Kaggle run log for training outcome.'
+            echo 'Kaggle accepted the upload and a run was requested. Check Kaggle status and output before claiming successful training.'
           else
             kaggle kernels push -p "$RUNNER_TEMP_DIR/mash-plus-kaggle" --no-run
-            echo 'Kaggle notebook version uploaded WITHOUT training execution.'
+            echo 'Kaggle notebook uploaded WITHOUT running cells or consuming GPU.'
           fi
-          echo "Kaggle notebook URL: https://www.kaggle.com/code/$KAGGLE_USERNAME/mash-plus-v3-geo-holdout"
