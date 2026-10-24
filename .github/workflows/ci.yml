@@ -21,7 +21,7 @@ jobs:
           node --check src/floating-nav.mjs
           node --check earth-engine/export_monthly_grid.js
           python3 -m py_compile ml/train.py
-          python3 -m py_compile ml/collect_sentinel.py ml/train_satellite.py ml/marshnet_v2.py ml/quality_gate.py ml/monitor_wetland.py ml/calibration.py ml/train_v3.py ml/marshnet_v3.py ml/judge_readiness.py ml/mash_plus_smp.py ml/landsat_crosscheck.py ml/prepare_field_review.py ml/daily_train.py ml/daily_bundle.py ml/change_diagnostics.py ml/paired_evidence.py scripts/mash_plus_daily_bridge.py
+          python3 -m py_compile ml/collect_sentinel.py ml/train_satellite.py ml/marshnet_v2.py ml/quality_gate.py ml/monitor_wetland.py ml/calibration.py ml/train_v3.py ml/marshnet_v3.py ml/judge_readiness.py ml/mash_plus_smp.py ml/landsat_crosscheck.py ml/prepare_field_review.py ml/daily_train.py ml/daily_bundle.py ml/change_diagnostics.py ml/paired_evidence.py ml/nasa_power_context.py scripts/mash_plus_daily_bridge.py
           python3 - <<'PY'
           import json
           n=json.load(open("kaggle/marshnet_v2_hawizeh.ipynb"))
@@ -79,6 +79,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_change_diagnostics.py' -v
           python -m unittest discover -s tests -p 'test_transition_training.py' -v
           python -m unittest discover -s tests -p 'test_paired_evidence.py' -v
+          python -m unittest discover -s tests -p 'test_nasa_power_context.py' -v
           python ml/train_v3.py --synthetic-smoke \
             --train-input /tmp/marshpulse-v3/fixture.npz \
             --spatial-test-input /tmp/marshpulse-v3/spatial-fixture.npz \
