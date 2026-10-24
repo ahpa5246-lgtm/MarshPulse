@@ -50,7 +50,7 @@ class DailyContinuationTests(unittest.TestCase):
             def args(out,existing=None):
                 return Namespace(data=root,out=out,state_in=existing,v4_seed=None,
                        epochs=1,batch=3,lookback=4,base=8,seed=17,
-                       lr=.0001,source_commit="unit-test-only",synthetic_smoke=True,cpu=True)
+                       lr=.0001,source_commit="unit-test-only",run_date="2026-10-24",synthetic_smoke=True,cpu=True)
             first=run(args(root/"day1"))
             second=run(args(root/"day2",root/"day1"/"daily_continuation_state.pt"))
             self.assertEqual(first["epochs_completed"],1)
