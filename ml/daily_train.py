@@ -14,6 +14,7 @@ from torch.utils.data import DataLoader,ConcatDataset,WeightedRandomSampler
 from marshnet_v3 import MarshNetV3,masked_brier_bce,masked_change_brier
 from train_v3 import load_region,split,stats,History,val_score,aggregate_f1,training_sample_weights,predict
 from change_diagnostics import transition_validation_report,aggregate_transition_reports
+from paired_evidence import monthly_paired_brier_evidence
 
 REGIONS=("hawizeh_train","central_train","sinnaf_train")
 def digest(path):
@@ -156,6 +157,7 @@ def run(args):
         validation_events[name]=transition_validation_report(
             region["x"],region["dates"],validation_months,probabilities)
     change_summary=aggregate_transition_reports(validation_events)
+    paired_brier_evidence=monthly_paired_brier_evidence(validation_events)
     last=history[-1]
     state={"protocol":"mash-plus-daily-v1","model_name":"Mash Plus",
            "field_validated":False,"operationally_reliable":False,
@@ -180,6 +182,7 @@ def run(args):
             "best_validation_wet_f1":best_f1,
             "training_objective":"brier+weighted_bce+0.20_train_transition_brier",
             "confidence_masks_train_only":{"MNDWI":0.025,"NDVI":0.025},
+            "paired_monthly_brier_evidence":paired_brier_evidence,
             "validation_change_diagnostics":{"aggregate":change_summary,
                                              "by_region":validation_events},
             "best_promoted_for_field_use":False,
