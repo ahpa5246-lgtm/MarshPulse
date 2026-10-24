@@ -49,14 +49,16 @@ class MarshNetV3(nn.Module):
         delta=6*torch.tanh(self.backbone(normalized_history)/6)
         return logits+self.residual_gain*delta
 
-def masked_brier_bce(logits,labels,observed,bce_weight=.20):
+def masked_brier_bce(logits,labels,observed,bce_weight=.20,pos_weight=1.0):
     """Proper scoring rule with optional modest BCE; do not overweight rare wet."""
     mask=observed.float()
     n=mask.sum()
     if n<1:raise ValueError("No valid observed targets in batch")
     prob=torch.sigmoid(logits)
     brier=(((prob-labels)**2)*mask).sum()/n
-    bce=(F.binary_cross_entropy_with_logits(logits,labels,reduction="none")*mask).sum()/n
+    if not 1.0<=float(pos_weight)<=32.0:raise ValueError("Positive class BCE weight outside [1,32]")
+    positive_weight=torch.as_tensor(pos_weight,dtype=logits.dtype,device=logits.device)
+    bce=(F.binary_cross_entropy_with_logits(logits,labels,reduction="none",pos_weight=positive_weight)*mask).sum()/n
     return brier+bce_weight*bce
 
 def masked_brier(probs,labels,mask):
