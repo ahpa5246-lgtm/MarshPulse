@@ -1,5 +1,5 @@
 import {demoData,parseCSV} from "./engine.mjs";
-import {fitMash Plus,validateMash Plus} from "./marshnet.mjs";
+import {fitMarshNet,validateMarshNet} from "./marshnet.mjs";
 const by=id=>document.getElementById(id);
 const choice=by("dataset-choice"),fileField=by("file-field"),status=by("training-status");
 let latest=null;
@@ -20,10 +20,10 @@ by("train-model").addEventListener("click",async()=>{
     }
     status.textContent="يجري تحضير البيانات وتوحيد السمات اعتمادًا على فترة التدريب فقط…";
     await new Promise(resolve=>setTimeout(resolve,20));
-    const model=await fitMash Plus(dataset,{seed,epochs,reportProgress:p=>{
+    const model=await fitMarshNet(dataset,{seed,epochs,reportProgress:p=>{
       status.textContent="التدريب: الدورة "+p.epoch+" / "+epochs+" | خطأ التحقق "+p.validationBrier.toFixed(4);
     }});
-    validateMash Plus(model);latest=model;
+    validateMarshNet(model);latest=model;
     const net=model.evaluation.model,base=model.evaluation.persistence;
     by("net-brier").textContent=num(net.brier);
     by("base-brier").textContent=num(base.brier);
