@@ -3,3 +3,4 @@ Date: 2026-10-24.
 Do not launch another GPU version.
 Verify Kaggle actual status and persisted model+optimizer checkpoint.
 retry-audit-2026-10-24: verify auto-extracted Kaggle input fix executed, check state zip
+audit2: check real first complete checkpoint after corrected input mount; no new GPU run
