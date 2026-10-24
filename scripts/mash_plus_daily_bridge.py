@@ -30,8 +30,14 @@ def execute(*args,optional=False):
     return proc.stdout+"\n"+proc.stderr
 
 def version_status():
-    status=execute("kernels","status",KERNEL,optional=True)
-    if status is None:return "ABSENT"
+    # Private notebooks that do not exist yet may yield 403 rather than 404.
+    # Verify the owner's authenticated notebook listing before treating this
+    # as a first run; an existing inaccessible kernel must remain an error.
+    listing=execute("kernels","list","--mine","--page","1","--csv")
+    if KERNEL.split("/",1)[1] not in (listing or "").lower():
+        return "ABSENT"
+    status=execute("kernels","status",KERNEL)
+    if status is None:raise RuntimeError("Owned Kaggle kernel listed but status unavailable")
     for flag in ("COMPLETE","ERROR","CANCELLED","RUNNING","QUEUED","PENDING"):
         if f"KernelWorkerStatus.{flag}" in status:return flag
     raise RuntimeError("Unknown Kaggle daily kernel status: "+status[-500:])
@@ -109,7 +115,10 @@ def run(today,work):
         return "SKIP_RUNNING"
     if status in ("ERROR","CANCELLED"):
         raise RuntimeError("Previous daily Kaggle kernel ended with ERROR/CANCELLED. State not overwritten; inspect Kaggle logs.")
-    existing=execute("datasets","status",DATASET,optional=True) is not None
+    owned_datasets=execute("datasets","list","--mine","-v")
+    existing=DATASET.split("/",1)[1] in (owned_datasets or "").lower()
+    if existing:
+        execute("datasets","status",DATASET)
     if status=="ABSENT":
         if not existing:
             previous=execute("kernels","status",SOURCE)
