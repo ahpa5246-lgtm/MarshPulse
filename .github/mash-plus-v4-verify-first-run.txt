@@ -1,3 +1,4 @@
 Mash Plus V4 — verify authenticated Kaggle execution status
 2026-10-24
 Not a training trigger; read the canonical V4 Kaggle kernel status and evidence.
+second_check: verify GPU acquisition/training progressed; never retrain
