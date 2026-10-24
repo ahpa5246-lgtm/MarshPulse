@@ -76,6 +76,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_field_review.py' -v
           python -m unittest discover -s tests -p 'test_v4_smp.py' -v
           python -m unittest discover -s tests -p 'test_daily_continuation.py' -v
+          python -m unittest discover -s tests -p 'test_daily_scheduler.py' -v
           python -m unittest discover -s tests -p 'test_change_diagnostics.py' -v
           python -m unittest discover -s tests -p 'test_transition_training.py' -v
           python -m unittest discover -s tests -p 'test_paired_evidence.py' -v
