@@ -1,6 +1,9 @@
 name: Audit Mash Plus daily checkpoint continuation
 
 on:
+  # Separate from 05:15 Baghdad GPU dispatch; audit four hours later.
+  schedule:
+    - cron: '15 6 * * *'
   workflow_dispatch:
   push:
     branches: [main]
@@ -32,6 +35,10 @@ jobs:
           kaggle kernels logs "$KERNEL_ID" > "$RUNNER_TEMP/daily-log.txt" 2>&1 || true
           echo '=== tail of actual notebook log ==='
           tail -n 45 "$RUNNER_TEMP/daily-log.txt"
+          if grep -Eq 'KernelWorkerStatus.(ERROR|CANCELLED)' "$RUNNER_TEMP/daily-status.txt"; then
+            echo 'Kaggle daily training actually failed; no checkpoint can be claimed.' >&2
+            exit 1
+          fi
       - name: Verify persisted real checkpoints when completed
         env:
           CHECK_DIR: ${{ runner.temp }}
@@ -58,12 +65,28 @@ jobs:
           assert day["day_index"]>=1 and day["epochs_completed"]>=1
           assert day["geographic_test_used_for_training"] is False
           assert day["status"]=="RESEARCH_ONLY_NOT_FIELD_VALIDATED"
-          print("GENUINE_DAILY_CONTINUATION_VERIFIED",json.dumps({
+          audit={
               "day_index":day["day_index"],"epochs_completed":day["epochs_completed"],
               "run_date_utc":day.get("run_date_utc"),
               "best_validation_brier":day["best_validation_brier"],
               "best_validation_wet_f1":day["best_validation_wet_f1"],
-              "field_validated":False},indent=2))
+              "training_objective":day.get("training_objective","legacy_before_change_loss"),
+              "transition_f1_on_training_region_validation":(
+                  day.get("validation_change_diagnostics",{})
+                    .get("aggregate",{}).get("transition_f1")),
+              "paired_monthly_brier_evidence":day.get("paired_monthly_brier_evidence"),
+              "field_validated":False,"scientific_status":"RESEARCH_ONLY"}
+          print("GENUINE_DAILY_CONTINUATION_VERIFIED",json.dumps(audit,indent=2))
+          (Path(os.environ["CHECK_DIR"])/"daily-research-audit.json").write_text(
+              json.dumps(audit,indent=2,ensure_ascii=False)+"\\n")
+          summary=Path(os.environ["GITHUB_STEP_SUMMARY"])
+          with summary.open("a") as output:
+              output.write("# Mash Plus — authenticated Kaggle evidence\\n\\n")
+              output.write(f"**Day:** {audit['day_index']} · **Epochs:** {audit['epochs_completed']}\\n\\n")
+              output.write(f"**Validation Brier:** {audit['best_validation_brier']:.6f} · ")
+              output.write(f"**Wet F1:** {audit['best_validation_wet_f1']:.4f}\\n\\n")
+              output.write(f"**Transition F1:** {audit['transition_f1_on_training_region_validation']}\\n\\n")
+              output.write("**Field validation:** NOT ESTABLISHED; these are training-area chronological validation metrics, not sealed final-test evidence.\\n")
           PY
       - name: Archive audit log
         if: always()
@@ -73,5 +96,6 @@ jobs:
           path: |
             ${{ runner.temp }}/daily-status.txt
             ${{ runner.temp }}/daily-log.txt
+            ${{ runner.temp }}/daily-research-audit.json
           if-no-files-found: ignore
           retention-days: 30
