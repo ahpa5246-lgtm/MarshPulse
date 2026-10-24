@@ -1,0 +1,92 @@
+name: Audit Mash Plus V4 Kaggle execution and research gates
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/mash-plus-v4-verify-first-run.txt'
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE }}
+      KERNEL_ID: minahussain111/mash-plus-v4-independent-dalmaj
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Require Kaggle token
+        shell: bash
+        run: |
+          if [ -z "$KAGGLE_API_TOKEN" ]; then echo 'KAGGLE secret missing' >&2;exit 1;fi
+      - name: Install Kaggle CLI
+        run: python -m pip install --disable-pip-version-check 'kaggle==2.2.5'
+      - name: Read true Kaggle state
+        shell: bash
+        run: |
+          set -euo pipefail
+          kaggle kernels status "$KERNEL_ID" | tee "$RUNNER_TEMP/v4_kaggle_status.txt"
+          kaggle kernels logs "$KERNEL_ID" > "$RUNNER_TEMP/v4_kaggle_logs.txt" 2>&1 || true
+          echo '=== KAGGLE LOG TAIL (not a scientific claim) ==='
+          tail -n 45 "$RUNNER_TEMP/v4_kaggle_logs.txt"
+      - name: Audit Kaggle research results if and only if execution finished
+        env:
+          ROOT_TEMP: ${{ runner.temp }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! grep -q 'KernelWorkerStatus.COMPLETE' "$ROOT_TEMP/v4_kaggle_status.txt"; then
+            echo 'V4 not complete: no Brier/F1 success claim permitted.'
+            exit 0
+          fi
+          mkdir -p "$ROOT_TEMP/v4-final"
+          kaggle kernels output "$KERNEL_ID" --force --page-size 100 \
+            --file-pattern 'Mash_Plus_V4_Real_Research[.]zip' -p "$ROOT_TEMP/v4-final"
+          python - <<'PY'
+          import json,os,zipfile
+          from pathlib import Path
+          root=Path(os.environ["ROOT_TEMP"])/"v4-final"
+          files=list(root.rglob("Mash_Plus_V4_Real_Research.zip"))
+          if len(files)!=1:raise RuntimeError("Completed Kaggle notebook lacks exact V4 evidence ZIP")
+          with zipfile.ZipFile(files[0]) as z:
+              for required in ("experiment_summary.json",
+                  "evaluations/convgru/judge_readiness.json",
+                  "evaluations/smp-unet/judge_readiness.json",
+                  "predeclared_validation_selection.json",
+                  "human_reference_review/blinded_human_reference_queue.csv"):
+                  if required not in z.namelist():raise RuntimeError("Incomplete V4 evidence: "+required)
+              summary=json.loads(z.read("experiment_summary.json"))
+              selected=json.loads(z.read("predeclared_validation_selection.json"))
+              audits={}
+              for arch in ("convgru","smp-unet"):
+                  audits[arch]=json.loads(z.read("evaluations/"+arch+"/judge_readiness.json"))
+              proof={"executed_on_kaggle":True,"source_commit":summary["source_commit"],
+                     "model":"Mash Plus V4",
+                     "predeclared_selection":selected,
+                     "architecture_results":{a:{"status":x["status"],
+                         "spatial_metrics":x.get("spatial_holdout_metrics"),
+                         "reasons":x["reasons"]}for a,x in audits.items()},
+                     "field_reliability_demonstrated":False,
+                     "not_certified_for_ecological_decisions":True}
+          (root/"v4_scientific_audit.json").write_text(json.dumps(proof,indent=2,ensure_ascii=False))
+          print("V4_FINISHED_EVIDENCE_CHECKED",proof["architecture_results"])
+          print("FIELD_VALIDATION_FALSE")
+          PY
+      - name: Preserve status and scientific evidence if available
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mash-plus-v4-kaggle-audit
+          path: |
+            ${{ runner.temp }}/v4_kaggle_status.txt
+            ${{ runner.temp }}/v4_kaggle_logs.txt
+            ${{ runner.temp }}/v4-final/v4_scientific_audit.json
+          if-no-files-found: ignore
+          retention-days: 30
