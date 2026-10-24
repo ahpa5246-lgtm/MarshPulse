@@ -1,0 +1,49 @@
+name: Mash Plus - daily continued Kaggle training to 15 Nov 2026
+
+on:
+  schedule:
+    # Daily 05:15 Baghdad (02:15 UTC), through 2026-11-15 inclusive.
+    # Date guard in the Python bridge prevents further GPU launches after cutoff.
+    - cron: '15 2 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/mash-plus-daily-first-run.txt'
+
+concurrency:
+  group: mash-plus-daily-kaggle-single-writer
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  continue-model:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE }}
+    steps:
+      - name: Checkout exact scientific implementation
+        uses: actions/checkout@v4
+      - name: Configure Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install official Kaggle client (single secret KGAT_)
+        run: |
+          python -m pip install -q --disable-pip-version-check 'kaggle==2.2.5'
+      - name: Reconcile prior completed model and launch ONE Kaggle version
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/mash_plus_daily_bridge.py \
+            --work "$RUNNER_TEMP/mash-plus-private"
+      - name: Explain verification scope
+        if: success()
+        run: |
+          echo 'A green GitHub run proves only the scheduled bridge worked.'
+          echo 'Inspect the private Kaggle kernel status, its real source commit,'
+          echo 'training report and incremented epochs before claiming continuation.'
+          echo 'Scientific status remains RESEARCH_ONLY until external reference tests.'
