@@ -12,3 +12,4 @@ Scientific limitation: no independent field labels; not certified for ecological
 CI prerequisite: https://github.com/ahpa5246-lgtm/MarshPulse/actions/runs/40121941096 SUCCESS
 retry_after_private_kernel_listing_fix: 2026-10-24
 retry: 2026-10-24 - skip unsupported Kaggle dataset status check; upload verified by notebook
+retry_after_Kaggle_auto_unzip_fix_2026-10-24: no previous state checkpoint, preserve original V4 weights
