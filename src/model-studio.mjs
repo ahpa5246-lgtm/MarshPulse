@@ -1,5 +1,5 @@
 import {demoData,parseCSV} from "./engine.mjs";
-import {fitMarshNet,validateMarshNet} from "./marshnet.mjs";
+import {fitMash Plus,validateMash Plus} from "./marshnet.mjs";
 const by=id=>document.getElementById(id);
 const choice=by("dataset-choice"),fileField=by("file-field"),status=by("training-status");
 let latest=null;
@@ -20,16 +20,16 @@ by("train-model").addEventListener("click",async()=>{
     }
     status.textContent="يجري تحضير البيانات وتوحيد السمات اعتمادًا على فترة التدريب فقط…";
     await new Promise(resolve=>setTimeout(resolve,20));
-    const model=await fitMarshNet(dataset,{seed,epochs,reportProgress:p=>{
+    const model=await fitMash Plus(dataset,{seed,epochs,reportProgress:p=>{
       status.textContent="التدريب: الدورة "+p.epoch+" / "+epochs+" | خطأ التحقق "+p.validationBrier.toFixed(4);
     }});
-    validateMarshNet(model);latest=model;
+    validateMash Plus(model);latest=model;
     const net=model.evaluation.model,base=model.evaluation.persistence;
     by("net-brier").textContent=num(net.brier);
     by("base-brier").textContent=num(base.brier);
     by("net-f1").textContent=num(net.f1);
     by("base-f1").textContent=num(base.f1);
-    by("model-summary").textContent=(net.brier<base.brier?"تفوّق MarshNet على مرجع الاستمرار في مجموعة الاختبار لهذا الملف.":"لم يتفوّق MarshNet على مرجع الاستمرار. هذا فشل يجب توثيقه، وليس نتيجة إيجابية.")+
+    by("model-summary").textContent=(net.brier<base.brier?"تفوّق Mash Plus على مرجع الاستمرار في مجموعة الاختبار لهذا الملف.":"لم يتفوّق Mash Plus على مرجع الاستمرار. هذا فشل يجب توثيقه، وليس نتيجة إيجابية.")+
       " أفضل دورة: "+model.training.bestEpoch+" من أصل "+model.training.completedEpochs+"؛ اختُبرت "+model.training.holdoutSamples+" عينة بين "+model.training.holdoutStart+" و"+model.training.holdoutEnd+".";
     by("source-summary").textContent="المصدر: "+dataset.name+" | الحالة: "+(dataset.origin==="synthetic"?"اصطناعي بالكامل — ليس قياسات العراق":"مستورد ولم يتحقق من مصداقيته مستقلًا")+".";
     by("training-results").hidden=false;
@@ -42,7 +42,7 @@ by("download-weights").addEventListener("click",()=>{
   if(!latest)return;
   const blob=new Blob([JSON.stringify(latest,null,2)],{type:"application/json"});
   const url=URL.createObjectURL(blob),a=document.createElement("a");
-  a.href=url;a.download="marshnet-"+latest.provenance.lastMonth+".json";document.body.append(a);a.click();a.remove();
+  a.href=url;a.download="mash-plus-"+latest.provenance.lastMonth+".json";document.body.append(a);a.click();a.remove();
   setTimeout(()=>URL.revokeObjectURL(url),1000);
 });
 by("inspect-weights").addEventListener("click",()=>{
