@@ -6,7 +6,7 @@ inspects Hammar/Dalmaj test imagery. It persists the optimizer and weights acros
 Kaggle versions, but labels the model RESEARCH_ONLY until external validation.
 """
 from __future__ import annotations
-import argparse,copy,hashlib,json,random
+import argparse,copy,hashlib,json,random,time
 from pathlib import Path
 import numpy as np
 import torch
@@ -42,8 +42,9 @@ def validate_training_history(state,hashes,arch):
     if state.get("training_days",0)<0:raise ValueError("Bad training-day counter")
     return state
 def run(args):
-    if not 1<=args.epochs<=4 or args.batch<1 or not .0<args.lr<=.001:
-        raise ValueError("Daily stage must be bounded (1-4 epochs, positive LR, batch size)")
+    requested_minutes=float(getattr(args,"target_train_minutes",0.))
+    if not 1<=args.epochs<=96 or args.batch<1 or not .0<args.lr<=.001 or not 0<=requested_minutes<=45:
+        raise ValueError("Bound training to 96 epochs / 45 active-loop minutes per session")
     paths=prepare_region_paths(args.data)
     regions=[load_region(p,synthetic=args.synthetic_smoke) for p in paths]
     hashes=[r["sha"] for r in regions]
@@ -104,8 +105,11 @@ def run(args):
         generator=torch.Generator().manual_seed(seed+total_epochs))
     loader=DataLoader(samples,batch_size=args.batch,sampler=sampler,num_workers=0)
     history=[]
+    training_loop_seconds=0.
     # A plateau does not authorize resetting architecture or test tuning.
     for epoch in range(args.epochs):
+        if device.type=="cuda":torch.cuda.synchronize()
+        epoch_started=time.monotonic()
         model.train();losses=[]
         for history_data,prior,label,mask in loader:
             history_data=history_data.to(device);prior=prior.to(device)
@@ -123,6 +127,9 @@ def run(args):
             torch.nn.utils.clip_grad_norm_(model.parameters(),1.0)
             optimizer.step()
             losses.append(float(loss.detach().cpu()))
+        if device.type=="cuda":torch.cuda.synchronize()
+        epoch_training_seconds=time.monotonic()-epoch_started
+        training_loop_seconds+=epoch_training_seconds
         if not losses:raise ValueError("No training target labels")
         brier,pred,reference=val_score(regions,args.lookback,mean,std,model,device,args.batch)
         candidate_f1=aggregate_f1(pred)
@@ -140,6 +147,7 @@ def run(args):
             best_optimizer_state=copy.deepcopy(optimizer.state_dict())
             stagnant=0
         history.append({"total_epoch":total_epochs+epoch+1,
+                        "train_loop_seconds":round(epoch_training_seconds,3),
                         "train_loss":float(np.mean(losses)),
                         "validation_brier":float(brier),
                         "validation_wet_f1":candidate_f1,
@@ -148,6 +156,10 @@ def run(args):
                         "validation_wet_pixels":wet_pixels,
                         "passed_promotion_gate":metric_gate(brier,candidate_f1,baseline,reference_f1,wet_pixels),
                         "best_model_renewed":improved})
+        # Train for real measured forward/backward optimizer time; never
+        # idle the GPU merely to hit a requested quota.
+        if requested_minutes and len(history)>=2 and training_loop_seconds>=requested_minutes*60:
+            break
     if not best_weights:raise ValueError("No valid improved model checkpoint")
     if not any(x["best_model_renewed"] for x in history):stagnant+=1
     # Read-only diagnosis of the validation-selected checkpoint: this metric
@@ -177,6 +189,19 @@ def run(args):
             optimizer_reset=True
         rollback=True
     last=history[-1]
+    run_date=str(getattr(args,"run_date","unknown"))
+    prev_date=previous.get("last_run_date") if previous is not None else None
+    previous_daily_minutes=float(previous.get("today_training_minutes",0.)) if (
+        previous is not None and prev_date==run_date) else 0.
+    today_training_minutes=previous_daily_minutes+training_loop_seconds/60.
+    calendar_training_days=int(previous.get("calendar_training_days",start_days) if previous else 0)
+    if previous is None or prev_date!=run_date:
+        # First upgrade from a historical checkpoint has no last_run_date;
+        # the legacy session number provides the conservative initial count.
+        calendar_training_days+=1
+    session_id=str(getattr(args,"session_id","legacy-unspecified"))
+    completed_epochs=total_epochs+len(history)
+    last=history[-1]
     state={"protocol":"mash-plus-daily-v1","model_name":"Mash Plus",
            "field_validated":False,"operationally_reliable":False,
            "train_data_sha256":hashes,"architecture":arch,
@@ -185,20 +210,34 @@ def run(args):
            "best_optimizer_state":best_optimizer_state,
            "optimizer_state":optimizer.state_dict(),
            "best_validation_brier":best_val,"best_validation_f1":best_f1,
-           "epochs_completed":total_epochs+args.epochs,
-           "training_days":start_days+1,"days_without_improvement":stagnant}
+           "epochs_completed":completed_epochs,
+           "training_days":start_days+1,
+           "training_sessions":int(previous.get("training_sessions",start_days) if previous else 0)+1,
+           "calendar_training_days":calendar_training_days,
+           "last_run_date":run_date,"session_id":session_id,
+           "today_training_minutes":today_training_minutes,
+           "days_without_improvement":stagnant}
     args.out.mkdir(parents=True,exist_ok=True)
     torch.save(state,args.out/"daily_continuation_state.pt")
     report={"status":"RESEARCH_ONLY_NOT_FIELD_VALIDATED",
             "data_origin":"three real Sentinel-2 train AOIs",
             "geographic_test_used_for_training":False,
             "day_index":start_days+1,"source_commit":args.source_commit,
-            "run_date_utc":args.run_date,
+            "run_date_utc":run_date,
+            "session_id":session_id,
+            "session_index":state["training_sessions"],
+            "calendar_training_days":calendar_training_days,
+            "session_training_loop_minutes":round(training_loop_seconds/60.,3),
+            "today_training_loop_minutes":round(today_training_minutes,3),
+            "target_training_loop_minutes":requested_minutes,
+            "target_reached":bool(requested_minutes and training_loop_seconds>=requested_minutes*60.),
+            "daily_two_hour_target_reached":today_training_minutes>=120.,
+            "epochs_this_session":len(history),
             "days_without_improvement":stagnant,
             "rollback_to_validation_best":rollback,
             "optimizer_reset_on_legacy_rollback":optimizer_reset,
             "effective_learning_rate":effective_lr,
-            "epochs_completed":total_epochs+args.epochs,
+            "epochs_completed":completed_epochs,
             "validation_history":history,
             "best_validation_brier":best_val,
             "best_validation_wet_f1":best_f1,
@@ -220,7 +259,9 @@ def main():
     p.add_argument("--out",required=True,type=Path)
     p.add_argument("--state-in",type=Path)
     p.add_argument("--v4-seed",type=Path)
-    p.add_argument("--epochs",type=int,default=2)
+    p.add_argument("--epochs",type=int,default=2,help="Safety cap for completed epochs in one session")
+    p.add_argument("--target-train-minutes",type=float,default=0.,help="Stop after measured train-loop wall time, or at max epochs; zero uses fixed epochs")
+    p.add_argument("--session-id",default="legacy-unspecified")
     p.add_argument("--lookback",type=int,default=4)
     p.add_argument("--base",type=int,default=16)
     p.add_argument("--batch",type=int,default=2)
