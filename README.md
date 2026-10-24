@@ -4,7 +4,7 @@ MarshPulse is a working, zero-build Arabic RTL research prototype for inspecting
 
 **Website (after successful Pages enablement):** https://ahpa5246-lgtm.github.io/MarshPulse/
 
-## October 2026 design + MarshNet update
+## October 2026 design + Mash Plus research-model branding
 
 The site now has **four purposeful pages**, not one giant dashboard:
 
@@ -12,7 +12,7 @@ The site now has **four purposeful pages**, not one giant dashboard:
 |---|---|
 | [Home](index.html) | Explain the research question with an original cartographic illustration |
 | [Water lab](lab.html) | Inspect connectivity, hypothetical interventions and model comparisons |
-| [MarshNet studio](model.html) | Train our own neural MLP, compare chronologically held-out predictions against persistence and export fitted JSON weights |
+| [Mash Plus studio](model.html) | Train our own neural MLP, compare chronologically held-out predictions against persistence and export fitted JSON weights |
 | [Methods](methods.html) | Data provenance, independent checks and scientific limitations |
 
 Visual direction: warm ivory paper, navy type, restrained copper annotations; responsive Arabic reading with clear inter-section whitespace. Compared against actual NASA Worldview, JRC Surface Water Explorer and Earth Timelapse in [design audit](docs/design-audit-2026-10.md), following the owner's Senior-level-website-development-skills guidelines.
@@ -23,11 +23,11 @@ The website is still a research prototype: synthetic default data and theoretica
 
 ---
 
-## MarshNet V3 — genuine Kaggle GPU research workflow
+## Mash Plus V3 — real imagery research + unexecuted Kaggle GPU notebook
 
-**[One Kaggle notebook: MarshPulse V3 Geo-Holdout GPU](kaggle/MarshPulse_V3_GeoHoldout_GPU.ipynb)**. This is an implemented challenger, not a certified replacement for MarshNet V2. It includes actual Sentinel-2 collection from two training pilot areas and an independently held-out third pilot area, a persistence-residual ConvGRU architecture, three independent seeded trainings, chronological validation, and strict **hard/soft persistence plus annual seasonality** comparisons. Promotion requires meaningful validation improvement over ALL simple baselines; failed neural candidates remain labeled RESEARCH ONLY.
+**[One Kaggle notebook: Mash Plus V3 Geo-Holdout GPU](kaggle/MarshPulse_V3_GeoHoldout_GPU.ipynb)**. This is the Mash Plus V3 research challenger (legacy Python class: `MarshNetV3`), not a certified replacement for its V2 predecessor. It includes actual Sentinel-2 collection from two training pilot areas and an independently held-out third pilot area, a persistence-residual ConvGRU architecture, three independent seeded trainings, chronological validation, and strict **hard/soft persistence plus annual seasonality** comparisons. Promotion requires meaningful validation improvement over ALL simple baselines; failed neural candidates remain labeled RESEARCH ONLY.
 
-A Kaggle account with accelerator GPU and Internet access is needed to execute. GitHub access does not provide Kaggle GPU execution. This does not validate the proxy labels against independent field observations or turn the mathematical pixel-connectivity game into a hydraulic model. See [reproducibility and limitations](ml/KAGGLE.md) and [real CPU V3 check](.github/workflows/v3-real-challenge.yml).
+A Kaggle account with accelerator GPU and Internet access is needed to execute. **As of 2026-10-24, the V3 Kaggle notebook has been committed only to GitHub, not uploaded to the user's Kaggle account, and has not run on Kaggle.** Actual V2/V3 image training took place on **GitHub Actions CPU**, not Kaggle. A GitHub link does not confer Kaggle account permissions. This does not validate the proxy labels against independent field observations or turn the mathematical pixel-connectivity game into a hydraulic model. See [reproducibility and limitations](ml/KAGGLE.md) and [real CPU V3 check](.github/workflows/v3-real-challenge.yml).
 
 ---
 
