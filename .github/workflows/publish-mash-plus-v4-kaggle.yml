@@ -1,0 +1,106 @@
+name: Publish Mash Plus V4 notebook to Kaggle
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_training:
+        description: 'Run V4 on Kaggle GPU after upload (uses Kaggle quota)'
+        type: boolean
+        default: false
+        required: true
+  # One-time start requested by the project owner. Only changing this marker triggers GPU use.
+  push:
+    branches: [main]
+    paths:
+      - '.github/mash-plus-v4-first-gpu-training.txt'
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      # Kaggle personal access token (KGAT_...), stored only in this repo's secret.
+      # The official CLI introspects the token to discover the account username.
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check that this repository has a Kaggle personal access token
+        shell: bash
+        run: |
+          if [ -z "$KAGGLE_API_TOKEN" ]; then
+            echo 'No KAGGLE secret in this repository. Add it under Settings > Secrets and variables > Actions (or grant access via an organization secret).' >&2
+            exit 1
+          fi
+          case "$KAGGLE_API_TOKEN" in
+            KGAT_*) echo 'New Kaggle API token detected (value suppressed).' ;;
+            *) echo 'The KAGGLE secret is not a KGAT_ personal access token. Check token type without exposing its value.' >&2; exit 1 ;;
+          esac
+      - name: Install the official Kaggle CLI with token support
+        run: python -m pip install --disable-pip-version-check 'kaggle>=2.2.5,<3'
+      - name: Prepare private Kaggle notebook using authenticated owner
+        env:
+          RUNNER_TEMP_DIR: ${{ runner.temp }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          TARGET="$RUNNER_TEMP_DIR/mash-plus-v4-kaggle"
+          mkdir -p "$TARGET"
+          # Authenticates using KAGGLE_API_TOKEN, generates the correct Kaggle owner.
+          kaggle kernels init -p "$TARGET"
+          python - <<'PY'
+          import json,os,re,shutil
+          from pathlib import Path
+          source=Path("kaggle/Mash_Plus_V4_Independent_Dalmaj_GPU.ipynb")
+          notebook=json.loads(source.read_text(encoding="utf8"))
+          if notebook.get("nbformat")!=4 or len(notebook.get("cells",[]))<15:
+              raise RuntimeError("V4 Kaggle notebook is incomplete")
+          if "Mash Plus" not in "".join(notebook["cells"][0]["source"]):
+              raise RuntimeError("Wrong notebook supplied for Mash Plus")
+          target=Path(os.environ["RUNNER_TEMP_DIR"])/"mash-plus-v4-kaggle"
+          name="MashPlus_V4_Independent_Dalmaj_GPU.ipynb"
+          shutil.copyfile(source,target/name)
+          metadata_file=target/"kernel-metadata.json"
+          metadata=json.loads(metadata_file.read_text(encoding="utf8"))
+          owner,separator,placeholder=metadata.get("id","").partition("/")
+          if not separator or not re.fullmatch(r"[A-Za-z0-9_-]+",owner):
+              raise RuntimeError("Kaggle did not resolve an authenticated account")
+          if placeholder!="INSERT_KERNEL_SLUG_HERE":
+              raise RuntimeError("Unexpected metadata template; refusing to use another kernel")
+          ref=f"{owner}/mash-plus-v4-dalmaj-research"
+          metadata.update({
+              "id":ref,
+              "title":"Mash Plus V4 Independent Dalmaj",
+              "code_file":name,
+              "language":"python",
+              "kernel_type":"notebook",
+              "is_private":"true",
+              "enable_gpu":"true",
+              "enable_internet":"true",
+              "dataset_sources":[],
+              "competition_sources":[],
+              "kernel_sources":[],
+              "model_sources":[]
+          })
+          metadata_file.write_text(json.dumps(metadata,indent=2),encoding="utf8")
+          print("PRIVATE_NOTEBOOK:",f"https://www.kaggle.com/code/{ref}")
+          PY
+      - name: Sync Kaggle notebook
+        env:
+          RUNNER_TEMP_DIR: ${{ runner.temp }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = 'push' ] || [ "${{ inputs.run_training }}" = 'true' ]; then
+            kaggle kernels push -p "$RUNNER_TEMP_DIR/mash-plus-v4-kaggle" --accelerator NvidiaTeslaT4
+            echo 'Kaggle accepted the upload and a run was requested. Check Kaggle status and output before claiming successful training.'
+            echo 'Model: Mash Plus V4 | status: KAGGLE_GPU_REQUESTED_NOT_VALIDATED'
+          else
+            kaggle kernels push -p "$RUNNER_TEMP_DIR/mash-plus-v4-kaggle" --no-run
+            echo 'Kaggle notebook uploaded WITHOUT running cells or consuming GPU.'
+          fi
