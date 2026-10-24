@@ -42,6 +42,16 @@ Authenticated Kaggle status `KernelWorkerStatus.COMPLETE`; separate GitHub audit
 
 These training-region validation numbers must not be compared directly to historical V4 Dalmaj test scores: the datasets, test windows, and population supports differ.
 
+## Newly added: is the neural net really learning water change?
+
+The [change-event diagnostics](../ml/change_diagnostics.py) now run after each day's checkpoint selection. On **chronological validation only** (no Dalmaj/Hammar test feedback), they separately measure:
+- wet gain and drying recall, plus precision/F1 for actual wet↔dry transition events;
+- event-only Brier and stable-water Brier versus smoothed last-month persistence **on identical unresampled clear pixels**;
+- counts of uncertain satellite proxy labels near MNDWI 0.1 / NDVI 0.3 thresholds and scores excluding them as a **sensitivity analysis**, not ground truth;
+- per-area and per-month evidence and observed changes.
+
+The metric payload appears under `daily_training_report.json → validation_change_diagnostics` on subsequent complete Kaggle versions. This does not change the model's weights, checkpoint/optimizer compatibility, or original validation promotion rule; **its presence alone does not mean predictive skill improved**. [Scientific limitations and free external-data options](CHANGE_VALIDATION.md).
+
 ## Operational failure behavior
 - A green **GitHub launch** only proves a push request; inspect the [read-only scientific audit](../.github/workflows/audit-mash-plus-daily.yml) for Kaggle `COMPLETE`, actual `day_index` and incremented `epochs_completed`.
 - On Kaggle quota denial, output loss, unknown source, SHA mismatch, no observed labels, or a failed previous run, **do not overwrite the last good dataset checkpoint**. GitHub scheduled workflows can be delayed or skipped; the system does not fabricate missed training days.
