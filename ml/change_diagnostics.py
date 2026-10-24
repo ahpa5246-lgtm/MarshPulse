@@ -39,7 +39,7 @@ def transition_validation_report(cube,dates,targets,predictions,confidence_band=
               "stable_pixels","uncertain_target_pixels","transition_tp",
               "transition_fp","transition_fn","correct_water_gains",
               "correct_drying","gain_predictions","drying_predictions")}
-    loss={key:0. for key in ("change_model","change_persistence",
+    loss={key:0. for key in ("all_model","all_persistence","change_model","change_persistence",
                                "stable_model","stable_persistence",
                                "clear_label_model","clear_label_persistence")}
     count={key:0 for key in loss}
@@ -74,13 +74,16 @@ def transition_validation_report(cube,dates,targets,predictions,confidence_band=
             "drying_predictions":int((previous&(~model_wet)&shared).sum())}
         prev_soft=np.where(previous,.99,.01).astype(np.float64)
         month={"month":str(dates[t]),**values}
-        for region_name,mask in (("change",actual_change),("stable",stable),("clear_label",confident)):
+        for region_name,mask in (("all",shared),("change",actual_change),("stable",stable),("clear_label",confident)):
             for who,p in (("model",probs[i]),("persistence",prev_soft)):
                 key=f"{region_name}_{who}"
                 brier=_safe_brier(p,truth,mask)
                 month[f"{key}_brier"]=brier
                 if brier is not None:
                     n=int(mask.sum());count[key]+=n;loss[key]+=brier*n
+        month["all_observed_brier_gain_vs_soft_persistence"]=(
+            month["all_persistence_brier"]-month["all_model_brier"]
+            if month["all_model_brier"] is not None else None)
         months.append(month)
         for key,value in values.items():totals[key]+=value
     result={"source":"Sentinel-derived satellite water proxy, not field truth",
