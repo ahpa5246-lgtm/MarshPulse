@@ -1,10 +1,14 @@
-name: Mash Plus - daily continued Kaggle training to 15 Nov 2026
+name: Mash Plus - 4 daily Kaggle GPU sessions to 15 Nov 2026
 
 on:
   schedule:
-    # Daily 05:15 Baghdad (02:15 UTC), through 2026-11-15 inclusive.
-    # Date guard in the Python bridge prevents further GPU launches after cutoff.
+    # Four sequential 30-minute *training loop* targets, Baghdad local:
+    # 05:15, 09:15, 13:15, 17:15. Runs only when prior Kaggle GPU finishes.
+    # Availability/quota may skip sessions; Python rejects dates after Nov 15.
     - cron: '15 2 * * *'
+    - cron: '15 6 * * *'
+    - cron: '15 10 * * *'
+    - cron: '15 14 * * *'
   workflow_dispatch:
   push:
     branches: [main]
@@ -21,9 +25,10 @@ permissions:
 jobs:
   continue-model:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     env:
       KAGGLE_API_TOKEN: ${{ secrets.KAGGLE }}
+      RUN_CRON: ${{ github.event.schedule }}
     steps:
       - name: Checkout exact scientific implementation
         uses: actions/checkout@v4
@@ -39,11 +44,14 @@ jobs:
         run: |
           set -euo pipefail
           python scripts/mash_plus_daily_bridge.py \
+            --slot "$RUN_CRON" \
             --work "$RUNNER_TEMP/mash-plus-private"
       - name: Explain verification scope
         if: success()
         run: |
           echo 'A green GitHub run proves only the scheduled bridge worked.'
+          echo 'Four local Baghdad slots target ~120 minutes of training loops/day.'
+          echo 'The actual measured minutes depend on quota, training speed and availability.'
           echo 'Inspect the private Kaggle kernel status, its real source commit,'
           echo 'training report and incremented epochs before claiming continuation.'
           echo 'Scientific status remains RESEARCH_ONLY until external reference tests.'
