@@ -23,6 +23,14 @@ The website is still a research prototype: synthetic default data and theoretica
 
 ---
 
+## Current technical research upgrades (not yet independently validated)
+
+The ongoing [single daily Kaggle training notebook](kaggle/Mash_Plus_Daily_Trainer.ipynb) now includes **train-only wet/dry-transition loss**, suppression of ambiguous MNDWI/NDVI pseudo-label targets in training only, paired regional/month-block evidence, selection of paired best checkpoint/optimizer state with plateau rollback, optional past-only NASA POWER daily rainfall/temperature source, and next-month research probability forecast maps. A separate [double-reviewer intake](ml/human_reference_evaluation.py) accepts genuine blind external water annotations; it cannot fake their existence. [Automatic daily read-only audit](.github/workflows/audit-mash-plus-daily.yml) publishes GitHub Actions summaries; [competition-ready protocol](research/COMPETITION_HANDOFF.md) explains reliable use and limitations.
+
+**New code and green unit tests are not a measured uplift.** Real performance evidence requires later Kaggle versions and fresh independent reference observations; previous V4 negative scores cannot be reinterpreted as successes of these newer enhancements.
+
+---
+
 ## Mash Plus — one daily continuing Kaggle notebook (through 15 November 2026)
 
 **The first real daily Kaggle GPU continuation ran successfully on 2026-10-24**, starting from V4 research-only ConvGRU weights and saving the model, AdamW optimizer and data manifest in a private state ZIP. It completed **day 1 / 2 cumulative epochs**. [Actual Kaggle COMPLETE state and downloaded 19.4 MB research checkpoint proof](https://github.com/ahpa5246-lgtm/MarshPulse/actions/runs/40122873091); [separate same-day no-duplicate safety check](https://github.com/ahpa5246-lgtm/MarshPulse/actions/runs/40123033045).
@@ -35,11 +43,11 @@ The [single canonical Kaggle notebook](kaggle/Mash_Plus_Daily_Trainer.ipynb) and
 
 ## Mash Plus V4 — real open-source challenger + fresh test geography (October 24, 2026)
 
-**[New V4 Kaggle GPU notebook](kaggle/Mash_Plus_V4_Independent_Dalmaj_GPU.ipynb)** was uploaded as a private version 1 and GPU execution requested via [successful GitHub-to-Kaggle workflow](https://github.com/ahpa5246-lgtm/MarshPulse/actions/runs/40117636891). [Authenticated Kaggle verification](https://github.com/ahpa5246-lgtm/MarshPulse/actions/runs/40117780164) reported **RUNNING**, not completed or scientifically validated, at the time of the check. [Open the actual Kaggle notebook](https://www.kaggle.com/code/minahussain111/mash-plus-v4-independent-dalmaj).
+**[New V4 Kaggle GPU notebook](kaggle/Mash_Plus_V4_Independent_Dalmaj_GPU.ipynb)** was uploaded as a private version 1 and GPU execution requested via [successful GitHub-to-Kaggle workflow](https://github.com/ahpa5246-lgtm/MarshPulse/actions/runs/40117636891). [Authenticated Kaggle final audit](https://github.com/ahpa5246-lgtm/MarshPulse/actions/runs/40121172662) confirmed **COMPLETE**, but the actual neural result was **NOT_DEMONSTRATED** for both architectures. ConvGRU spatial Dalmaj Brier 0.02660767 vs smoothed persistence 0.02660100 (lower wins), and wet-class F1 0.57444 vs 0.57335: not a meaningful gain. [Open the actual Kaggle notebook](https://www.kaggle.com/code/minahussain111/mash-plus-v4-independent-dalmaj).
 
 This preregistered experiment adds a **genuine upstream** open-source [segmentation_models_pytorch](https://github.com/qubvel-org/segmentation_models.pytorch) ResNet18 U-Net alongside ConvGRU; rare wet/transition sampling and targeted training crops use **training labels only**. Three real Sentinel training pilots: Hawizeh, Central Marshes, Sinnaf; the **new, genuinely unseen Dalmaj Marsh** is the spatial test because V3's Hammar holdout was already examined. It also implements independent-SENSOR Landsat 8/9 optical screening and generates a **blank, blinded** human-reference annotation queue (not fabricated field labels).
 
-**Scientific interpretation:** V3 failed to improve wet F1 beyond persistence. V4 is an attempt to address that failure, **not proof it has been solved**. The first authenticated status check confirmed only active execution; a scientifically credible result requires sealed Dalmaj scores, Brier/F1 superiority on natural support, and independent reviewer labels. The original V3 negative result remains published.
+**Scientific interpretation:** V3 failed to improve wet F1 beyond persistence. V4 is an attempt to address that failure, **not proof it has been solved**. The completed Dalmaj study did not pass the prespecified neural promotion gates; consistent benchmark superiority remains unproven. Genuine external field/image reference labels are still missing. The [complete competition handoff](research/COMPETITION_HANDOFF.md) documents the daily continuing Kaggle notebook, verified tests, automatic scientific summary and human-review intake. The original V3 negative result remains published.
 
 Read the [full protocol, license provenance, and limitations](research/V4_REPRODUCIBILITY.md). CI includes real upstream U-Net forward/backward, Sentinel sampler anti-leakage, Landsat QA and blind sampling tests; [passing CI proof](https://github.com/ahpa5246-lgtm/MarshPulse/actions/runs/40117489555).
 
