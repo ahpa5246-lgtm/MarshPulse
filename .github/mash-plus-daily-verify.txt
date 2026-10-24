@@ -1,0 +1,4 @@
+Independent audit trigger for day 1 of Mash Plus daily training.
+Date: 2026-10-24.
+Do not launch another GPU version.
+Verify Kaggle actual status and persisted model+optimizer checkpoint.
