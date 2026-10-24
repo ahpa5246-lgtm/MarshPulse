@@ -21,7 +21,7 @@ def audit(report):
     if not isinstance(report,dict):
         return {"model":"Mash Plus V3","status":"NOT_DEMONSTRATED",
                 "reasons":["Evaluation must be a JSON object"]}
-    require(report.get("model_name")=="Mash Plus" and report.get("model_version")=="V3",
+    require(report.get("model_name")=="Mash Plus" and report.get("model_version") in ("V3","V4"),
             "Wrong or missing model identity")
     require(report.get("status")=="REAL SATELLITE PROXY / NO FIELD VALIDATION",
             "No verified real-satellite research provenance (synthetic or missing)")
@@ -43,7 +43,8 @@ def audit(report):
     require(report.get("evaluated_neural_checkpoint")=="VALIDATION_PASSED_RESEARCH_ONLY",
             "Evaluated checkpoint is not a traceable validation-passed neural model")
     champion=report.get("selected_champion") or {}
-    require(isinstance(champion,dict) and champion.get("type")=="Mash Plus V3",
+    expected_champion="Mash Plus "+str(report.get("model_version"))
+    require(isinstance(champion,dict) and champion.get("type")==expected_champion,
             "Neural challenger was not chosen by chronological validation")
     trials=champion.get("validation_challengers",[]) if isinstance(champion,dict) else []
     require(isinstance(trials,list) and len(trials)>=2 and
