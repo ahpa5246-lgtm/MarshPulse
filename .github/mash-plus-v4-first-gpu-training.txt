@@ -1,0 +1,10 @@
+Mash Plus V4 — user-authorized Kaggle GPU experiment launch
+Date: 2026-10-24
+Notebook: kaggle/Mash_Plus_V4_Independent_Dalmaj_GPU.ipynb
+Training: ESA Sentinel-2 from Hawizeh, Central Marshes, Sinnaf
+Sealed geography: Dalmaj Marsh (new; not used for V3 evaluation)
+Alternatives: persistence-residual ConvGRU, open-source SMP ResNet18 U-Net
+Evaluation: chronological validation gates; Brier and wet F1 vs 3 baselines; Landsat supplemental screening
+Field labels: NOT verified; never imply operational reliability
+GPU: Kaggle Nvidia Tesla T4, account quota dependent
+CI prereq: https://github.com/ahpa5246-lgtm/MarshPulse/actions/runs/40117489555 SUCCESS
