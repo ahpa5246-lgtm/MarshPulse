@@ -17,6 +17,8 @@ jobs:
         run: |
           node --check src/engine.mjs
           node --check src/app.mjs
+          node --check src/model-studio.mjs
+          node --check src/floating-nav.mjs
           node --check earth-engine/export_monthly_grid.js
           python3 -m py_compile ml/train.py
           python3 -m py_compile ml/collect_sentinel.py ml/train_satellite.py ml/marshnet_v2.py ml/quality_gate.py ml/monitor_wetland.py ml/calibration.py ml/train_v3.py ml/marshnet_v3.py
