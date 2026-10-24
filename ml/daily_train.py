@@ -12,7 +12,8 @@ import numpy as np
 import torch
 from torch.utils.data import DataLoader,ConcatDataset,WeightedRandomSampler
 from marshnet_v3 import MarshNetV3,masked_brier_bce
-from train_v3 import load_region,split,stats,History,val_score,aggregate_f1,training_sample_weights
+from train_v3 import load_region,split,stats,History,val_score,aggregate_f1,training_sample_weights,predict
+from change_diagnostics import transition_validation_report,aggregate_transition_reports
 
 REGIONS=("hawizeh_train","central_train","sinnaf_train")
 def digest(path):
@@ -136,6 +137,19 @@ def run(args):
                         "best_model_renewed":improved})
     if not best_weights:raise ValueError("No valid improved model checkpoint")
     if not any(x["best_model_renewed"] for x in history):stagnant+=1
+    # Read-only diagnosis of the validation-selected checkpoint: this metric
+    # does not influence its selection and never inspects Hammar/Dalmaj.
+    best_model=MarshNetV3(base=args.base).to(device)
+    best_model.load_state_dict(best_weights)
+    validation_events={}
+    for name,region in zip(REGIONS,regions):
+        _,validation_months,_=split(len(region["x"]),args.lookback)
+        loader=DataLoader(History(region,validation_months,args.lookback,mean,std),
+                          batch_size=args.batch,shuffle=False)
+        probabilities=predict(best_model,loader,device)
+        validation_events[name]=transition_validation_report(
+            region["x"],region["dates"],validation_months,probabilities)
+    change_summary=aggregate_transition_reports(validation_events)
     last=history[-1]
     state={"protocol":"mash-plus-daily-v1","model_name":"Mash Plus",
            "field_validated":False,"operationally_reliable":False,
@@ -158,6 +172,8 @@ def run(args):
             "validation_history":history,
             "best_validation_brier":best_val,
             "best_validation_wet_f1":best_f1,
+            "validation_change_diagnostics":{"aggregate":change_summary,
+                                             "by_region":validation_events},
             "best_promoted_for_field_use":False,
             "can_claim_generalization":False,
             "next_action":"HOLD_AND_REVIEW" if stagnant>=5 else "CONTINUE_EXPERIMENTALLY"}
