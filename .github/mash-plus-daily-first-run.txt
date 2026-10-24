@@ -1,0 +1,12 @@
+Mash Plus — first authorized incremental Kaggle training day
+Started: 2026-10-24
+Schedule: 05:15 Asia/Baghdad daily, until 2026-11-15 inclusive.
+Workflow: .github/workflows/mash-plus-daily-until-nov15.yml
+One notebook: kaggle/Mash_Plus_Daily_Trainer.ipynb
+State: private Kaggle dataset with three real Sentinel training regions only.
+First source: completed private V4 research output, ConvGRU research checkpoint.
+Daily rule: persist PyTorch weights + AdamW optimizer; never restart if state exists.
+Validation: chronological train-areas only; Hammar and Dalmaj excluded permanently from daily fitting.
+Stop if earlier run still queued/running; fail closed on missing output, invalid token, or GPU quota.
+Scientific limitation: no independent field labels; not certified for ecological decisions.
+CI prerequisite: https://github.com/ahpa5246-lgtm/MarshPulse/actions/runs/40121941096 SUCCESS
