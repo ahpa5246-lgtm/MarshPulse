@@ -32,7 +32,9 @@ jobs:
       - name: Satellite dataset quality and benchmark unit tests
         run: |
           python3 -m pip install --quiet "numpy>=1.26,<3"
-          python3 -m unittest discover -s tests -p 'test_*.py' -v
+          python3 -m unittest discover -s tests -p 'test_*quality.py' -v
+          python3 -m unittest discover -s tests -p 'test_wetland_monitor.py' -v
+          python3 -m unittest discover -s tests -p 'test_calibration.py' -v
   model-training-smoke:
     runs-on: ubuntu-latest
     timeout-minutes: 15
