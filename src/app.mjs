@@ -140,17 +140,17 @@ $("marshnet-upload").addEventListener("change",async e=>{
     if(p.lastMonth!==d.dates.at(-1)||p.firstMonth!==d.dates[0]||p.grid?.[0]!==d.width||p.grid?.[1]!==d.height||p.origin!==d.origin)
       throw Error("الملف مُدرّب على مصدر أو فترة أو شبكة مختلفة. اختاري بيانات التدريب المطابقة أولًا.");
     state.custom=candidate;
-    $("active-model").textContent="MarshNet · نموذج خاص مُدرَّب ("+candidate.training?.bestEpoch+" دورات أفضل وزن)";
+    $("active-model").textContent="Mash Plus · نموذج خاص مُدرَّب ("+candidate.training?.bestEpoch+" دورات أفضل وزن)";
     $("model-brier").textContent=Number(candidate.evaluation?.model?.brier).toFixed(4);
     $("baseline-brier").textContent=Number(candidate.evaluation?.persistence?.brier).toFixed(4);
     $("model-f1").textContent=Math.round(100*candidate.evaluation?.model?.f1)+"%";
     $("holdout-samples").textContent=fmt(candidate.training?.holdoutSamples??0);
-    $("holdout-dates").textContent="نطاق الاختبار المسجّل في ملف MarshNet: "+candidate.training?.holdoutStart+" — "+candidate.training?.holdoutEnd;
+    $("holdout-dates").textContent="نطاق الاختبار المسجّل في ملف Mash Plus: "+candidate.training?.holdoutStart+" — "+candidate.training?.holdoutEnd;
     $("model-verdict").textContent=Number(candidate.evaluation?.model?.brier)<Number(candidate.evaluation?.persistence?.brier)
-      ?"MarshNet تجاوز مرجع الاستمرار في ملف التقييم المستورد؛ نتائج المصدر غير محقَّقة خارجيًا."
-      :"MarshNet لم يتجاوز مرجع الاستمرار وفق ملف التقييم المستورد.";
-    updateScenario();toast("تم تفعيل MarshNet على بيانات مطابقة في الشبكة والفترة. هذا لا يتحقق من مصدرها.");
-  }catch(err){toast("تعذّر تحميل MarshNet: "+err.message,true);}
+      ?"Mash Plus تجاوز مرجع الاستمرار في ملف التقييم المستورد؛ نتائج المصدر غير محقَّقة خارجيًا."
+      :"Mash Plus لم يتجاوز مرجع الاستمرار وفق ملف التقييم المستورد.";
+    updateScenario();toast("تم تفعيل Mash Plus على بيانات مطابقة في الشبكة والفترة. هذا لا يتحقق من مصدرها.");
+  }catch(err){toast("تعذّر تحميل Mash Plus: "+err.message,true);}
   e.target.value="";
 });
 $("reset-demo").addEventListener("click",()=>{loadData(demoData());toast("عادت بيانات المحاكاة التركيبية.");});
@@ -164,7 +164,7 @@ $("csv-example").addEventListener("click",()=>{
 $("export-report").addEventListener("click",()=>{
   const data=report(state.data,state.model,state.result);
   if(state.custom){
-    data.predictor="MarshNet · imported MLP";
+    data.predictor="Mash Plus · imported MLP";
     data.training=state.custom.training;
     data.modelEvaluation=state.custom.evaluation;
     data.modelProvenance=state.custom.provenance;
