@@ -1,3 +1,15 @@
+# MarshNet V3 — Three-area Kaggle GPU research challenge (October 2026)
+
+**New unified notebook:** [MarshPulse_V3_GeoHoldout_GPU.ipynb](../kaggle/MarshPulse_V3_GeoHoldout_GPU.ipynb). Kaggle: select **GPU** and enable **Internet**, then **Run All**. The notebook retrieves its code from GitHub and records the exact commit SHA. It acquires ESA Sentinel-2 imagery near **Hawizeh + Central** (training) and **Hammar** (entirely held-out spatial region), with fixed-date monthly chronologies, strict scene provenance and cloud masks.
+
+The V3 `ml/marshnet_v3.py` corrects a smoothed persistence prior using a residual ConvGRU; `ml/train_v3.py` performs three fixed-seed trials and selects models **solely** on temporal validation. Crucially, we evaluate four baselines on identical clear pixels: *hard persistence, smoothed persistence, prior-year seasonality, V3*. The third baseline prevents mistaking simple probability smoothing for neural learning. A **≥2% relative AND ≥0.0005 absolute validation Brier advantage** and positive wet-class support are required to select V3. Rejected model checkpoints are archived as **RESEARCH_ONLY**, not called deployable.
+
+The Hammar spatial test is read only after validation selection, which does not prove field accuracy. Three rectangular pilot AOIs are **not official site boundaries**. The water target is an unverified MNDWI/NDVI proxy. The browser M1 JSON engine cannot run the PyTorch V3 checkpoint. No independent field labels or true hydrological forecasts are included. **Never issue real-world environmental decisions from this notebook.** Kaggle runtime cannot be launched via a GitHub connector; only the notebook is published.
+
+CPU rehearsal with genuinely acquired Hawizeh imagery: [MarshNet V3 real research CI](https://github.com/ahpa5246-lgtm/MarshPulse/actions/workflows/v3-real-challenge.yml). Historical V2 comparison: [60-month verified run](https://github.com/ahpa5246-lgtm/MarshPulse/actions/runs/40064994264).
+
+---
+
 # Important: new image-based V2 training
 
 For the new stronger spatial-temporal ConvGRU architecture and **real Sentinel-2 acquisition**, use the [MarshNet V2 Hawizeh Kaggle notebook](../kaggle/marshnet_v2_hawizeh.ipynb), [collector](collect_sentinel.py) and [trainer](train_satellite.py). V2 outputs a PyTorch `marshnet_v2.pt` checkpoint. The commands below are for the **older lightweight M1** CSV baseline and will not train V2. The first genuine V2 pilot run is [documented with a negative baseline result](../research/experiments/hawizeh-v2-real-s2-2024-2025.json).
