@@ -6,9 +6,21 @@ import numpy as np
 import torch
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/"ml"))
 from marshnet_v3 import MarshNetV3,prior_probability,masked_brier_bce
-from train_v3 import split,disjoint_bbox,smoke_data,load_region,History,stats,benchmark,aggregate_f1
+from train_v3 import split,disjoint_bbox,smoke_data,load_region,History,stats,benchmark,aggregate_f1,evaluation_checkpoint
 from collect_sentinel import keys
 class V3Tests(unittest.TestCase):
+    def test_validation_selected_weights_are_always_evaluated(self):
+        research={"w":torch.tensor([1.])}
+        passed={"w":torch.tensor([2.])}
+        chosen,role=evaluation_checkpoint(passed,research)
+        self.assertIs(chosen,passed)
+        self.assertEqual(role,"VALIDATION_PASSED_RESEARCH_ONLY")
+        chosen,role=evaluation_checkpoint(None,research)
+        self.assertIs(chosen,research)
+        self.assertEqual(role,"REJECTED_RESEARCH_CHALLENGER")
+        with self.assertRaises(ValueError):
+            evaluation_checkpoint(None,None)
+
     def test_model_exact_soft_baseline_at_initialization(self):
         net=MarshNetV3(base=8)
         self.assertEqual(net.config["model_name"],"Mash Plus")
