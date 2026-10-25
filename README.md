@@ -1,5 +1,39 @@
 # MarshPulse — مختبر اتصال أهوار العراق
 
+## Download, setup and project overview
+
+An Iraqi marsh monitoring and research workspace.
+
+Satellite quality checks; change analysis; browser monitoring; reproducible research and training scripts.
+
+![Project workflow illustration](docs/project-overview.svg)
+
+### Running application
+
+![Actual browser capture at 1440 × 1000](docs/application.webp)
+
+Actual local browser capture from this maintenance pass; a screenshot alone does not verify every feature.
+
+[Download source ZIP](https://github.com/ahpa5246-lgtm/MarshPulse/archive/refs/heads/main.zip) · [Changes and branches](https://github.com/ahpa5246-lgtm/MarshPulse/branches) · [Verification notes](docs/QUALITY_REVIEW.md)
+
+The ZIP contains source code. Installation steps and external runtime requirements are listed below.
+
+```bash
+git clone https://github.com/ahpa5246-lgtm/MarshPulse.git
+cd MarshPulse
+```
+
+From the repository directory:
+
+```text
+python -m http.server 8080 --bind 127.0.0.1
+# Browser UI: http://127.0.0.1:8080
+# ml/ and kaggle/ have separate research dependencies.
+```
+
+The diagram is a project illustration. Test results and runtime limitations are recorded in [the review](docs/QUALITY_REVIEW.md); it is not a production-readiness certification.
+
+
 MarshPulse is a working, zero-build Arabic RTL research prototype for inspecting monthly wetland grids, identifying connectivity bottlenecks, forecasting water presence, and comparing **hypothetical** rescue scenarios. It is **not** a field-validated hydrological model, a monitoring service, or an operational restoration recommendation system.
 
 **Website (after successful Pages enablement):** https://ahpa5246-lgtm.github.io/MarshPulse/
