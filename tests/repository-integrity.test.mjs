@@ -39,10 +39,10 @@ test("real-observation route is not silently misrepresented as synthetic dashboa
 });
 test("commercial workspace is linked and caveats are explicit",()=>{
  const index=readFileSync(resolve(root,"index.html"),"utf8");
- assert.match(index,/href="\\.\\/business\\.html"/);
+ assert.ok(index.includes('href="./business.html"'));
  const html=readFileSync(resolve(root,"business.html"),"utf8");
  assert.match(html,/غير محقق ميدانيًا/);
- assert.match(html,/business\\.mjs/);
+ assert.ok(html.includes("business.mjs"));
 });
 test("scientific monitoring and forecast disclaimers remain visible",()=>{
  const source=readFileSync(resolve(root,"ml/verify_experiment.py"),"utf8");
