@@ -38,6 +38,7 @@ try{
   fixture.imagery="Synthetic browser fixture — not operational imagery";
   fixture.source_workflow="javascript:alert(1)";
   await page.locator("#business-upload").setInputFiles({name:"test-unverified.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify(fixture))});
+  await page.waitForFunction(()=>document.querySelector("#business-source-tag")?.textContent.includes("مستورد"));
   assert.match(await page.locator("#business-source-tag").textContent(),/مستورد/);
   assert.equal(await page.locator("#business-evidence").isHidden(),true,"untrusted source URL must not be linked");
   assert.match(await page.locator("#business-share-warning").textContent(),/لا يتضمن ملفك/);
