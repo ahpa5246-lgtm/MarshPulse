@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f3f0e9">
+<meta name="description" content="MarshPulse للأعمال: تحليل تاريخ الرصد الفضائي التجريبي، تقارير قابلة للتصدير، ومراجعة فترات تراجع مؤشر المياه.">
+<link rel="icon" href="./favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="./site.css">
+<link rel="stylesheet" href="./business.css">
+<script type="module" src="./src/business.mjs"></script>
+<title>مساحة العمل | MarshPulse للأعمال</title>
+</head>
+<body class="business-page">
+<a class="skip" href="#content">انتقل إلى مساحة العمل</a>
+<header class="site-header">
+  <a class="identity" href="./index.html" aria-label="MarshPulse الرئيسية"><span class="identity-glyph" aria-hidden="true">≋</span><span><b>MarshPulse.</b><small>BUSINESS / RESEARCH PILOT</small></span></a>
+  <nav aria-label="الصفحات"><a href="./index.html">الرئيسية</a><a href="./monitor.html">الرصد الحقيقي</a><a href="./business.html" aria-current="page">مساحة العمل</a><a href="./methods.html">المنهجية</a></nav>
+  <a class="header-link" href="./monitor.html">سجل الأدلة ↗</a>
+</header>
+<main id="content" class="wrap business-main">
+<section class="business-hero" aria-labelledby="business-title">
+  <div><p class="business-kicker">MARSH PULSE / CLIENT WORKSPACE · HISTORICAL PILOT</p>
+    <h1 id="business-title">من صور الأقمار الصناعية<br><em>إلى تقرير قابل للمراجعة.</em></h1>
+    <p class="business-lead">اختاري فترة زمنية، افحصي مؤشر المياه وجودة التغطية، واستخدمي النتائج لإعداد تقرير أولي لمنطقة الرصد. هذه مساحة عمل تجريبية، وليست خدمة اشتراكات أو نظام إنذار معتمد.</p>
+  </div>
+  <div class="business-hero-aside"><span>نطاق الرصد المتاح</span><strong>قرب هور الحويزة</strong><small>مستطيل تجريبي لا يمثل الحدود الرسمية للهور</small><span id="business-latest">آخر شهر متاح: —</span></div>
+</section>
+<p class="business-status" id="business-status" role="status" aria-live="polite">جارٍ تحميل السجل التاريخي…</p>
+<section class="business-layout" aria-label="أدوات الرصد التجاري">
+  <div class="business-controls">
+    <section class="business-panel" aria-labelledby="configuration-title">
+      <p class="business-index">01 / CONFIGURE</p>
+      <h2 id="configuration-title">إعداد تقرير الرصد</h2>
+      <label for="business-from">بداية الفترة</label><select id="business-from" disabled></select>
+      <label for="business-to">نهاية الفترة</label><select id="business-to" disabled></select>
+      <label for="business-quality">أقل نسبة بكسلات صالحة للمراجعة</label><select id="business-quality">
+        <option value="0.8">80%</option><option value="0.9" selected>90%</option><option value="0.95">95%</option><option value="0.99">99%</option>
+      </select>
+      <label for="business-drop">حد تراجع المؤشر الشهري (كم²)</label><input id="business-drop" type="number" inputmode="decimal" min=".001" max="1000" step=".1" value="5">
+      <p class="business-small">تُعلّم المراجعة فقط عندما يكون تغير البكسلات المشتركة سالبًا ويتجاوز الحد المحدد، مع تغطية كافية في الشهرين المتجاورين.</p>
+    </section>
+    <section class="business-panel" aria-labelledby="dataset-title">
+      <p class="business-index">02 / DATA SOURCE</p><h2 id="dataset-title">بيانات المنطقة</h2>
+      <p>المصدر الافتراضي: 36 مشاهدة شهرية مستخرجة من صور Sentinel-2 في مستطيل قرب الحويزة.</p>
+      <label for="business-upload">افتحي ملف رصد JSON لمنطقة أخرى</label>
+      <input id="business-upload" type="file" accept=".json,application/json" aria-describedby="upload-hint">
+      <p class="business-small" id="upload-hint">يجب أن يكون الملف ناتجًا عن معالجة مستقلة ومطابقًا للمخطط الموثق؛ رفع ملف لا يثبت دقته أو مصدره. لا تُرسل البيانات إلى خادم.</p>
+      <button type="button" id="business-reset" class="business-button business-button-outline">استعادة سجل الحويزة</button>
+      <p class="business-small">إعدادات المقارنة تُحفظ محليًا في المتصفح فقط؛ ملف الرصد المستورد لا يُحفظ.</p>
+      <a href="./docs/COMMERCIAL_MVP.md" class="business-text-link">مخطط الملف وما تم تنفيذه ↗</a>
+    </section>
+  </div>
+  <div class="business-results" id="business-report">
+    <section class="business-panel" aria-labelledby="snapshot-title">
+      <div class="business-section-head"><div><p class="business-index">03 / EVIDENCE SNAPSHOT</p><h2 id="snapshot-title">ملخص فترة الرصد</h2></div><span id="business-source-tag" class="business-tag">مصدر تاريخي</span></div>
+      <div class="business-stats">
+        <div><span>مساحة المؤشر في نهاية الفترة</span><strong id="business-area">—</strong><small>كم² / تصنيف فضائي فقط</small></div>
+        <div><span>فرق المؤشر بين الطرفين</span><strong id="business-difference">—</strong><small>كم² / ليس فرق بكسلات متطابقة</small></div>
+        <div><span>متوسط التغطية الصافية</span><strong id="business-coverage">—</strong><small>في الأشهر المختارة</small></div>
+        <div><span>حالات مراجعة التراجع</span><strong id="business-alerts">—</strong><small>علامات فحص، لا إنذارات عامة</small></div>
+      </div>
+      <p id="business-comparison-note" class="business-small">—</p>
+      <div class="business-chart-wrap" aria-label="مخطط شهري لمؤشر المياه">
+        <div id="business-chart" class="business-chart" role="img" aria-label="الرسم الزمني للمؤشر الفضائي"></div>
+      </div>
+    </section>
+    <section class="business-panel" aria-labelledby="flags-title">
+      <div class="business-section-head"><div><p class="business-index">04 / HUMAN REVIEW</p><h2 id="flags-title">الملاحظات التي تستحق التحقق</h2></div></div>
+      <ul id="business-flag-list" class="business-flag-list"><li>لم تُحمّل البيانات بعد.</li></ul>
+      <p class="business-small">انخفاض المؤشر قد ينتج عن الغيوم، القصب، خطأ التصنيف أو اختلاف المشاهد؛ لا نعتمد عليه منفردًا لتقييم الجفاف أو الاستثمار.</p>
+    </section>
+    <section class="business-panel business-print" aria-labelledby="export-title">
+      <p class="business-index">05 / DELIVERABLES</p><h2 id="export-title">التقرير ومصدر الأدلة</h2>
+      <p id="business-provenance" class="business-provenance">—</p>
+      <p class="business-warning" id="business-disclaimer">المؤشر الفضائي غير محقق ميدانيًا؛ هذه نتائج للفحص البحثي وليست توصيات تشغيلية.</p>
+      <div class="business-actions">
+        <button type="button" id="business-print" class="business-button" disabled>طباعة التقرير / PDF</button>
+        <button type="button" id="business-csv" class="business-button business-button-outline" disabled>تنزيل CSV</button>
+        <button type="button" id="business-json" class="business-button business-button-outline" disabled>تنزيل JSON</button>
+      </div>
+      <p><a id="business-share" class="business-text-link" href="./business.html">رابط مشاركة إعدادات الفترة فقط ↗</a></p>
+      <p id="business-share-warning" class="business-small">المشاركة لا تتضمن أي ملف رصد ترفعينه؛ وتُعرض بيانات الحويزة الافتراضية عند فتح الرابط.</p>
+      <p class="business-small"><a id="business-evidence" target="_blank" rel="noopener" href="https://github.com/ahpa5246-lgtm/MarshPulse/actions/runs/40035411302">المصدر الأصلي وسجل تنفيذ GitHub ↗</a></p>
+    </section>
+  </div>
+</section>
+<section class="business-bottom">
+  <h2>من النموذج الأولي إلى خدمة تجارية فعلية</h2>
+  <p>تم تجهيز واجهة التقارير على بيانات تاريخية. الاشتراكات، فرق العمل، المناطق المخصصة، المراقبة التلقائية والتنبيهات المرسلة تحتاج خادمًا، إدارة وصول، ومعالجة فضائية متكررة قبل تسويقها كخدمة تشغيلية.</p>
+  <a href="./docs/COMMERCIAL_MVP.md">اقرئي حدود النسخة وخطة التوسعة ↗</a>
+</section>
+</main>
+<footer class="site-footer"><div class="wrap foot-grid"><a class="foot-logo" href="./index.html">MarshPulse <span>↗</span></a><p>مؤشرات رصد غير محققة ميدانيًا</p><span>HISTORICAL SCREENING ONLY</span></div></footer>
+</body></html>

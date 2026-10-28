@@ -125,6 +125,7 @@ jobs:
           python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/marshpulse-web.log 2>&1 &
           sleep 2
           node tests/browser-smoke.mjs
+          node tests/browser-business.mjs
           node tests/accessibility-audit.mjs
       - name: Upload browser evidence (even on failure)
         if: always()
