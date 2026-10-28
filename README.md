@@ -4,6 +4,8 @@ MarshPulse is a working, zero-build Arabic RTL research prototype for inspecting
 
 **Website (after successful Pages enablement):** https://ahpa5246-lgtm.github.io/MarshPulse/
 
+**New commercial-workflow prototype:** [Historical client screening workspace](business.html) (period selection, coverage-aware review flags, printable report, CSV/JSON provenance exports and optional unverified dataset upload). It uses the existing Hawizeh pilot observations; **not** accounts, billing, live monitoring, confirmed drought alerts, or validated ecological advice. [Scope and next infrastructure milestones](docs/COMMERCIAL_MVP.md).
+
 ## October 2026 design + Mash Plus research-model branding
 
 The site now has **four purposeful pages**, not one giant dashboard:
