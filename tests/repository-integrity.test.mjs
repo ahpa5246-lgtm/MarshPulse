@@ -4,7 +4,7 @@ import {readFileSync,existsSync} from "node:fs";
 import {resolve,dirname,relative} from "node:path";
 import {fileURLToPath} from "node:url";
 const root=resolve(dirname(fileURLToPath(import.meta.url)),"..");
-const pages=["index.html","lab.html","model.html","methods.html","monitor.html"];
+const pages=["index.html","lab.html","model.html","methods.html","monitor.html","business.html"];
 function assets(html){
  const result=[];
  const re=/<(?:a|img|link|script)\b[^>]*?\b(?:href|src)\s*=\s*["']([^"']+)["']/gi;
@@ -36,6 +36,13 @@ test("real-observation route is not silently misrepresented as synthetic dashboa
  assert.equal(record.official_wetland_boundary,false);
  assert.equal(record.label,"UNVERIFIED SATELLITE PROXY");
  assert.equal(record.rows.length,36);
+});
+test("commercial workspace is linked and caveats are explicit",()=>{
+ const index=readFileSync(resolve(root,"index.html"),"utf8");
+ assert.match(index,/href="\\.\\/business\\.html"/);
+ const html=readFileSync(resolve(root,"business.html"),"utf8");
+ assert.match(html,/غير محقق ميدانيًا/);
+ assert.match(html,/business\\.mjs/);
 });
 test("scientific monitoring and forecast disclaimers remain visible",()=>{
  const source=readFileSync(resolve(root,"ml/verify_experiment.py"),"utf8");
